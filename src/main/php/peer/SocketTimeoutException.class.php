@@ -3,7 +3,7 @@
 /**
  * Indicate a timeout occurred on a socket read
  *
- * @test     xp:// net.xp_framework.unittest.peer.sockets.SocketTimeoutExceptionTest
+ * @test     xp:// peer.unittest.sockets.SocketTimeoutExceptionTest
  * @see      xp://peer.Socket#setTimeout
  * @see      xp://peer.SocketException
  */

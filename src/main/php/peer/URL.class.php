@@ -13,7 +13,7 @@
  * echo $u->toString();
  * ```
  *
- * @test   xp://net.xp_framework.unittest.peer.URLTest
+ * @test   xp://peer.unittest.URLTest
  * @see    php://parse_url
  */
 class URL extends \lang\Object {

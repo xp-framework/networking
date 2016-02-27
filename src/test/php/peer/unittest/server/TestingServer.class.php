@@ -19,7 +19,7 @@ use peer\server\ServerProtocol;
  *   <li>On errors during any phase, "- " and the exception message are written</li>
  * </ul>
  *
- * @see   xp://net.xp_framework.unittest.peer.server.AbstractServerTest
+ * @see   xp://peer.unittest.server.AbstractServerTest
  */
 class TestingServer extends \lang\Object {
 

@@ -3,7 +3,7 @@
 /**
  * Socket class
  *
- * @test     xp://net.xp_framework.unittest.peer.sockets.SocketTest
+ * @test     xp://peer.unittest.sockets.SocketTest
  * @see      php://network
  */
 class Socket extends \lang\Object implements \io\Channel {

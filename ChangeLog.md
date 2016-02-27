@@ -3,6 +3,12 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 7.0.1 / 2016-02-27
+
+* Refactored test codebase to no longer rely on net.xp_framework.unittest
+  package from XP core
+  (@thekid)
+
 ## 7.0.0 / 2016-02-21
 
 * **Adopted semantic versioning. See xp-framework/rfc#300** - @thekid 

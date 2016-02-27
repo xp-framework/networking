@@ -13,7 +13,7 @@ class AcceptingServerTest extends AbstractServerTest {
    */
   #[@beforeClass]
   public static function startServer() {
-    parent::startServerWith('net.xp_framework.unittest.peer.server.AcceptTestingProtocol');
+    parent::startServerWith('peer.unittest.server.AcceptTestingProtocol');
   }
 
   #[@test]

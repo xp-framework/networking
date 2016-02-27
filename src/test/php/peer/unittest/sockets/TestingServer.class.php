@@ -38,7 +38,7 @@ use peer\server\ServerProtocol;
  *   <li>On errors during any phase, "- " and the exception message are written</li>
  * </ul>
  *
- * @see   xp://net.xp_framework.unittest.peer.sockets.SocketTest
+ * @see   xp://peer.unittest.sockets.SocketTest
  */
 class TestingServer extends \lang\Object {
 

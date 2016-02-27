@@ -17,7 +17,7 @@ use peer\ServerSocket;
  *
  * @ext   sockets
  * @see   xp://peer.ServerSocket
- * @test  xp://net.xp_framework.unittest.peer.server.ServerTest
+ * @test  xp://peer.unittest.server.ServerTest
  */
 class Server extends \lang\Object {
   public

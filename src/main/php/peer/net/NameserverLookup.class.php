@@ -8,7 +8,7 @@
  * uses php://dns_get_record - a function which is not available on
  * all platforms in all supported PHP versions.
  *
- * @test    xp://net.xp_framework.unittest.peer.net.NameserverLookupTest
+ * @test    xp://peer.unittest.net.NameserverLookupTest
  * @see     php://dns_get_record
  */
 class NameserverLookup extends \lang\Object {

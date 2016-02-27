@@ -3,7 +3,7 @@
 /**
  * Description of NetworkParser
  *
- * @test  xp://net.xp_framework.unittest.peer.net.NetworkParserTest
+ * @test  xp://peer.unittest.net.NetworkParserTest
  */
 class NetworkParser extends \lang\Object {
   protected $addressParser  = null;

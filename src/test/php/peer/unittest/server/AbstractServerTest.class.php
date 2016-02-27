@@ -7,7 +7,7 @@ use lang\Runtime;
 /**
  * TestCase
  *
- * @see   xp://net.xp_framework.unittest.peer.server.TestingServer
+ * @see   xp://peer.unittest.server.TestingServer
  * @see   xp://peer.server.Server
  */
 abstract class AbstractServerTest extends TestCase {
@@ -59,7 +59,7 @@ abstract class AbstractServerTest extends TestCase {
       self::$serverProcess= $rt->getExecutable()->newInstance(array_merge(
         $rt->startupOptions()->asArguments(),
         [$rt->bootstrapScript('class')],
-        ['net.xp_framework.unittest.peer.server.TestingServer', $protocol]
+        ['peer.unittest.server.TestingServer', $protocol]
       ));
     }
     self::$serverProcess->in->close();

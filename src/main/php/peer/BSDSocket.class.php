@@ -3,7 +3,7 @@
 /**
  * Provide an interface to the BSD sockets
  *
- * @test  xp://net.xp_framework.unittest.peer.sockets.BSDSocketTest
+ * @test  xp://peer.unittest.sockets.BSDSocketTest
  * @see   php://sockets
  * @see   http://www.developerweb.net/sock-faq/ The UNIX Socket FAQ
  * @ext   sockets

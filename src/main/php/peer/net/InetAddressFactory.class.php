@@ -3,7 +3,7 @@
 /**
  * InetAddress Factory
  *
- * @test  xp://net.xp_framework.unittest.peer.net.InetAddressFactoryTest
+ * @test  xp://peer.unittest.net.InetAddressFactoryTest
  */
 class InetAddressFactory extends \lang\Object {
 

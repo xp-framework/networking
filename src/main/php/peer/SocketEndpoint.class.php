@@ -3,8 +3,8 @@
 /**
  * Socket endpoint
  *
- * @test  xp://net.xp_framework.unittest.peer.sockets.SocketEndpointTest
- * @test  xp://net.xp_framework.unittest.peer.sockets.AbstractSocketTest
+ * @test  xp://peer.unittest.sockets.SocketEndpointTest
+ * @test  xp://peer.unittest.sockets.AbstractSocketTest
  */
 class SocketEndpoint extends \lang\Object {
   protected $host= '';

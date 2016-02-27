@@ -3,7 +3,7 @@
 /**
  * IPv4 address
  *
- * @test  xp://net.xp_framework.unittest.peer.Inet4AddressTest
+ * @test  xp://peer.unittest.Inet4AddressTest
  * @see   php://ip2long
  */
 class Inet4Address extends \lang\Object implements InetAddress {

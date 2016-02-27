@@ -3,7 +3,7 @@
 /**
  * IPv6 address
  *
- * @test  p://net.xp_framework.unittest.peer.net.Inet6AddressTest
+ * @test  xp://peer.unittest.net.Inet6AddressTest
  */
 class Inet6Address extends \lang\Object implements InetAddress {
   protected $addr;

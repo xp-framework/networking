@@ -2,7 +2,7 @@
 
 use unittest\actions\ExtensionAvailable;
 use unittest\actions\Actions;
-use net\xp_framework\unittest\StartServer;
+use peer\unittest\StartServer;
 use peer\BSDSocket;
 use lang\IllegalStateException;
 
@@ -14,7 +14,7 @@ use lang\IllegalStateException;
  */
 #[@action([
 #  new ExtensionAvailable('sockets'),
-#  new StartServer('net.xp_framework.unittest.peer.sockets.TestingServer', 'connected', 'shutdown')
+#  new StartServer('peer.unittest.sockets.TestingServer', 'connected', 'shutdown')
 #])]
 class BSDSocketTest extends AbstractSocketTest {
 

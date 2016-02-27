@@ -1,6 +1,6 @@
 <?php namespace peer\unittest\sockets;
 
-use net\xp_framework\unittest\StartServer;
+use peer\unittest\StartServer;
 use peer\Socket;
 
 /**
@@ -8,7 +8,7 @@ use peer\Socket;
  *
  * @see      xp://peer.Socket
  */
-#[@action(new StartServer('net.xp_framework.unittest.peer.sockets.TestingServer', 'connected', 'shutdown'))]
+#[@action(new StartServer('peer.unittest.sockets.TestingServer', 'connected', 'shutdown'))]
 class SocketTest extends AbstractSocketTest {
   
   /**
