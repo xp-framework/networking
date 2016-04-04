@@ -3,6 +3,12 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 7.1.0 / 2016-04-04
+
+* Merged pull request #1: Separate connect & enable crypto. This way,
+  SSL / TLS errors can be distinguished from connection failures.
+  (@kiesel)
+
 ## 7.0.1 / 2016-02-27
 
 * Refactored test codebase to no longer rely on net.xp_framework.unittest
