@@ -34,7 +34,7 @@ class Server extends \lang\Object {
    * @param   int port
    */
   public function __construct($addr, $port) {
-    $this->socket= new ServerSocket($addr, $port);
+    $this->socket= new ServerSocket($addr, $port, '[' === $addr{0} ? AF_INET6 : AF_INET);
   }
   
   /**

@@ -3,6 +3,8 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Allowed binding servers to IPv6 addresses - @thekid
+
 ## 7.1.0 / 2016-04-04
 
 * Merged pull request #1: Separate connect & enable crypto. This way,
