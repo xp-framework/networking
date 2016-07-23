@@ -3,6 +3,8 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Fixed issue #2: Connecting slow (Windows) - @thekid
+
 ## 7.1.0 / 2016-04-04
 
 * Merged pull request #1: Separate connect & enable crypto. This way,
