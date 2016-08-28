@@ -6,7 +6,7 @@
   "description" : "Networking for the XP Framework: Client and server APIs",
   "keywords": ["module", "xp"],
   "require" : {
-    "xp-framework/core": "^7.0 | ^6.5",
+    "xp-framework/core": "^8.0 | ^7.0 | ^6.5",
     "php" : ">=5.5.0"
   },
   "require-dev" : {
