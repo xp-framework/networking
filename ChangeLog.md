@@ -3,7 +3,7 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
-## 8.0.0 / 2016-07-23
+## 8.0.0 / 2016-08-28
 
 * Added forward compatibility with XP 8.0.0 - @thekid
 * Changed `localhost` to always refer to `127.0.0.1`. If you need to
