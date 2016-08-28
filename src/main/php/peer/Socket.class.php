@@ -126,9 +126,11 @@ class Socket extends \lang\Object implements \io\Channel {
    */
   public function connect($timeout= 2.0) {
     if ($this->isConnected()) return true;
-    
+
+    // Force IPv4 for localhost, see https://github.com/xp-framework/networking/issues/2
+    $host= (string)$this->host;
     if (!$this->_sock= stream_socket_client(
-      $this->_prefix.(string)$this->host.':'.$this->port,
+      $this->_prefix.('localhost' === $host ? '127.0.0.1' : $host).':'.$this->port,
       $errno,
       $errstr,
       $timeout,

@@ -3,6 +3,12 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 8.0.0 / 2016-07-23
+
+* Added forward compatibility with XP 8.0.0 - @thekid
+* Changed `localhost` to always refer to `127.0.0.1`. If you need to
+  connect using IPv6, use `::1`. See issue #2 for an explanation.
+  (@thekid)
 * Allowed binding servers to IPv6 addresses - @thekid
 
 ## 7.1.0 / 2016-04-04
