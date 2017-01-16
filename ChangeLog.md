@@ -3,6 +3,13 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 8.0.1 / 2017-01-16
+
+* Fixed compatibility with PHP 7.2 - empty optional parts inside a
+  regular expression seem to be returned as NULL instead of empty
+  strings; see https://bugs.php.net/bug.php?id=73947
+  (@thekid)
+
 ## 8.0.0 / 2016-08-28
 
 * Added forward compatibility with XP 8.0.0 - @thekid

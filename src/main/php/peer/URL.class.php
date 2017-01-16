@@ -461,7 +461,7 @@ class URL extends \lang\Object {
     $this->_info['scheme']= $matches[1];
 
     // Credentials
-    if ('' !== $matches[2]) {
+    if ('' !== (string)$matches[2]) {
       sscanf($matches[2], '%[^:@]:%[^@]@', $user, $password);
       $this->_info['user']= rawurldecode($user);
       $this->_info['pass']= null === $password ? null : rawurldecode($password);
@@ -471,7 +471,7 @@ class URL extends \lang\Object {
     }
 
     // Host and port, optionally
-    if ('' === $matches[3] && '' !== $matches[4]) {
+    if ('' === (string)$matches[3] && '' !== (string)$matches[4]) {
       $this->_info['host']= null;
     } else {
       if (!preg_match('!^([a-zA-Z0-9\.-]+|\[[^\]]+\])(:([0-9]+))?$!', $matches[3], $host)) {
@@ -482,7 +482,7 @@ class URL extends \lang\Object {
     }
     
     // Path
-    if ('' === $matches[4]) {
+    if ('' === (string)$matches[4]) {
       $this->_info['path']= null;
     } else if (strlen($matches[4]) > 3 && (':' === $matches[4]{2} || '|' === $matches[4]{2})) {
       $this->_info['path']= $matches[4]{1}.':'.substr($matches[4], 3);
@@ -491,7 +491,7 @@ class URL extends \lang\Object {
     }
 
     // Query string and fragment
-    if ('' === $matches[6] || '?' === $matches[6] || '#' === $matches[6]) {
+    if ('' === (string)$matches[6] || '?' === $matches[6] || '#' === $matches[6]) {
       $this->_info['params']= [];
       $this->_info['fragment']= null;
     } else if ('#' === $matches[6]{0}) {
