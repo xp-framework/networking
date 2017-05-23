@@ -94,7 +94,7 @@ class Socket extends \lang\Object implements \io\Channel {
    * @return  string error
    */  
   public function getLastError() {
-    return isset(\xp::$errors[__FILE__]) ? key(end(\xp::$errors[__FILE__])) : 'unknown error';
+    return isset(\xp::$errors[__FILE__]) ? trim(key(end(\xp::$errors[__FILE__]))) : 'unknown error';
   }
   
   /**
@@ -143,7 +143,7 @@ class Socket extends \lang\Object implements \io\Channel {
         $this->port,
         $timeout,
         $errno,
-        $errstr
+        trim($errstr)
       ));
       \xp::gc(__FILE__);
       throw $e;

@@ -3,6 +3,11 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 8.0.2 / 2017-05-23
+
+* Trimmed error messages - those under Windows include a traling `\r\n`.
+  (@thekid)
+
 ## 8.0.1 / 2017-01-16
 
 * Fixed compatibility with PHP 7.2 - empty optional parts inside a
