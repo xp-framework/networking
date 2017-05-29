@@ -6,7 +6,7 @@
  * @test  xp://peer.unittest.Inet4AddressTest
  * @see   php://ip2long
  */
-class Inet4Address extends \lang\Object implements InetAddress {
+class Inet4Address implements InetAddress {
 
   /**
    * Convert IPv4 address from dotted form into a long
@@ -100,23 +100,25 @@ class Inet4Address extends \lang\Object implements InetAddress {
     $addr= $this->addr & (0xFFFFFFFF << (32-$subnetSize));
     return new Network(new Inet4Address(long2ip($addr)), $subnetSize);
   }
-  
-  /**
-   * Equals method
-   *
-   * @param   lang.Object cmp
-   */
-  public function equals($cmp) {
-    return $cmp instanceof self && $this->addr === $cmp->addr;
+
+  /** @return string */
+  public function toString() {
+    return nameof($this).'('.$this->asString().')';
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return $this->asString();
   }
 
   /**
-   * Get string representation
+   * Compare
    *
-   * @return  string
+   * @param  var $value
+   * @return int
    */
-  public function toString() {
-    return nameof($this).'('.$this->asString().')';
+  public function compareTo($value) {
+    return $value instanceof self ? strcmp($this->asString(), $value->asString()) : 1;
   }
 
   /**

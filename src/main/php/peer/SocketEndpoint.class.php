@@ -1,27 +1,26 @@
 <?php namespace peer;
 
+use lang\FormatException;
+use peer\net\InetAddress;
+
 /**
  * Socket endpoint
  *
  * @test  xp://peer.unittest.sockets.SocketEndpointTest
  * @test  xp://peer.unittest.sockets.AbstractSocketTest
  */
-class SocketEndpoint extends \lang\Object {
+class SocketEndpoint {
   protected $host= '';
   protected $port= 0;
   
   /**
    * Constructor
    *
-   * @param   var host either hostname or an IP address in string or peer.net.InetAddress form
-   * @param   int port
+   * @param  string|peer.net.InetAddress $host either hostname or an IP address
+   * @param  int $port
    */
   public function __construct($host, $port) {
-    if ($host instanceof \InetAddress) {
-      $this->host= $host->asString();
-    } else {
-      $this->host= (string)$host;
-    }
+    $this->host= (string)$host;
     $this->port= $port;
   }
 
@@ -34,7 +33,7 @@ class SocketEndpoint extends \lang\Object {
    */
   public static function valueOf($in) {
     if ('' === $in) {
-      throw new \lang\FormatException('Malformed empty address');
+      throw new FormatException('Malformed empty address');
     }
 
     // Parse string: "[fe80::1]:80" (v6) vs. "127.0.0.1:80" (v4)
@@ -44,7 +43,7 @@ class SocketEndpoint extends \lang\Object {
       $r= sscanf($in, '%[^:]:%d', $host, $port);
     }
     if (2 !== $r) {
-      throw new \lang\FormatException('Malformed address "'.$in.'"');
+      throw new FormatException('Malformed address "'.$in.'"');
     }
 
     return new self($host, $port);

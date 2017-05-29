@@ -1,4 +1,6 @@
 <?php namespace peer;
+
+use lang\Value;
  
 /**
  * Represents a Uniform Resource Locator 
@@ -16,7 +18,7 @@
  * @test   xp://peer.unittest.URLTest
  * @see    php://parse_url
  */
-class URL extends \lang\Object {
+class URL implements Value {
   protected static $defaultPorts= [
     'http' => 80,
     'https'=> 443
@@ -516,11 +518,21 @@ class URL extends \lang\Object {
   /**
    * Returns whether a given object is equal to this.
    *
-   * @param   lang.Object cmp
+   * @param   var $value
    * @return  bool
    */
-  public function equals($cmp) {
-    return $cmp instanceof self && $this->getURL() === $cmp->getURL();
+  public function equals($value) {
+    return $value instanceof self && $this->getURL() === $value->getURL();
+  }
+
+  /**
+   * Returns whether a given object is equal to this.
+   *
+   * @param   var $value
+   * @return  int
+   */
+  public function compareTo($value) {
+    return $value instanceof self ? strcmp($this->getURL(), $value->getURL()) : 1;
   }
   
   /**

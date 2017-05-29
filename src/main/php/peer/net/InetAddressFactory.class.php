@@ -5,7 +5,7 @@
  *
  * @test  xp://peer.unittest.net.InetAddressFactoryTest
  */
-class InetAddressFactory extends \lang\Object {
+class InetAddressFactory {
 
   /**
    * Parse address from string

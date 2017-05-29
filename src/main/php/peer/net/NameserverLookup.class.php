@@ -11,7 +11,7 @@
  * @test    xp://peer.unittest.net.NameserverLookupTest
  * @see     php://dns_get_record
  */
-class NameserverLookup extends \lang\Object {
+class NameserverLookup {
 
   /**
    * Perform "real" dns lookup

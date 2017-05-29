@@ -21,7 +21,7 @@ use peer\server\ServerProtocol;
  *
  * @see   xp://peer.unittest.server.AbstractServerTest
  */
-class TestingServer extends \lang\Object {
+class TestingServer {
 
   /**
    * Start server
