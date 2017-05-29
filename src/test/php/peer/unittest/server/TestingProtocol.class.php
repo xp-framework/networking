@@ -24,7 +24,7 @@ use peer\server\ServerProtocol;
  * 
  * Status reporting is performed on STDERR
  */
-class TestingProtocol extends \lang\Object implements ServerProtocol {
+class TestingProtocol implements ServerProtocol {
 
   /**
    * Initialize the protocol

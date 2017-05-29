@@ -1,11 +1,14 @@
 <?php namespace peer\net;
 
+use lang\Value;
+use util\Objects;
+
 /**
  * IPv6 address
  *
  * @test  xp://peer.unittest.net.Inet6AddressTest
  */
-class Inet6Address extends \lang\Object implements InetAddress {
+class Inet6Address implements InetAddress, Value {
   protected $addr;
   
   /**
@@ -171,23 +174,25 @@ class Inet6Address extends \lang\Object implements InetAddress {
     }
     return new Network(new Inet6Address($addr, true), $subnetSize);
   }
-  /**
-   * Equals method
-   *
-   * @param   lang.Object cmp
-   * @return  bool
-   */
-  public function equals($cmp) {
-    return $cmp instanceof self && $cmp->addr === $this->addr;
+
+  /** @return string */
+  public function toString() {
+    return nameof($this).'('.$this->asString().')';
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return $this->asString();
   }
 
   /**
-   * Get string representation
+   * Compare
    *
-   * @return  string
+   * @param  var $value
+   * @return int
    */
-  public function toString() {
-    return nameof($this).'('.$this->asString().')';
+  public function compareTo($value) {
+    return $value instanceof self ? strcmp($this->asString(), $value->asString()) : 1;
   }
 
   /**

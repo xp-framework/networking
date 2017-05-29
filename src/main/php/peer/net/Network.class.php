@@ -1,9 +1,12 @@
 <?php namespace peer\net;
 
+use lang\Value;
+use util\Objects;
+
 /**
  * Represent IP network
  */
-class Network extends \lang\Object {
+class Network implements Value {
 
   /**
    * Constructor
@@ -65,24 +68,26 @@ class Network extends \lang\Object {
     return $addr->inSubnet($this);
   }
 
-  /**
-   * Check if object is equal
-   *
-   * @param   lang.Object cmp
-   */
-  public function equals($cmp) {
-    return $cmp instanceof self &&
-      $cmp->netmask === $this->netmask &&
-      $this->address->equals($cmp->address)
-    ;
+  /** @return string */
+  public function toString() {
+    return nameof($this).'('.$this->address->asString().'/'.$this->netmask.')';
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return $this->address->asString().'/'.$this->netmask;
   }
 
   /**
-   * Retrieve string representation
+   * Compare
    *
-   * @return  string
+   * @param  var $value
+   * @return int
    */
-  public function toString() {
-    return nameof($this).'('.$this->address->asString().'/'.$this->netmask.')';
+  public function compareTo($value) {
+    return $value instanceof self
+      ? Objects::compare([$this->address, $this->netmask], [$value->address, $value->netmask])
+      : 1
+    ;
   }
 }

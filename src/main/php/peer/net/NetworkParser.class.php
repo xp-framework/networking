@@ -5,7 +5,7 @@
  *
  * @test  xp://peer.unittest.net.NetworkParserTest
  */
-class NetworkParser extends \lang\Object {
+class NetworkParser {
   protected $addressParser  = null;
 
   /**

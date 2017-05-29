@@ -40,7 +40,7 @@ use peer\server\ServerProtocol;
  *
  * @see   xp://peer.unittest.sockets.SocketTest
  */
-class TestingServer extends \lang\Object {
+class TestingServer {
 
   /**
    * Start server

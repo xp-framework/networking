@@ -1,12 +1,15 @@
 <?php namespace peer;
 
+use io\Channel;
+use lang\Value;
+
 /**
  * Socket class
  *
  * @test     xp://peer.unittest.sockets.SocketTest
  * @see      php://network
  */
-class Socket extends \lang\Object implements \io\Channel {
+class Socket implements Channel, Value {
   public
     $_eof     = false,
     $host     = '',
@@ -401,11 +404,7 @@ class Socket extends \lang\Object implements \io\Channel {
     $this->close();
   }
   
-  /**
-   * Creates a string representation of this object
-   *
-   * @return  string
-   */
+  /** @return string */
   public function toString() {
     return sprintf(
       '%s(%s -> %s%s:%d)',
@@ -415,5 +414,26 @@ class Socket extends \lang\Object implements \io\Channel {
       $this->host,
       $this->port
     );
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return md5($this->_prefix.'>'.$this->host.':'.$this->port);
+  }
+
+  /**
+   * Compares this socket to another value
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self
+      ? strcmp(
+        $this->_prefix.'>'.$this->host.':'.$this->port,
+        $value->_prefix.'>'.$value->host.':'.$value->port
+      )
+      : 1
+    ;
   }
 }

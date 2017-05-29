@@ -3,7 +3,7 @@
 /**
  * OutputStream that reads from a socket
  */
-class SocketOutputStream extends \lang\Object implements \io\streams\OutputStream {
+class SocketOutputStream implements \io\streams\OutputStream {
   protected $socket= null;
   
   /**

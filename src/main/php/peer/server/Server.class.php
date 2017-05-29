@@ -19,7 +19,7 @@ use peer\ServerSocket;
  * @see   xp://peer.ServerSocket
  * @test  xp://peer.unittest.server.ServerTest
  */
-class Server extends \lang\Object {
+class Server {
   public
     $protocol   = null,
     $socket     = null,
