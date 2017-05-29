@@ -3,6 +3,13 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.0.0 / 2017-05-29
+
+* Merged PR #3: XP9 Compat. **Heads up:** peer.Socket, peer.URL, the 
+  INetAddr implementations in peer.net as well as peer.net.Network now
+  implement `lang.Value` instead of extending `lang.Object`.
+  (@thekid)
+
 ## 8.0.2 / 2017-05-23
 
 * Trimmed error messages - those under Windows include a traling `\r\n`.
