@@ -5,6 +5,8 @@ Networking changelog
 
 ## 9.0.0 / 2017-05-29
 
+* **Heads up:** Dropped PHP 5.5 support - now requires PHP 5.6 minimum!
+  (@thekid)
 * Merged PR #3: XP9 Compat. **Heads up:** peer.Socket, peer.URL, the 
   INetAddr implementations in peer.net as well as peer.net.Network now
   implement `lang.Value` instead of extending `lang.Object`.
