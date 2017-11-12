@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.1.0 / 2017-11-12
+
+* Merged PR #5: Pass SOMAXCONN to listen() call - @thekid
+
 ## 9.0.0 / 2017-05-29
 
 * **Heads up:** Dropped PHP 5.5 support - now requires PHP 5.6 minimum!
