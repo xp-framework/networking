@@ -1,6 +1,7 @@
 <?php namespace peer\server;
 
 use peer\ServerSocket;
+use peer\BSDSocket;
 
 /**
  * Basic TCP/IP Server
@@ -19,7 +20,7 @@ use peer\ServerSocket;
  * @see   xp://peer.ServerSocket
  * @test  xp://peer.unittest.server.ServerTest
  */
-class Server {
+class Server implements Controllable {
   public
     $protocol   = null,
     $socket     = null,
@@ -27,14 +28,33 @@ class Server {
     $terminate  = false,
     $tcpnodelay = false;
 
+  private $control= null;
+
   /**
    * Constructor
    *
-   * @param   string addr
-   * @param   int port
+   * @param  string $addr
+   * @param  int $port
    */
   public function __construct($addr, $port) {
     $this->socket= new ServerSocket($addr, $port, '[' === $addr{0} ? AF_INET6 : AF_INET);
+  }
+
+  /**
+   * Use the given address as control socket, e.g. for shutting down!
+   *
+   * @param  string $addr
+   * @param  int $port
+   * @param  [:function(string, peer.Socket, peer.server.Server)] $handlers
+   * @return self
+   */
+  public function attach($addr, $port, $handlers= []) {
+    $this->control= ['socket' => new BSDSocket($addr, $port), 'handler' => array_merge(
+      ['*' => function($command, $socket, $server) { $socket->write("Command not understood: $command\r\n"); }],
+      $handlers
+    )];
+    $this->control['socket']->connect();
+    return $this;
   }
   
   /**
@@ -90,6 +110,7 @@ class Server {
   /**
    * Service
    *
+   * @return  void
    */
   public function service() {
     if (!$this->socket->isConnected()) return false;
@@ -97,6 +118,7 @@ class Server {
     $null= null;
     $handles= $lastAction= [];
     $accepting= $this->socket->getHandle();
+    $control= $this->control ? $this->control['socket']->getHandle() : null;
     $this->protocol->initialize();
 
     // Loop
@@ -108,7 +130,8 @@ class Server {
       // Build array of sockets that we want to check for data. If one of them
       // has disconnected in the meantime, notify the listeners (socket will be
       // already invalid at that time) and remove it from the clients list.
-      $read= [$this->socket->getHandle()];
+      $read= ['accept' => $accepting];
+      $control && $read['control']= $control;
       $currentTime= time();
       foreach ($handles as $h => $handle) {
         if (!$handle->isConnected()) {
@@ -130,7 +153,7 @@ class Server {
       // fails, break out of the loop and terminate the server - this really 
       // should not happen!
       do {
-        $socketSelectInterrupted = false;
+        $socketSelectInterrupted= false;
         if (false === socket_select($read, $null, $null, $timeout)) {
         
           // If socket_select has been interrupted by a signal, it will return FALSE,
@@ -139,42 +162,53 @@ class Server {
           if (0 !== socket_last_error($this->socket->_sock)) {
             throw new \peer\SocketException('Call to select() failed');
           } else {
-            $socketSelectInterrupted = true;
+            $socketSelectInterrupted= true;
           }
         }
       // if socket_select was interrupted by signal, retry socket_select
       } while ($socketSelectInterrupted);
 
-      foreach ($read as $i => $handle) {
+      // If there is data on the server socket, this means we have a new client.
+      // In case the accept() call fails, break out of the loop and terminate
+      // the server - this really should not happen!
+      if (isset($read['accept'])) {
+        if (!($m= $this->socket->accept())) {
+          throw new \peer\SocketException('Call to accept() failed');
+        }
 
-        // If there is data on the server socket, this means we have a new client.
-        // In case the accept() call fails, break out of the loop and terminate
-        // the server - this really should not happen!
-        if ($handle === $accepting) {
-          if (!($m= $this->socket->accept())) {
-            throw new \peer\SocketException('Call to accept() failed');
+        // Handle accepted socket
+        if ($this->protocol instanceof \peer\server\protocol\SocketAcceptHandler) {
+          if (!$this->protocol->handleAccept($m)) {
+            $m->close();
+            continue;
           }
-
-          // Handle accepted socket
-          if ($this->protocol instanceof \peer\server\protocol\SocketAcceptHandler) {
-            if (!$this->protocol->handleAccept($m)) {
-              $m->close();
-              continue;
-            }
-          }
-          
-          $this->tcpnodelay && $m->setOption($tcp, TCP_NODELAY, true);
-          $this->protocol->handleConnect($m);
-          $index= (int)$m->getHandle();
-          $handles[$index]= $m;
-          $lastAction[$index]= $currentTime;
-          $timeout= $m->getTimeout();
-          continue;
         }
         
-        // Otherwise, a client is sending data. Let the protocol decide what do
-        // do with it. In case of an I/O error, close the client socket and remove 
-        // the client from the list.
+        $this->tcpnodelay && $m->setOption($tcp, TCP_NODELAY, true);
+        $this->protocol->handleConnect($m);
+        $index= (int)$m->getHandle();
+        $handles[$index]= $m;
+        $lastAction[$index]= $currentTime;
+        $timeout= $m->getTimeout();
+        unset($read['accept']);
+      }
+
+      // If there is data on the control socket, read and call the corresponding
+      // handler; or the default handler if the command is not recognized.
+      if (isset($read['control'])) {
+        $command= trim($this->control['socket']->read());
+        $handler= isset($this->control['handler'][$command])
+          ? $this->control['handler'][$command]
+          : $this->control['handler']['*']
+        ;
+        $handler($command, $this->control['socket'], $this);
+        unset($read['control']);
+      }
+
+      // Otherwise, one or more clients are sending data. Let the protocol decide
+      // what do do with it. In case of an I/O error, close the client socket and
+      // remove the client from the list.
+      foreach ($read as $i => $handle) {
         $index= (int)$handle;
         $lastAction[$index]= $currentTime;
         try {
