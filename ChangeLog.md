@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.1.1 / 2018-04-20
+
+* Fixed issue #6: Missing dependency on xp-framework/logging - @thekid
+
 ## 9.1.0 / 2017-11-12
 
 * Merged PR #5: Pass SOMAXCONN to listen() call - @thekid
