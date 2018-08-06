@@ -3,6 +3,13 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.1.2 / 2018-08-06
+
+* Fixed certificate validation problem when connecting to `localhost`
+  via SSL. Issue #2 caused this problem by forcing sockets using localhost
+  as hostname to connect to 127.0.0.1
+  (@thekid)
+
 ## 9.1.1 / 2018-04-20
 
 * Fixed issue #6: Missing dependency on xp-framework/logging - @thekid
