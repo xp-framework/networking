@@ -1,23 +1,20 @@
 <?php namespace peer\unittest\server;
 
-
-
-use util\cmd\Console;
+use lang\Throwable;
+use lang\XPClass;
+use peer\BSDSocket;
 use peer\server\Server;
 use peer\server\ServerProtocol;
-
+use util\cmd\Console;
 
 /**
- * Socket server used by ServerTest. 
+ * Socket server used by ServerTest. Process interaction is performed by messages
+ * this server prints to standard output.
  *
- * Process interaction is performed by messages this server prints to
- * standard out:
- * <ul>
- *   <li>Server listens on a free port @ 127.0.0.1</li>
- *   <li>On startup success, "+ Service (IP):(PORT)" is written</li>
- *   <li>On shutdown, "+ Done" is written</li>
- *   <li>On errors during any phase, "- " and the exception message are written</li>
- * </ul>
+ * - Server listens on a free port @ 127.0.0.1
+ * - On startup success, "+ Service (IP):(PORT)" is written
+ * - On shutdown, "+ Done" is written
+ * - On errors during any phase, "- " and the exception message are written
  *
  * @see   xp://peer.unittest.server.AbstractServerTest
  */
@@ -26,18 +23,33 @@ class TestingServer {
   /**
    * Start server
    *
-   * @param   string[] args
+   * @param  string[] args
+   * @return int
    */
   public static function main(array $args) {
     $s= new Server('127.0.0.1', 0);
     try {
-      $s->setProtocol(\lang\XPClass::forName($args[0])->newInstance());
+      $s->setProtocol(XPClass::forName($args[0])->newInstance());
       $s->init();
+
+      // Integrate with `xp -supervise`
+      if ($port= getenv('XP_SIGNAL')) {
+        $signal= new BSDSocket('127.0.0.1', $port);
+        $signal->connect();
+        $s->listen($signal, function($socket, &$connections) use($s) {
+          $s->terminate= true;
+        });
+      }
+
       Console::writeLinef('+ Service %s:%d', $s->socket->host, $s->socket->port);
       $s->service();
       Console::writeLine('+ Done');
-    } catch (\lang\Throwable $e) {
+      return 0;
+    } catch (Throwable $e) {
       Console::writeLine('- ', $e->getMessage());
+      return 1;
+    } finally {
+      $s->shutdown();
     }
   }
 }
