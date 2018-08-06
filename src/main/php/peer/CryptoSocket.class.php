@@ -5,10 +5,29 @@ use security\cert\X509Certificate;
 /**
  * Intermediate common class for all cryptographic socket classes such
  * as SSLSocket and TLSSocket.
+ *
+ * @see  http://php.net/manual/en/context.ssl.php
  */
 class CryptoSocket extends Socket {
   const CTX_WRP = 'ssl';      // stream context option key
+
   protected $crpytoImpl= null;
+
+  /**
+   * Constructor
+   *
+   * @param  string $host hostname or IP address
+   * @param  int $port
+   * @param  resource $socket default NULL
+   */
+  public function __construct($host, $port, $socket= null) {
+    parent::__construct($host, $port, $socket);
+
+    // Use "localhost" as peer name in these well-known cases.
+    if ('localhost' === $host || '127.0.0.1' === $host || '[::1]' === $host) {
+      $this->setSocketOption('ssl', 'peer_name', 'localhost');
+    }
+  }
 
   /**
    * Connect, then enable crypto
