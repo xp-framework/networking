@@ -70,7 +70,7 @@ class ServerSocket extends BSDSocket {
     if (!is_resource($this->_sock= socket_create($this->domain, $this->type, $this->protocol))) {
       throw new SocketException(sprintf(
         'Creating socket failed: %s',
-        $this->getLastError()
+        socket_strerror(socket_last_error())
       ));
     }
     
@@ -90,7 +90,7 @@ class ServerSocket extends BSDSocket {
     ) {
       throw new SocketException(sprintf(
         'Binding socket to '.$this->host.':'.$this->port.' failed: %s',
-        $this->getLastError()
+        socket_strerror(socket_last_error())
       ));
     }
     
@@ -118,7 +118,7 @@ class ServerSocket extends BSDSocket {
     if (false === socket_listen($this->_sock, $backlog)) {
       throw new SocketException(sprintf(
         'Listening on socket failed: %s',
-        $this->getLastError()
+        socket_strerror(socket_last_error())
       ));
     }
     
@@ -145,7 +145,7 @@ class ServerSocket extends BSDSocket {
     if (0 > ($msgsock= socket_accept($this->_sock))) {
       throw new SocketException(sprintf(
         'Accept failed: %s',
-        $this->getLastError()
+        socket_strerror(socket_last_error())
       ));
     }
     if (!is_resource($msgsock)) return false;
@@ -154,7 +154,7 @@ class ServerSocket extends BSDSocket {
     if (false === socket_getpeername($msgsock, $host, $port)) {
       throw new SocketException(sprintf(
         'Cannot get peer: %s',
-        $this->getLastError()
+        socket_strerror(socket_last_error())
       ));      
     }
     
