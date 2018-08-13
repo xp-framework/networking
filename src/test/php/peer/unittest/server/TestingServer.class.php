@@ -1,11 +1,10 @@
 <?php namespace peer\unittest\server;
 
-
-
-use util\cmd\Console;
+use lang\XPClass;
+use peer\ServerSocket;
 use peer\server\Server;
 use peer\server\ServerProtocol;
-
+use util\cmd\Console;
 
 /**
  * Socket server used by ServerTest. 
@@ -29,9 +28,9 @@ class TestingServer {
    * @param   string[] args
    */
   public static function main(array $args) {
-    $s= new Server('127.0.0.1', 0);
+    $s= new Server();
     try {
-      $s->setProtocol(\lang\XPClass::forName($args[0])->newInstance());
+      $s->listen(new ServerSocket('127.0.0.1', 0), XPClass::forName($args[0])->newInstance());
       $s->init();
       Console::writeLinef('+ Service %s:%d', $s->socket->host, $s->socket->port);
       $s->service();

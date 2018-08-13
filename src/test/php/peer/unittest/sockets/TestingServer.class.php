@@ -1,8 +1,10 @@
 <?php namespace peer\unittest\sockets;
 
-use util\cmd\Console;
+use lang\XPClass;
+use peer\ServerSocket;
 use peer\server\Server;
 use peer\server\ServerProtocol;
+use util\cmd\Console;
 
 /**
  * Socket server used by SocketTest. Implements a simple line-based
@@ -82,9 +84,9 @@ class TestingServer {
       }
     }');
     
-    $s= new Server('127.0.0.1', 0);
+    $s= new Server();
     try {
-      $s->setProtocol($protocol);
+      $s->listen(new ServerSocket('127.0.0.1', 0), $protocol);
       $s->init();
       Console::writeLinef('+ Service %s:%d', $s->socket->host, $s->socket->port);
       $s->service();

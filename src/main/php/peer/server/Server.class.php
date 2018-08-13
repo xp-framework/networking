@@ -1,5 +1,6 @@
 <?php namespace peer\server;
 
+use peer\BSDServerSocket;
 use peer\ServerSocket;
 
 /**
@@ -8,8 +9,8 @@ use peer\ServerSocket;
  * ```php
  * use peer\server\Server;
  *   
- * $server= new Server('127.0.0.1', 6100);
- * $server->setProtocol(new MyProtocol());
+ * $server= new Server();
+ * $server->listen(new ServerSocket('127.0.0.1', 6100), new MyProtocol());
  * $server->init();
  * $server->service();
  * $server->shutdown();
@@ -30,13 +31,32 @@ class Server {
   /**
    * Constructor
    *
-   * @param   string addr
-   * @param   int port
+   * @deprecated Use listen() instead
+   * @param  string addr
+   * @param  int port
    */
-  public function __construct($addr, $port) {
-    $this->socket= new ServerSocket($addr, $port, '[' === $addr{0} ? AF_INET6 : AF_INET);
+  public function __construct($addr= null, $port= null) {
+    if (null === $addr) return;
+
+    // Deprecated two-arg constructor used, use backwards compatible version
+    $this->socket= new BSDServerSocket($addr, $port, '[' === $addr{0} ? AF_INET6 : AF_INET);
   }
-  
+
+  /**
+   * Sets socket to listen on and protocol to implement
+   *
+   * @param  peer.ServerSocket|peer.BSDServerSocket $socket
+   * @param  peer.server.ServerProtocol $protocol
+   * @return self
+   */
+  public function listen($socket, ServerProtocol $protocol) {
+    $protocol->server= $this;
+
+    $this->socket= $socket;
+    $this->protocol= $protocol;
+    return $this;
+  }
+
   /**
    * Initialize the server
    *
@@ -60,6 +80,7 @@ class Server {
   /**
    * Sets this server's protocol
    *
+   * @deprecated Use listen() instead
    * @param   peer.server.ServerProtocol protocol
    * @return  peer.server.ServerProtocol protocol
    */
