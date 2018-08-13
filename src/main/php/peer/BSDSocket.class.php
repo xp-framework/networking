@@ -282,6 +282,10 @@ class BSDSocket extends Socket {
    * @throws  peer.SocketException in case of failure
    */
   public function canRead($timeout= null) {
+    if (!$this->_sock) {
+      throw new SocketException('Socket not connected');
+    }
+
     $r= [$this->_sock]; $w= null; $e= null;
     $n= Sockets::$BSD->select0($r, $w, $e, $timeout);
     return $n > 0;
@@ -307,7 +311,7 @@ class BSDSocket extends Socket {
   protected function _read($maxLen, $type, $chop= false) {
     $res= '';
     if (!$this->_eof && 0 === strlen($this->rq)) {
-      $r= [$this->_sock]; $w= null; $e= null;
+      $r= $this->_sock ? [$this->_sock] : null; $w= null; $e= null;
       $n= Sockets::$BSD->select0($r, $w, $e, $this->_timeout);
       if (0 === $n) {
         $e= new SocketTimeoutException('Read of '.$maxLen.' bytes failed', $this->_timeout);

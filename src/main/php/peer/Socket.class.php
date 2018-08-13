@@ -221,6 +221,10 @@ class Socket implements Channel, Value {
    * @throws  peer.SocketException in case of failure
    */
   public function canRead($timeout= null) {
+    if (!$this->_sock) {
+      throw new SocketException('Socket not connected');
+    }
+
     $r= [$this->_sock]; $w= null; $e= null;
     $n= Sockets::$STREAM->select0($r, $w, $e, $timeout);
     return $n > 0;
