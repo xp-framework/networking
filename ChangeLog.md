@@ -3,6 +3,15 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.2.0 / 2018-08-13
+
+* Merged PR #8: Make ServerSocket use built-in streams. This removes the
+  hard dependency on the *sockets* extension for the `peer.server` API.
+  If it's available, the code will continue to use it as default until
+  the next major release of this library. Otherwise, the built-in streams
+  and PHP's stream_socket_server() will be used.
+  (@thekid)
+
 ## 9.1.2 / 2018-08-06
 
 * Fixed certificate validation problem when connecting to `localhost`
