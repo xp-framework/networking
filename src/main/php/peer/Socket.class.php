@@ -223,7 +223,7 @@ class Socket implements Channel, Value {
   public function canRead($timeout= null) {
     $r= [$this->_sock]; $w= null; $e= null;
     $n= Sockets::$STREAM->select0($r, $w, $e, $timeout);
-    return $n > 0 ? true : !empty($r);
+    return $n > 0;
   }
 
   /**

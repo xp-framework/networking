@@ -275,32 +275,6 @@ class BSDSocket extends Socket {
   }
 
   /**
-   * Selection helper
-   *
-   * @param   var r
-   * @param   var w
-   * @param   var w
-   * @param   float timeout
-   * @return  int
-   * @see     php://socket_select
-   */
-  protected function _select($r, $w, $e, $timeout) {
-    if (null === $timeout) {
-      $tv_sec= $tv_usec= null;
-    } else {
-      $tv_sec= (int)floor($timeout);
-      $tv_usec= (int)(($timeout- $tv_sec) * 1000000);
-    }
-
-    if (false === ($n= socket_select($r, $w, $e, $tv_sec, $tv_usec))) {
-      $e= new SocketException('Select failed: '.$this->getLastError());
-      \xp::gc(__FILE__);
-      throw $e;
-    }
-    return $n;
-  }
-      
-  /**
    * Returns whether there is data that can be read
    *
    * @param   float timeout default NULL Timeout value in seconds (e.g. 0.5)
@@ -308,7 +282,9 @@ class BSDSocket extends Socket {
    * @throws  peer.SocketException in case of failure
    */
   public function canRead($timeout= null) {
-    return $this->_select([$this->_sock], null, null, $timeout) > 0;
+    $r= [$this->_sock]; $w= null; $e= null;
+    $n= Sockets::$BSD->select0($r, $w, $e, $timeout);
+    return $n > 0;
   }
   
   /**
@@ -331,7 +307,9 @@ class BSDSocket extends Socket {
   protected function _read($maxLen, $type, $chop= false) {
     $res= '';
     if (!$this->_eof && 0 === strlen($this->rq)) {
-      if (!$this->_select([$this->_sock], null, null, $this->_timeout)) {
+      $r= [$this->_sock]; $w= null; $e= null;
+      $n= Sockets::$BSD->select0($r, $w, $e, $this->_timeout);
+      if (0 === $n) {
         $e= new SocketTimeoutException('Read of '.$maxLen.' bytes failed', $this->_timeout);
         \xp::gc(__FILE__);
         throw $e;
