@@ -97,6 +97,7 @@ class Server {
     $null= null;
     $handles= $lastAction= [];
     $accepting= $this->socket->getHandle();
+    $sockets= $this->socket->kind();
     $this->protocol->initialize();
 
     // Loop
@@ -125,25 +126,10 @@ class Server {
         }
       }
 
-      // Check to see if there are sockets with data on it. In case we can
-      // find some, loop over the returned sockets. In case the select() call
-      // fails, break out of the loop and terminate the server - this really 
-      // should not happen!
+      // Check to see if there are sockets with data on it.
       do {
-        $socketSelectInterrupted = false;
-        if (false === socket_select($read, $null, $null, $timeout)) {
-        
-          // If socket_select has been interrupted by a signal, it will return FALSE,
-          // but no actual error occurred - so check for "real" errors before throwing
-          // an exception. If no error has occurred, skip over to the socket_select again.
-          if (0 !== socket_last_error($this->socket->_sock)) {
-            throw new \peer\SocketException('Call to select() failed');
-          } else {
-            $socketSelectInterrupted = true;
-          }
-        }
-      // if socket_select was interrupted by signal, retry socket_select
-      } while ($socketSelectInterrupted);
+        $n= $sockets->select0($read, $null, $null, $timeout);
+      } while (0 === $n);
 
       foreach ($read as $i => $handle) {
 
