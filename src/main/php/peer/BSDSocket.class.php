@@ -23,6 +23,9 @@ class BSDSocket extends Socket {
     defined('TCP_NODELAY') || define('TCP_NODELAY', 1);
   }
 
+  /** @return peer.Sockets */
+  public function kind() { return Sockets::$BSD; }
+
   /**
    * Returns local endpoint
    *
