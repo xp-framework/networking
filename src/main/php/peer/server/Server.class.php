@@ -39,7 +39,11 @@ class Server {
     if (null === $addr) return;
 
     // Deprecated two-arg constructor used, use backwards compatible version
-    $this->socket= new BSDServerSocket($addr, $port, '[' === $addr{0} ? AF_INET6 : AF_INET);
+    if (extension_loaded('sockets')) {
+      $this->socket= new BSDServerSocket($addr, $port, '[' === $addr{0} ? AF_INET6 : AF_INET);
+    } else {
+      $this->socket= new ServerSocket($addr, $port);
+    }
   }
 
   /**
