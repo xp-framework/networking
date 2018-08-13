@@ -18,13 +18,14 @@ class BSDSocket extends Socket {
   
   protected 
     $rq       = '';
-  
-  static function __static() {
-    defined('TCP_NODELAY') || define('TCP_NODELAY', 1);
-  }
 
   /** @return peer.Sockets */
   public function kind() { return Sockets::$BSD; }
+
+  /** @return void */
+  public function useNoDelay() {
+    socket_set_option($this->_sock, SOL_TCP, TCP_NODELAY, true);
+  }
 
   /**
    * Returns local endpoint

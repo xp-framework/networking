@@ -122,7 +122,6 @@ class Server {
     $this->protocol->initialize();
 
     // Loop
-    $tcp= getprotobyname('tcp');
     $timeout= null;
     while (!$this->terminate) {
       \xp::gc();
@@ -170,7 +169,7 @@ class Server {
             }
           }
           
-          $this->tcpnodelay && $m->setOption($tcp, TCP_NODELAY, true);
+          $this->tcpnodelay && $m->useNoDelay();
           $this->protocol->handleConnect($m);
           $index= (int)$m->getHandle();
           $handles[$index]= $m;

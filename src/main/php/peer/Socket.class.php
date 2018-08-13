@@ -43,6 +43,11 @@ class Socket implements Channel, Value {
   /** @return peer.Sockets */
   public function kind() { return Sockets::$STREAM; }
 
+  /** @return void */
+  public function useNoDelay() {
+    stream_context_set_option($this->context, 'socket', 'tcp_nodelay', true);
+  }
+
   /**
    * Returns remote endpoint
    *

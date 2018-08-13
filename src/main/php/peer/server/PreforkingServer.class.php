@@ -114,7 +114,7 @@ class PreforkingServer extends Server implements Traceable {
       }
       
       $tcp= getprotobyname('tcp');
-      $this->tcpnodelay && $m->setOption($tcp, TCP_NODELAY, true);
+      $this->tcpnodelay && $m->useNoDelay();
       $this->protocol->handleConnect($m);
 
       // Handle communication while client is connected.
