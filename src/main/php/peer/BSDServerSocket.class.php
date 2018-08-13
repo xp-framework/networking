@@ -3,35 +3,15 @@
 /**
  * BSDSocket server implementation
  *
- * <code>
- *   $s= new ServerSocket('127.0.0.1', 80);
- *   try {
- *     $s->create();
- *     $s->bind();
- *     $s->listen();
- *   } catch(SocketException $e) {
- *     $e->printStackTrace();
- *     $s->close();
- *     exit();
- *   }
- *
- *   while ($m= $s->accept()) {
- *     $buf= $m->read(2048);
- *     $m->write('You said: '.$buf);
- *     $m->close();
- *   }
- *   $s->close();
- * </code>
- *
  * @see      xp://peer.BSDSocket
- * @ext      sockets                                                    
+ * @ext      sockets
  */
 class BSDServerSocket extends BSDSocket {
   public
     $domain   = 0,
     $type     = 0,
     $protocol = 0;
-    
+
   /**
    * Constructor
    *
@@ -76,7 +56,7 @@ class BSDServerSocket extends BSDSocket {
     
     return true;
   }
-  
+
   /**
    * Bind
    *
@@ -98,7 +78,7 @@ class BSDServerSocket extends BSDSocket {
     socket_getsockname($this->_sock, $this->host, $this->port);
     return true;
   }      
-  
+
   /**
    * Listen on this socket
    *
@@ -124,7 +104,7 @@ class BSDServerSocket extends BSDSocket {
     
     return true;
   }
-  
+
   /**
    * Accept connection
    *
