@@ -93,6 +93,9 @@ class ServerSocket extends Socket {
   public function accept($block= true) {
     $handle= stream_socket_accept($this->_sock, $block ? -1 : 0, $peer);
     if (false === $handle) {
+
+      // We have no way of getting the errno here, otherwise we could check for EINTR,
+      // ETIMEDOUT, etcetera. Checking for error *messages* is too risky.
       \xp::gc(__FILE__);
       return null;
     }
