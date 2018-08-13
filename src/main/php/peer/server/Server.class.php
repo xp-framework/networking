@@ -193,7 +193,7 @@ class Server {
           continue;
         }
         
-        // Check if we got an EOF from the client - in this file the connection
+        // Check if we got an EOF from the client - in this case the connection
         // was gracefully closed.
         if (!$handles[$index]->isConnected() || $handles[$index]->eof()) {
           $this->protocol->handleDisconnect($handles[$index]);

@@ -18,14 +18,14 @@ abstract class Sockets extends Enum {
         }
 
         $n= stream_select($r, $w, $e, $tv_sec, $tv_usec);
-        $l= __LINE__ -1;
         
         // Implementation vagaries:
-        // * For Windows, when using the VC9 binatries, get rid of "Invalid CRT 
+        // * For Windows, when using the VC9 binaries, get rid of "Invalid CRT 
         //   parameters detected" warning which is no error, see PHP bug #49948
         // * On Un*x OS flavors, when select() raises a warning, this *is* an 
         //   error (regardless of the return value)
         if (isset(\xp::$errors[__FILE__])) {
+          $l= __LINE__ - 8;
           if (isset(\xp::$errors[__FILE__][$l]["Invalid CRT parameters detected"])) {
             \xp::gc(__FILE__);
           } else {
