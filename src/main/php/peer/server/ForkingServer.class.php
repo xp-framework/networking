@@ -17,7 +17,6 @@ class ForkingServer extends Server {
   public function service() {
     if (!$this->socket->isConnected()) return false;
     
-    $tcp= getprotobyname('tcp');
     while (!$this->terminate) {
       try {
         $m= $this->socket->accept();
@@ -64,7 +63,7 @@ class ForkingServer extends Server {
         // every new child created
         $this->protocol->initialize();
 
-        $this->tcpnodelay && $m->setOption($tcp, TCP_NODELAY, true);
+        $this->tcpnodelay && $m->useNoDelay();
         $this->protocol->handleConnect($m);
 
         // Loop

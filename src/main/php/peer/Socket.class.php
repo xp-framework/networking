@@ -20,8 +20,7 @@ class Socket implements Channel, Value {
     $_prefix  = 'tcp://',
     $_timeout = 60;
 
-  private
-    $context  = null;
+  protected $context= null;
   
   /**
    * Constructor
@@ -39,6 +38,14 @@ class Socket implements Channel, Value {
     $this->port= $port;
     $this->_sock= $socket;
     $this->context= stream_context_create();
+  }
+
+  /** @return peer.Sockets */
+  public function kind() { return Sockets::$STREAM; }
+
+  /** @return void */
+  public function useNoDelay() {
+    stream_context_set_option($this->context, 'socket', 'tcp_nodelay', true);
   }
 
   /**
@@ -219,37 +226,13 @@ class Socket implements Channel, Value {
    * @throws  peer.SocketException in case of failure
    */
   public function canRead($timeout= null) {
-    if (null === $timeout) {
-      $tv_sec= $tv_usec= null;
-    } else {
-      $tv_sec= intval(floor($timeout));
-      $tv_usec= intval(($timeout - floor($timeout)) * 1000000);
+    if (!$this->_sock) {
+      throw new SocketException('Socket not connected');
     }
+
     $r= [$this->_sock]; $w= null; $e= null;
-    $n= stream_select($r, $w, $e, $tv_sec, $tv_usec);
-    $l= __LINE__ -1;
-    
-    // Implementation vagaries:
-    // * For Windows, when using the VC9 binatries, get rid of "Invalid CRT 
-    //   parameters detected" warning which is no error, see PHP bug #49948
-    // * On Un*x OS flavors, when select() raises a warning, this *is* an 
-    //   error (regardless of the return value)
-    if (isset(\xp::$errors[__FILE__])) {
-      if (isset(\xp::$errors[__FILE__][$l]['Invalid CRT parameters detected'])) {
-        \xp::gc(__FILE__);
-      } else {
-        $n= false;
-      }
-    }
-    
-    // OK, real error here now.
-    if (false === $n || null === $n) {
-      $e= new SocketException('Select('.$this->_sock.', '.$tv_sec.', '.$tv_usec.')= failed: '.$this->getLastError());
-      \xp::gc(__FILE__);
-      throw $e;
-    }
-    
-    return $n > 0 ? true : !empty($r);
+    $n= Sockets::$STREAM->select0($r, $w, $e, $timeout);
+    return $n > 0;
   }
 
   /**

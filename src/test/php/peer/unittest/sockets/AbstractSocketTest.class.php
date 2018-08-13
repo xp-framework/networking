@@ -1,11 +1,12 @@
 <?php namespace peer\unittest\sockets;
 
+use lang\Runtime;
+use peer\ConnectException;
 use peer\Socket;
 use peer\SocketEndpoint;
 use peer\SocketException;
-use peer\ConnectException;
 use peer\SocketTimeoutException;
-use lang\Runtime;
+use unittest\actions\IsPlatform;
 
 abstract class AbstractSocketTest extends \unittest\TestCase {
   protected static $bindAddress= [null, -1];

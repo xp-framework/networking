@@ -1,5 +1,6 @@
 <?php namespace peer\server;
 
+use peer\BSDServerSocket;
 use peer\ServerSocket;
 
 /**
@@ -8,8 +9,8 @@ use peer\ServerSocket;
  * ```php
  * use peer\server\Server;
  *   
- * $server= new Server('127.0.0.1', 6100);
- * $server->setProtocol(new MyProtocol());
+ * $server= new Server();
+ * $server->listen(new ServerSocket('127.0.0.1', 6100), new MyProtocol());
  * $server->init();
  * $server->service();
  * $server->shutdown();
@@ -30,13 +31,36 @@ class Server {
   /**
    * Constructor
    *
-   * @param   string addr
-   * @param   int port
+   * @deprecated Use listen() instead
+   * @param  string addr
+   * @param  int port
    */
-  public function __construct($addr, $port) {
-    $this->socket= new ServerSocket($addr, $port, '[' === $addr{0} ? AF_INET6 : AF_INET);
+  public function __construct($addr= null, $port= null) {
+    if (null === $addr) return;
+
+    // Deprecated two-arg constructor used, use backwards compatible version
+    if (extension_loaded('sockets')) {
+      $this->socket= new BSDServerSocket($addr, $port, '[' === $addr{0} ? AF_INET6 : AF_INET);
+    } else {
+      $this->socket= new ServerSocket($addr, $port);
+    }
   }
-  
+
+  /**
+   * Sets socket to listen on and protocol to implement
+   *
+   * @param  peer.ServerSocket|peer.BSDServerSocket $socket
+   * @param  peer.server.ServerProtocol $protocol
+   * @return self
+   */
+  public function listen($socket, ServerProtocol $protocol) {
+    $protocol->server= $this;
+
+    $this->socket= $socket;
+    $this->protocol= $protocol;
+    return $this;
+  }
+
   /**
    * Initialize the server
    *
@@ -60,6 +84,7 @@ class Server {
   /**
    * Sets this server's protocol
    *
+   * @deprecated Use listen() instead
    * @param   peer.server.ServerProtocol protocol
    * @return  peer.server.ServerProtocol protocol
    */
@@ -97,10 +122,10 @@ class Server {
     $null= null;
     $handles= $lastAction= [];
     $accepting= $this->socket->getHandle();
+    $sockets= $this->socket->kind();
     $this->protocol->initialize();
 
     // Loop
-    $tcp= getprotobyname('tcp');
     $timeout= null;
     while (!$this->terminate) {
       \xp::gc();
@@ -125,25 +150,10 @@ class Server {
         }
       }
 
-      // Check to see if there are sockets with data on it. In case we can
-      // find some, loop over the returned sockets. In case the select() call
-      // fails, break out of the loop and terminate the server - this really 
-      // should not happen!
+      // Check to see if there are sockets with data on it.
       do {
-        $socketSelectInterrupted = false;
-        if (false === socket_select($read, $null, $null, $timeout)) {
-        
-          // If socket_select has been interrupted by a signal, it will return FALSE,
-          // but no actual error occurred - so check for "real" errors before throwing
-          // an exception. If no error has occurred, skip over to the socket_select again.
-          if (0 !== socket_last_error($this->socket->_sock)) {
-            throw new \peer\SocketException('Call to select() failed');
-          } else {
-            $socketSelectInterrupted = true;
-          }
-        }
-      // if socket_select was interrupted by signal, retry socket_select
-      } while ($socketSelectInterrupted);
+        $n= $sockets->select0($read, $null, $null, $timeout);
+      } while (0 === $n);
 
       foreach ($read as $i => $handle) {
 
@@ -163,7 +173,7 @@ class Server {
             }
           }
           
-          $this->tcpnodelay && $m->setOption($tcp, TCP_NODELAY, true);
+          $this->tcpnodelay && $m->useNoDelay();
           $this->protocol->handleConnect($m);
           $index= (int)$m->getHandle();
           $handles[$index]= $m;
@@ -187,7 +197,7 @@ class Server {
           continue;
         }
         
-        // Check if we got an EOF from the client - in this file the connection
+        // Check if we got an EOF from the client - in this case the connection
         // was gracefully closed.
         if (!$handles[$index]->isConnected() || $handles[$index]->eof()) {
           $this->protocol->handleDisconnect($handles[$index]);

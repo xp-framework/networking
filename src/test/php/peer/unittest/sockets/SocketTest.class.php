@@ -1,16 +1,20 @@
 <?php namespace peer\unittest\sockets;
 
-use peer\unittest\StartServer;
 use peer\Socket;
+use peer\unittest\StartServer;
+use unittest\actions\VerifyThat;
 
 /**
  * TestCase
  *
  * @see      xp://peer.Socket
  */
-#[@action(new StartServer('peer.unittest.sockets.TestingServer', 'connected', 'shutdown'))]
+#[@action([
+#  new VerifyThat(function() { return !defined('HHVM_VERSION'); }),
+#  new StartServer('peer.unittest.sockets.TestingServer', 'connected', 'shutdown')
+#])]
 class SocketTest extends AbstractSocketTest {
-  
+
   /**
    * Creates a new client socket
    *

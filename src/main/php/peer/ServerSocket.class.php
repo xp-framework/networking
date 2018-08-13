@@ -1,53 +1,16 @@
 <?php namespace peer;
 
+use lang\IllegalAccessException;
+
 /**
- * BSDSocket server implementation
+ * Socket server implementation
  *
- * <code>
- *   $s= new ServerSocket('127.0.0.1', 80);
- *   try {
- *     $s->create();
- *     $s->bind();
- *     $s->listen();
- *   } catch(SocketException $e) {
- *     $e->printStackTrace();
- *     $s->close();
- *     exit();
- *   }
- *
- *   while ($m= $s->accept()) {
- *     $buf= $m->read(2048);
- *     $m->write('You said: '.$buf);
- *     $m->close();
- *   }
- *   $s->close();
- * </code>
- *
- * @see      xp://peer.BSDSocket
- * @ext      sockets                                                    
+ * @see   xp://peer.Socket
+ * @see   php://stream_socket_server
+ * @test  xp://peer.unittest.server.ServerTest
  */
-class ServerSocket extends BSDSocket {
-  public
-    $domain   = 0,
-    $type     = 0,
-    $protocol = 0;
-    
-  /**
-   * Constructor
-   *
-   * @param   string host
-   * @param   int port
-   * @param   int domain default AF_INET (one of AF_INET or AF_UNIX)
-   * @param   int type default SOCK_STREAM (one of SOCK_STREAM | SOCK_DGRAM | SOCK_RAW | SOCK_SEQPACKET | SOCK_RDM)
-   * @param   int protocol default SOL_TCP (one of SOL_TCP or SOL_UDP)
-   */
-  public function __construct($host, $port, $domain= AF_INET, $type= SOCK_STREAM, $protocol= SOL_TCP) {
-    $this->domain= $domain;
-    $this->type= $type;
-    $this->protocol= $protocol;
-    parent::__construct($host, $port);
-  }
-  
+class ServerSocket extends Socket {
+
   /**
    * Connect. Overwritten method from BSDSocket that will always throw
    * an exception because connect() doesn't make sense here!
@@ -57,7 +20,7 @@ class ServerSocket extends BSDSocket {
    * @throws  lang.IllegalAccessException
    */
   public function connect($timeout= 2.0) {
-    throw new \lang\IllegalAccessException('Connect cannot be used on a ServerSocket');
+    throw new IllegalAccessException('Connect cannot be used on a ServerSocket');
   }
   
   /**
@@ -67,35 +30,18 @@ class ServerSocket extends BSDSocket {
    * @throws  peer.SocketException in case of an error
    */
   public function create() {
-    if (!is_resource($this->_sock= socket_create($this->domain, $this->type, $this->protocol))) {
-      throw new SocketException(sprintf(
-        'Creating socket failed: %s',
-        socket_strerror(socket_last_error())
-      ));
-    }
-    
     return true;
   }
   
   /**
    * Bind
    *
+   * @see     http://php.net/manual/en/context.socket.php
    * @return  bool success
    * @throws  peer.SocketException in case of an error
    */
   public function bind($reuse= false) {
-    if (
-      (false === socket_setopt($this->_sock, SOL_SOCKET, SO_REUSEADDR, $reuse)) ||
-      (false === socket_bind($this->_sock, $this->host, $this->port))
-    ) {
-      throw new SocketException(sprintf(
-        'Binding socket to '.$this->host.':'.$this->port.' failed: %s',
-        socket_strerror(socket_last_error())
-      ));
-    }
-    
-    // Update socket host and port
-    socket_getsockname($this->_sock, $this->host, $this->port);
+    stream_context_set_option($this->context, 'socket', 'so_reuseport', $reuse);
     return true;
   }      
   
@@ -115,49 +61,46 @@ class ServerSocket extends BSDSocket {
    * @throws  peer.SocketException in case of an error
    */
   public function listen($backlog= 10) {
-    if (false === socket_listen($this->_sock, $backlog)) {
-      throw new SocketException(sprintf(
-        'Listening on socket failed: %s',
-        socket_strerror(socket_last_error())
-      ));
+    stream_context_set_option($this->context, 'socket', 'backlog', $backlog);
+
+    // Bind and listen
+    if (!is_resource($this->_sock= stream_socket_server(
+      'tcp://'.$this->host.':'.$this->port,
+      $errno,
+      $errstr,
+      STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
+      $this->context
+    ))) {
+      $this->_sock= null;
+      throw new SocketException($errno.': '.$errstr);
     }
-    
+
+    // Returns "127.0.0.1:49910" (IPv4) or "fe80::b555:35a7:5026:2ebe:49919" (IPv6)
+    $name= stream_socket_get_name($this->_sock, false);
+    $p= strrpos($name, ':');
+    $this->port= (int)substr($name, $p + 1);
+    $this->host= substr($name, 0, $p);
     return true;
   }
   
   /**
    * Accept connection
    *
-   * <quote>
-   * This function will accept incoming connections on that socket. Once a 
-   * successful connection is made, a new socket object is returned, which 
-   * may be used for communication. If there are multiple connections queued 
-   * on the socket, the first will be used. If there are no pending connections, 
-   * socket_accept() will block until a connection becomes present.
-   * </quote> 
-   *
-   * Note: If this socket has been made non-blocking, FALSE will be returned.
-   *
-   * @return  var a peer.BSDSocket object or FALSE
-   * @throws  peer.SocketException in case of an error
+   * @param  bool $block Whether to use blocking
+   * @return peer.Socket or NULL if accept() fails, e.g. due to timeout
+   * @throws peer.SocketException in case of an error
    */
-  public function accept() {
-    if (0 > ($msgsock= socket_accept($this->_sock))) {
-      throw new SocketException(sprintf(
-        'Accept failed: %s',
-        socket_strerror(socket_last_error())
-      ));
+  public function accept($block= true) {
+    $handle= stream_socket_accept($this->_sock, $block ? -1 : 0, $peer);
+    if (false === $handle) {
+
+      // We have no way of getting the errno here, otherwise we could check for EINTR,
+      // ETIMEDOUT, etcetera. Checking for error *messages* is too risky.
+      \xp::gc(__FILE__);
+      return null;
     }
-    if (!is_resource($msgsock)) return false;
-    
-    // Get peer
-    if (false === socket_getpeername($msgsock, $host, $port)) {
-      throw new SocketException(sprintf(
-        'Cannot get peer: %s',
-        socket_strerror(socket_last_error())
-      ));      
-    }
-    
-    return new BSDSocket($host, $port, $msgsock);
+
+    $p= strrpos($peer, ':');
+    return new Socket(substr($peer, 0, $p), (int)substr($peer, $p + 1), $handle);
   }
 }

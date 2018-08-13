@@ -80,10 +80,11 @@ class PreforkingServer extends Server implements Traceable {
     // Handle initialization of protocol. This is called once for 
     // every new child created.
     $this->protocol->initialize();
+    $sockets= $this->socket->kind();
     
     $requests= 0;
     while (!$this->terminate && $requests < $this->maxrequests) {
-      $read= [$this->socket->getHandle()];
+      $read= [$this->socket];
       $null= null;
       $timeout= null;
 
@@ -91,35 +92,18 @@ class PreforkingServer extends Server implements Traceable {
       // find some, loop over the returned sockets. In case the select() call
       // fails, break out of the loop and terminate the server - this really
       // should not happen!
+      $m= null;
       do {
         pcntl_signal_dispatch();
         if ($this->terminate) return;
 
-        if (false === socket_select($read, $null, $null, $timeout)) {
-          pcntl_signal_dispatch();
-          if ($this->terminate) return;
-
-          // If socket_select has been interrupted by a signal, it will return FALSE,
-          // but no actual error occurred - so check for "real" errors before throwing
-          // an exception. If no error has occurred, skip over to the socket_select again.
-          if (0 !== socket_last_error($this->socket->getHandle())) {
-            throw new \peer\SocketException('Call to select() failed - ');
-          }
-
-          $accepted= false;
-        } else {
-          $this->socket->setBlocking(false);
-          $m= $this->socket->accept();
-          $this->socket->setBlocking(true);
-
-          // The call to accept() will return false if there is no client available.
-          // This is the case if select() detects activity but another child has already
-          // accepted this client. In this case, retry.
-          $accepted= $m instanceof \peer\Socket;
+        // The call to accept() w/ blocking will return null if there is no client available.
+        // This is the case if select() detects activity but another child has already
+        // accepted this client. In this case, retry.
+        if ($sockets->select($read, $null, $null, $timeout)) {
+          $m= $this->socket->accept(false);
         }
-
-      // if socket_select was interrupted by signal, retry socket_select
-      } while (!$accepted);
+      } while (null === $m);
 
       // Handle accepted socket
       if ($this->protocol instanceof \peer\server\protocol\SocketAcceptHandler) {
@@ -130,7 +114,7 @@ class PreforkingServer extends Server implements Traceable {
       }
       
       $tcp= getprotobyname('tcp');
-      $this->tcpnodelay && $m->setOption($tcp, TCP_NODELAY, true);
+      $this->tcpnodelay && $m->useNoDelay();
       $this->protocol->handleConnect($m);
 
       // Handle communication while client is connected.
