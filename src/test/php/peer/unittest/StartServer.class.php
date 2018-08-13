@@ -1,9 +1,9 @@
 <?php namespace peer\unittest;
 
-use lang\Runtime;
 use lang\IllegalStateException;
-use lang\XPClass;
+use lang\Runtime;
 use lang\Throwable;
+use lang\XPClass;
 use unittest\PrerequisitesNotMetError;
 
 /**
