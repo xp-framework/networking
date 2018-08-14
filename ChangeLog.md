@@ -3,6 +3,12 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.2.1 / 2018-08-14
+
+* Fixed server implementation to run housekeeping after a given timeout
+  period, which defaults to 60 seconds.
+  (@thekid)
+* Fixed issue #10: Select(60, 0) failed - @thekid
 * Fixed issue #9: ServerSocket binds tcp://::1:8080 by default - @thekid
 
 ## 9.2.0 / 2018-08-13
