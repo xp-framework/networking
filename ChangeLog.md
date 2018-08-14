@@ -3,6 +3,8 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Fixed issue #9: ServerSocket binds tcp://::1:8080 by default - @thekid
+
 ## 9.2.0 / 2018-08-13
 
 * Merged PR #8: Make ServerSocket use built-in streams. This removes the
