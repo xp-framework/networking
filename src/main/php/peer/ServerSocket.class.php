@@ -63,9 +63,10 @@ class ServerSocket extends Socket {
   public function listen($backlog= 10) {
     stream_context_set_option($this->context, 'socket', 'backlog', $backlog);
 
-    // Bind and listen
+    // Force IPv4 for localhost, see https://github.com/xp-framework/networking/issues/0
+    $host= (string)$this->host;
     if (!is_resource($this->_sock= stream_socket_server(
-      'tcp://'.$this->host.':'.$this->port,
+      $this->_prefix.('localhost' === $host ? '127.0.0.1' : $host).':'.$this->port,
       $errno,
       $errstr,
       STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
