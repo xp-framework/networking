@@ -133,25 +133,25 @@ class Server {
       // Build array of sockets that we want to check for data. If one of them
       // has disconnected in the meantime, notify the listeners (socket will be
       // already invalid at that time) and remove it from the clients list.
-      $read= [$this->socket->getHandle()];
-      $currentTime= time();
-      foreach ($handles as $h => $handle) {
-        if (!$handle->isConnected()) {
-          $this->protocol->handleDisconnect($handle);
-          unset($handles[$h]);
-          unset($lastAction[$h]);
-        } else if ($currentTime - $lastAction[$h] > $handle->getTimeout()) {
-          $this->protocol->handleError($handle, new \peer\SocketTimeoutException('Timed out', $handle->getTimeout()));
-          $handle->close();
-          unset($handles[$h]);
-          unset($lastAction[$h]);
-        } else {
-          $read[]= $handle->getHandle();
-        }
-      }
-
-      // Check to see if there are sockets with data on it.
       do {
+        $read= [$this->socket->getHandle()];
+        $currentTime= time();
+        foreach ($handles as $h => $handle) {
+          if (!$handle->isConnected()) {
+            $this->protocol->handleDisconnect($handle);
+            unset($handles[$h]);
+            unset($lastAction[$h]);
+          } else if ($currentTime - $lastAction[$h] > $handle->getTimeout()) {
+            $this->protocol->handleError($handle, new \peer\SocketTimeoutException('Timed out', $handle->getTimeout()));
+            $handle->close();
+            unset($handles[$h]);
+            unset($lastAction[$h]);
+          } else {
+            $read[]= $handle->getHandle();
+          }
+        }
+
+        // Check to see if there are sockets with data on it.
         $n= $sockets->select0($read, $null, $null, $timeout);
       } while (0 === $n);
 
