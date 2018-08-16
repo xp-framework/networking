@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.2.2 / 2018-08-16
+
+* Fixed Inet4Address not implementing `lang.Value` - @thekid
+
 ## 9.2.1 / 2018-08-14
 
 * Fixed server implementation to run housekeeping after a given timeout

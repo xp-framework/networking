@@ -1,9 +1,11 @@
 <?php namespace peer\net;
 
+use lang\Value;
+
 /**
  * Common ancestor for IPv4 and IPv6
  */
-interface InetAddress {
+interface InetAddress extends Value {
 
   /**
    * Retrieve "human-readable" address

@@ -1,6 +1,5 @@
 <?php namespace peer\net;
 
-use lang\Value;
 use util\Objects;
 
 /**
@@ -8,7 +7,7 @@ use util\Objects;
  *
  * @test  xp://peer.unittest.net.Inet6AddressTest
  */
-class Inet6Address implements InetAddress, Value {
+class Inet6Address implements InetAddress {
   protected $addr;
   
   /**
