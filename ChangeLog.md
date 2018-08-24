@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.2.3 / 2018-08-24
+
+* Made compatible with `xp-framework/logging` version 9.0.0 - @thekid
+
 ## 9.2.2 / 2018-08-16
 
 * Fixed Inet4Address not implementing `lang.Value` - @thekid
