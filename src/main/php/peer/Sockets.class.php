@@ -18,15 +18,18 @@ abstract class Sockets extends Enum {
         }
 
         $n= stream_select($r, $w, $e, $tv_sec, $tv_usec);
-        
+
         // Implementation vagaries:
         // * For Windows, when using the VC9 binaries, get rid of "Invalid CRT 
         //   parameters detected" warning which is no error, see PHP bug #49948
         // * On Un*x OS flavors, when select() raises a warning, this *is* an 
         //   error (regardless of the return value)
         if (isset(\xp::$errors[__FILE__])) {
-          $l= __LINE__ - 8;
-          if (isset(\xp::$errors[__FILE__][$l]["Invalid CRT parameters detected"])) {
+          $msg= key(\xp::$errors[__FILE__][__LINE__ - 8]);
+          if (stristr($msg, "Interrupted system call")) {
+            \xp::gc(__FILE__);
+            return null;
+          } else if (stristr($msg, "Invalid CRT parameters detected")) {
             \xp::gc(__FILE__);
           } else {
             $n= false;
@@ -54,13 +57,16 @@ abstract class Sockets extends Enum {
         }
 
         if (false === ($n= socket_select($r, $w, $e, $tv_sec, $tv_usec))) {
-          if (0 !== ($error= socket_last_error())) {
-            $e= new SocketException("Select($tv_sec, $tv_usec) failed: #$error ".socket_strerror($error));
-            \xp::gc(__FILE__);
-            throw $e;
-          }
+          switch ($error= socket_last_error()) {
+            case SOCKET_EINTR:
+              return null;
 
-          $n= 0;
+            default:
+              $e= new SocketException("Select($tv_sec, $tv_usec) failed: #$error ".socket_strerror($error));
+              \xp::gc(__FILE__);
+              throw $e;
+          }
+          return 0;
         }
 
         return $n;
