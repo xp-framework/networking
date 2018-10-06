@@ -16,8 +16,7 @@ class PreforkingServer extends Server implements Traceable {
     $cat          = null,
     $count        = 0,
     $maxrequests  = 0,
-    $restart      = false,
-    $null         = null;
+    $restart      = false;
 
   /**
    * Constructor
