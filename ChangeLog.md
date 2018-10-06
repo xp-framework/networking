@@ -5,8 +5,8 @@ Networking changelog
 
 ## 9.2.5 / 2018-10-06
 
-* Fixed `Sockets::select()` to return *NULL* instead of throwing an error
-  when receiving `EINTR`, e.g. because *Ctrl+C* has been pressed.
+* Fixed issue #12: Changed `Sockets::select()` to return *NULL* instead of
+  throwing an error when receiving `EINTR`, e.g. because of *SIGINT*.
   (@thekid)
 
 ## 9.2.4 / 2018-10-06
