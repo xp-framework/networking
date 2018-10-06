@@ -3,6 +3,12 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.2.4 / 2018-10-06
+
+* Merged PR #11: Raise exceptions when pcntl extension is not loaded or
+  disabled. Previously, this would fail more or less silently later on!
+  (@thekid)
+
 ## 9.2.3 / 2018-08-24
 
 * Made compatible with `xp-framework/logging` version 9.0.0 - @thekid
