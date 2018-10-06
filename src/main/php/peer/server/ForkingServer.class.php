@@ -9,6 +9,7 @@ use lang\SystemException;
  * @see   xp://peer.server.Server
  */
 class ForkingServer extends Server {
+  use Pcntl;
   
   /**
    * Service

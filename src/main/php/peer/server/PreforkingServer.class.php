@@ -10,6 +10,8 @@ use util\log\Traceable;
  * @see   xp://peer.server.Server
  */
 class PreforkingServer extends Server implements Traceable {
+  use Pcntl;
+
   public
     $cat          = null,
     $count        = 0,
