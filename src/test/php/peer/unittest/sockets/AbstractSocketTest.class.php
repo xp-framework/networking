@@ -338,4 +338,38 @@ abstract class AbstractSocketTest extends \unittest\TestCase {
     $this->fixture->connect();
     $this->assertInstanceOf(SocketEndpoint::class, $this->fixture->localEndpoint());
   }
+
+  #[@test]
+  public function select_when_nothing_can_be_read() {
+    $this->fixture->connect();
+    
+    $r= [$this->fixture]; $w= null; $e= null;
+    $this->fixture->kind()->select($r, $w, $e, 0.1);
+
+    $this->assertEquals([], $r);
+  }
+
+  #[@test]
+  public function select_when_data_is_available() {
+    $this->fixture->connect();
+    
+    $this->fixture->write("ECHO EOF\n");
+
+    $r= [$this->fixture]; $w= null; $e= null;
+    $this->fixture->kind()->select($r, $w, $e, 0.1);
+
+    $this->assertEquals([$this->fixture], $r);
+  }
+
+  #[@test]
+  public function select_keyed_array() {
+    $this->fixture->connect();
+    
+    $this->fixture->write("ECHO EOF\n");
+
+    $r= ['fixture' => $this->fixture]; $w= null; $e= null;
+    $this->fixture->kind()->select($r, $w, $e, 0.1);
+
+    $this->assertEquals(['fixture' => $this->fixture], $r);
+  }
 }

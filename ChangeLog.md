@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.3.0 / 2019-01-30
+
+* Preserve keys in arrays passed to `Sockets::select()` - @thekid
+
 ## 9.2.5 / 2018-10-06
 
 * Fixed issue #12: Changed `Sockets::select()` to return *NULL* instead of

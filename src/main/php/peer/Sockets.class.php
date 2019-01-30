@@ -77,9 +77,9 @@ abstract class Sockets extends Enum {
   /** Maps sockets -> handles */
   private function handles($sockets, &$lookup) {
     $r= [];
-    foreach ($sockets as $socket) {
+    foreach ($sockets as $key => $socket) {
       $handle= $socket->getHandle();
-      $r[]= $handle;
+      $r[$key]= $handle;
       $lookup[(int)$handle]= $socket;
     }
     return $r;
@@ -88,8 +88,8 @@ abstract class Sockets extends Enum {
   /** Maps handles -> socket */
   private function sockets($handles, &$lookup) {
     $r= [];
-    foreach ($handles as $handle) {
-      $r[]= $lookup[(int)$handle];
+    foreach ($handles as $key => $handle) {
+      $r[$key]= $lookup[(int)$handle];
     }
     return $r;
   }
