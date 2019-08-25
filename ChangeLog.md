@@ -3,6 +3,8 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.3.1 / 2019-08-25
+
 * Made compatible with PHP 7.4 - refrain using `{}` for string offsets
   (@thekid)
 * Fixed issue #57: Call to undefined method xp::stringOf() - @thekid
