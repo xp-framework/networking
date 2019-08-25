@@ -310,6 +310,10 @@ class BSDSocket extends Socket {
    * @return  string data
    */
   protected function _read($maxLen, $type, $chop= false) {
+    if (null === $this->_sock) {
+      throw new SocketException('Read of '.$maxLen.' bytes failed: Socket closed');
+    }
+
     $res= '';
     if (!$this->_eof && 0 === strlen($this->rq)) {
       $r= $this->_sock ? [$this->_sock] : null; $w= null; $e= null;
@@ -389,6 +393,10 @@ class BSDSocket extends Socket {
    * @throws  peer.SocketException
    */
   public function write($str) {
+    if (null === $this->_sock) {
+      throw new SocketException('Write of '.strlen($str).' bytes to socket failed: Socket closed');
+    }
+
     $len= strlen($str);
     $bytesWritten= socket_write($this->_sock, $str, $len);
     if (false === $bytesWritten || null === $bytesWritten) {

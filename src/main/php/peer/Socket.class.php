@@ -244,6 +244,10 @@ class Socket implements Channel, Value {
    * @return  string data
    */
   protected function _read($maxLen, $type, $chop= false) {
+    if (null === $this->_sock) {
+      throw new SocketException('Read of '.$maxLen.' bytes failed: Socket closed');
+    }
+
     $res= fgets($this->_sock, $maxLen);
     if (false === $res || null === $res) {
 
@@ -300,6 +304,10 @@ class Socket implements Channel, Value {
    * @throws  peer.SocketException
    */
   public function readBinary($maxLen= 4096) {
+    if (null === $this->_sock) {
+      throw new SocketException('Read of '.$maxLen.' bytes failed: Socket closed');
+    }
+
     $res= fread($this->_sock, $maxLen);
     if (false === $res || null === $res) {
       $e= new SocketException('Read of '.$maxLen.' bytes failed: '.$this->getLastError());
@@ -335,6 +343,10 @@ class Socket implements Channel, Value {
    * @throws  peer.SocketException in case of an error
    */
   public function write($str) {
+    if (null === $this->_sock) {
+      throw new SocketException('Write of '.strlen($str).' bytes to socket failed: Socket closed');
+    }
+
     if (false === ($bytesWritten= fputs($this->_sock, $str, $len= strlen($str)))) {
       $e= new SocketException('Write of '.$len.' bytes to socket failed: '.$this->getLastError());
       \xp::gc(__FILE__);
