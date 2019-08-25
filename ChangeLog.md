@@ -7,7 +7,8 @@ Networking changelog
 
 * Made compatible with PHP 7.4 - refrain using `{}` for string offsets
   (@thekid)
-* Fixed issue #57: Call to undefined method xp::stringOf() - @thekid
+* Fixed issue xp-forge/web/#57: Call to undefined method xp::stringOf()
+  (@thekid)
 
 ## 9.3.0 / 2019-01-30
 
