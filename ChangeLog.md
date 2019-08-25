@@ -3,6 +3,8 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Fixed issue #57: Call to undefined method xp::stringOf() - @thekid
+
 ## 9.3.0 / 2019-01-30
 
 * Preserve keys in arrays passed to `Sockets::select()` - @thekid

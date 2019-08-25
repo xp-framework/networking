@@ -392,7 +392,7 @@ class Socket implements Channel, Value {
     return sprintf(
       '%s(%s -> %s%s:%d)',
       nameof($this),
-      null === $this->_sock ? '(closed)' : \xp::stringOf($this->_sock),
+      null === $this->_sock ? '(closed)' : (string)$this->_sock,
       $this->_prefix,
       $this->host,
       $this->port
