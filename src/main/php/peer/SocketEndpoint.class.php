@@ -37,7 +37,7 @@ class SocketEndpoint {
     }
 
     // Parse string: "[fe80::1]:80" (v6) vs. "127.0.0.1:80" (v4)
-    if ('[' === $in{0}) {
+    if ('[' === $in[0]) {
       $r= sscanf($in, '[%[0-9a-fA-F:]]:%d', $host, $port);
     } else {
       $r= sscanf($in, '%[^:]:%d', $host, $port);

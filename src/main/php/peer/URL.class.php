@@ -1,5 +1,7 @@
 <?php namespace peer;
 
+use lang\FormatException;
+use lang\IllegalArgumentException;
 use lang\Value;
  
 /**
@@ -223,7 +225,7 @@ class URL implements Value {
       sscanf($pair, "%[^=]=%[^\r]", $key, $value);
       $key= urldecode($key);
       if (substr_count($key, '[') !== substr_count($key, ']')) {
-        throw new \lang\FormatException('Unbalanced [] in query string');
+        throw new FormatException('Unbalanced [] in query string');
       }
       if ($start= strpos($key, '[')) {    // Array notation
         $base= substr($key, 0, $start);
@@ -377,7 +379,7 @@ class URL implements Value {
    */
   public function addParam($key, $value= '') {
     if (isset($this->_info['params'][$key])) {
-      throw new \lang\IllegalArgumentException('A parameter named "'.$key.'" already exists');
+      throw new IllegalArgumentException('A parameter named "'.$key.'" already exists');
     }
     $this->_info['params'][$key]= $value;
     unset($this->_info['url']);
@@ -397,7 +399,7 @@ class URL implements Value {
       foreach ($hash as $key => $value) {
         $this->addParam($key, $value);
       }
-    } catch (\lang\IllegalArgumentException $e) {
+    } catch (IllegalArgumentException $e) {
       $this->_info['params']= $params;
       throw $e;
     }
@@ -456,7 +458,7 @@ class URL implements Value {
    */
   public function setURL($str) {
     if (!preg_match('!^([a-z][a-z0-9\+]*)://([^@/?#]+@)?([^/?#]*)(/([^#?]*))?(.*)$!', $str, $matches)) {
-      throw new \lang\FormatException('Cannot parse "'.$str.'"');
+      throw new FormatException('Cannot parse "'.$str.'"');
     }
     
     $this->_info= [];
@@ -477,7 +479,7 @@ class URL implements Value {
       $this->_info['host']= null;
     } else {
       if (!preg_match('!^([a-zA-Z0-9\.-]+|\[[^\]]+\])(:([0-9]+))?$!', $matches[3], $host)) {
-        throw new \lang\FormatException('Cannot parse "'.$str.'": Host and/or port malformed');
+        throw new FormatException('Cannot parse "'.$str.'": Host and/or port malformed');
       }
       $this->_info['host']= $host[1];
       $this->_info['port']= isset($host[2]) ? (int)$host[3] : null;
@@ -486,8 +488,8 @@ class URL implements Value {
     // Path
     if ('' === (string)$matches[4]) {
       $this->_info['path']= null;
-    } else if (strlen($matches[4]) > 3 && (':' === $matches[4]{2} || '|' === $matches[4]{2})) {
-      $this->_info['path']= $matches[4]{1}.':'.substr($matches[4], 3);
+    } else if (strlen($matches[4]) > 3 && (':' === $matches[4][2] || '|' === $matches[4][2])) {
+      $this->_info['path']= $matches[4][1].':'.substr($matches[4], 3);
     } else {
       $this->_info['path']= $matches[4];
     }
@@ -496,10 +498,10 @@ class URL implements Value {
     if ('' === (string)$matches[6] || '?' === $matches[6] || '#' === $matches[6]) {
       $this->_info['params']= [];
       $this->_info['fragment']= null;
-    } else if ('#' === $matches[6]{0}) {
+    } else if ('#' === $matches[6][0]) {
       $this->_info['params']= [];
       $this->_info['fragment']= substr($matches[6], 1);
-    } else if ('?' === $matches[6]{0}) {
+    } else if ('?' === $matches[6][0]) {
       $p= strcspn($matches[6], '#');
       $this->_info['params']= $this->parseQuery(substr($matches[6], 1, $p- 1));
       $this->_info['fragment']= $p >= strlen($matches[6])- 1 ? null : substr($matches[6], $p+ 1);
@@ -570,14 +572,14 @@ class URL implements Value {
       $unreserved[]= dechex($octet);
     }
 
-    $unreserved[]= dechex(ord( '-' ));
-    $unreserved[]= dechex(ord( '.' ));
-    $unreserved[]= dechex(ord( '_' ));
-    $unreserved[]= dechex(ord( '~' ));
+    $unreserved[]= dechex(ord('-'));
+    $unreserved[]= dechex(ord('.'));
+    $unreserved[]= dechex(ord('_'));
+    $unreserved[]= dechex(ord('~'));
 
     return preg_replace_callback( 
-      array_map(function($str) { return '/%'.strtoupper($str).'/x'; }, $unreserved), 
-      function($matches) { return chr(hexdec($matches[0])); },
+      array_map(function($str) { return '/%('.strtoupper($str).')/x'; }, $unreserved),
+      function($matches) { return chr(hexdec($matches[1])); },
       $string
     );
   }

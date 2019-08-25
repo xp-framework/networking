@@ -1,5 +1,6 @@
 <?php namespace peer\net;
 
+use lang\FormatException;
 use util\Objects;
 
 /**
@@ -45,7 +46,7 @@ class Inet6Address implements InetAddress {
 
     // Shortest address is ::1, this results in 3 parts...
     if (sizeof($hexquads) < 3) {
-      throw new \lang\FormatException('Address contains less than 1 hexquad part: ['.$addr.']');
+      throw new FormatException('Address contains less than 1 hexquad part: ['.$addr.']');
     }
 
     if ('' == $hexquads[0]) array_shift($hexquads);
@@ -57,12 +58,12 @@ class Inet6Address implements InetAddress {
 
       // Catch cases like ::ffaadd00::
       if (strlen($hq) > 4) {
-        throw new \lang\FormatException('Detected hexquad w/ more than 4 digits in ['.$addr.']');
+        throw new FormatException('Detected hexquad w/ more than 4 digits in ['.$addr.']');
       }
       
       // Not hex
       if (strspn($hq, '0123456789abcdefABCDEF') < strlen($hq)) {
-        throw new \lang\FormatException('Illegal digits in ['.$addr.']');
+        throw new FormatException('Illegal digits in ['.$addr.']');
       }
 
       $out.= str_repeat('0', 4- strlen($hq)).$hq;
@@ -81,8 +82,8 @@ class Inet6Address implements InetAddress {
    */
   public function asString() {
     $skipZero= false; $hasSkipped= false; $hexquads= [];
-    for ($i= 0; $i < 16; $i+=2) {
-      if (!$hasSkipped && "\x00\x00" == $this->addr{$i}.$this->addr{$i+1}) {
+    for ($i= 0; $i < 16; $i+= 2) {
+      if (!$hasSkipped && "\x00\x00" == $this->addr[$i].$this->addr[$i + 1]) {
         $skipZero= true;
         continue;
       }
@@ -92,10 +93,10 @@ class Inet6Address implements InetAddress {
         $hasSkipped= true;
         $skipZero= false;
       }
-      if ("\x00\x00" == $this->addr{$i}.$this->addr{$i+1}) {
+      if ("\x00\x00" == $this->addr[$i].$this->addr[$i + 1]) {
         $hexquads[]= '0';
       } else {
-        $hexquads[]= ltrim(unpack('H*', $this->addr{$i}.$this->addr{$i+1})[1], '0');
+        $hexquads[]= ltrim(unpack('H*', $this->addr[$i].$this->addr[$i + 1])[1], '0');
       }
     }
     
@@ -121,7 +122,7 @@ class Inet6Address implements InetAddress {
     $nibbles= unpack('H*', $this->addr)[1];
     $ret= '';
     for ($i= 31; $i >= 0; $i--) {
-      $ret.= $nibbles{$i}.'.';
+      $ret.= $nibbles[$i].'.';
     }
 
     return $ret.'ip6.arpa';
@@ -140,13 +141,13 @@ class Inet6Address implements InetAddress {
     
     $position= 0;
     while ($mask > 8) {
-      if ($addr->addr{$position} != $this->addr{$position}) return false;
+      if ($addr->addr[$position] != $this->addr[$position]) return false;
       $position++;
       $mask-= 8;
     }
 
     if ($mask > 0) {
-      return ord($addr->addr{$position}) >> (8- $mask) == ord($this->addr{$position}) >> (8- $mask);
+      return ord($addr->addr[$position]) >> (8 - $mask) == ord($this->addr[$position]) >> (8 - $mask);
     }
     
     return true;
@@ -162,14 +163,14 @@ class Inet6Address implements InetAddress {
   public function createSubnet($subnetSize) {
     $addr= $this->addr;
     
-    for ($i= 15; $i >= $subnetSize/8; --$i) {
-      $addr{$i}= "\x0";
+    for ($i= 15; $i >= $subnetSize / 8; --$i) {
+      $addr[$i]= "\x0";
     }
     
     if($subnetSize%8 > 0) {
       $lastNibblePos= (int)($subnetSize/8);
-      $lastByte= ord($addr{$lastNibblePos}) & (0xFF<<(8-$subnetSize%8));
-      $addr{$lastNibblePos}=pack("i*", $lastByte);
+      $lastByte= ord($addr[$lastNibblePos]) & (0xFF << (8 - $subnetSize % 8));
+      $addr[$lastNibblePos]= pack('i*', $lastByte);
     }
     return new Network(new Inet6Address($addr, true), $subnetSize);
   }
