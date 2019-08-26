@@ -28,6 +28,8 @@ class Server {
     $terminate  = false,
     $tcpnodelay = false;
 
+  private $select= [];
+
   /**
    * Constructor
    *
@@ -55,9 +57,13 @@ class Server {
    */
   public function listen($socket, ServerProtocol $protocol) {
     $protocol->server= $this;
-
     $this->socket= $socket;
     $this->protocol= $protocol;
+    return $this;
+  }
+
+  public function select($socket, $action) {
+    $this->select[(int)$socket->getHandle()]= [$socket, $action];
     return $this;
   }
 
@@ -119,8 +125,13 @@ class Server {
   public function service() {
     if (!$this->socket->isConnected()) return false;
 
-    $null= null;
     $handles= $lastAction= [];
+    foreach ($this->select as $index => $select) {
+      $handles[$index]= $select[0];
+      $lastAction[$index]= time();
+    }
+
+    $null= null;
     $accepting= $this->socket->getHandle();
     $sockets= $this->socket->kind();
     $this->protocol->initialize();
@@ -141,6 +152,8 @@ class Server {
             $this->protocol->handleDisconnect($handle);
             unset($handles[$h]);
             unset($lastAction[$h]);
+          } else if (isset($this->select[$h])) {
+            $read[]= $handle->getHandle();
           } else if ($currentTime - $lastAction[$h] > $handle->getTimeout()) {
             $this->protocol->handleError($handle, new \peer\SocketTimeoutException('Timed out', $handle->getTimeout()));
             $handle->close();
@@ -181,12 +194,18 @@ class Server {
           $timeout= $m->getTimeout();
           continue;
         }
-        
+
+        $index= (int)$handle;
+        $lastAction[$index]= $currentTime;
+
+        if (isset($this->select[$index])) {
+          $this->select[$index][1]($this, $handles[$index]);
+          continue;
+        }
+
         // Otherwise, a client is sending data. Let the protocol decide what do
         // do with it. In case of an I/O error, close the client socket and remove 
         // the client from the list.
-        $index= (int)$handle;
-        $lastAction[$index]= $currentTime;
         try {
           $this->protocol->handleData($handles[$index]);
         } catch (\io\IOException $e) {
