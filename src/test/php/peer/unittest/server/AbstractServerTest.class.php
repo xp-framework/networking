@@ -1,8 +1,8 @@
 <?php namespace peer\unittest\server;
 
-use unittest\TestCase;
-use peer\Socket;
 use lang\Runtime;
+use peer\Socket;
+use unittest\TestCase;
 
 /**
  * TestCase
@@ -93,7 +93,7 @@ abstract class AbstractServerTest extends TestCase {
       // Fall through, below should terminate the process anyway
     }
     $status= self::$serverProcess->out->readLine();
-    if (!strlen($status) || '+' != $status{0}) {
+    if (!strlen($status) || '+' !== $status[0]) {
       while ($l= self::$serverProcess->out->readLine()) {
         $status.= $l;
       }

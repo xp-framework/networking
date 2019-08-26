@@ -5,11 +5,12 @@ use lang\Runtime;
 use lang\Throwable;
 use lang\XPClass;
 use unittest\PrerequisitesNotMetError;
+use unittest\TestClassAction;
 
 /**
  * Starts a server for integration tests
  */
-class StartServer implements \unittest\TestClassAction {
+class StartServer implements TestClassAction {
   protected $serverProcess;
   protected $mainClass;
   protected $connected;
@@ -73,7 +74,7 @@ class StartServer implements \unittest\TestClassAction {
     }
 
     $status= $this->serverProcess->out->readLine();
-    if (!strlen($status) || '+' != $status{0}) {
+    if (!strlen($status) || '+' !== $status[0]) {
       while ($l= $this->serverProcess->out->readLine()) {
         $status.= $l;
       }
