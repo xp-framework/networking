@@ -3,6 +3,12 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.3.2 / 2019-09-17
+
+* Fixed two more *Array and string offset access syntax with curly braces
+  is deprecated* warnings
+  (@thekid)
+
 ## 9.3.1 / 2019-08-25
 
 * Made compatible with PHP 7.4 - refrain using `{}` for string offsets
