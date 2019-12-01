@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 9.3.3 / 2019-12-01
+
+* Made compatible with XP 10 - @thekid
+
 ## 9.3.2 / 2019-09-17
 
 * Fixed two more *Array and string offset access syntax with curly braces
