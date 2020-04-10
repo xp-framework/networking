@@ -1,8 +1,7 @@
 <?php namespace peer\unittest\net;
 
-use peer\net\Inet6Address;
-use peer\net\Network;
 use lang\FormatException;
+use peer\net\{Inet6Address, Network};
 
 /**
  * IPv6 addresses test 

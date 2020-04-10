@@ -1,11 +1,7 @@
 <?php namespace peer\unittest\sockets;
 
 use lang\Runtime;
-use peer\ConnectException;
-use peer\Socket;
-use peer\SocketEndpoint;
-use peer\SocketException;
-use peer\SocketTimeoutException;
+use peer\{ConnectException, Socket, SocketEndpoint, SocketException, SocketTimeoutException};
 use unittest\actions\IsPlatform;
 
 abstract class AbstractSocketTest extends \unittest\TestCase {

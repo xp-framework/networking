@@ -1,10 +1,9 @@
 <?php namespace peer\unittest\sockets;
 
-use unittest\actions\ExtensionAvailable;
-use unittest\actions\Actions;
-use peer\unittest\StartServer;
-use peer\BSDSocket;
 use lang\IllegalStateException;
+use peer\BSDSocket;
+use peer\unittest\StartServer;
+use unittest\actions\{Actions, ExtensionAvailable};
 
 /**
  * TestCase

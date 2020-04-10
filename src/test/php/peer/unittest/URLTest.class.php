@@ -1,8 +1,7 @@
 <?php namespace peer\unittest;
 
+use lang\{FormatException, IllegalArgumentException};
 use peer\URL;
-use lang\IllegalArgumentException;
-use lang\FormatException;
 
 /**
  * TestCase

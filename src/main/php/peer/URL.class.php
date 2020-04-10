@@ -1,9 +1,7 @@
 <?php namespace peer;
 
-use lang\FormatException;
-use lang\IllegalArgumentException;
-use lang\Value;
- 
+use lang\{FormatException, IllegalArgumentException, Value};
+
 /**
  * Represents a Uniform Resource Locator 
  *

@@ -1,9 +1,8 @@
 <?php namespace peer\unittest\sockets;
 
-use peer\SocketEndpoint;
-use peer\net\Inet4Address;
-use peer\net\Inet6Address;
 use lang\FormatException;
+use peer\SocketEndpoint;
+use peer\net\{Inet4Address, Inet6Address};
 
 /**
  * TestCase

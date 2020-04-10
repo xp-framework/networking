@@ -1,11 +1,7 @@
 <?php namespace peer\unittest;
 
-use lang\IllegalStateException;
-use lang\Runtime;
-use lang\Throwable;
-use lang\XPClass;
-use unittest\PrerequisitesNotMetError;
-use unittest\TestClassAction;
+use lang\{IllegalStateException, Runtime, Throwable, XPClass};
+use unittest\{PrerequisitesNotMetError, TestClassAction};
 
 /**
  * Starts a server for integration tests

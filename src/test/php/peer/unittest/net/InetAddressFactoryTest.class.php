@@ -1,10 +1,8 @@
 <?php namespace peer\unittest\net;
 
-use unittest\TestCase;
-use peer\net\InetAddressFactory;
-use peer\net\Inet4Address;
-use peer\net\Inet6Address;
 use lang\FormatException;
+use peer\net\{Inet4Address, Inet6Address, InetAddressFactory};
+use unittest\TestCase;
 
 class InetAddressFactoryTest extends TestCase {
   private $cut;

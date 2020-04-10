@@ -1,10 +1,7 @@
 <?php namespace peer\unittest\net;
 
-use peer\net\NetworkParser;
-use peer\net\Network;
-use peer\net\Inet4Address;
-use peer\net\Inet6Address;
 use lang\FormatException;
+use peer\net\{Inet4Address, Inet6Address, Network, NetworkParser};
 
 class NetworkParserTest extends \unittest\TestCase {
   private $cut;

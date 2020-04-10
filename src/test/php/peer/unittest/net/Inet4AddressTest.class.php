@@ -1,8 +1,7 @@
 <?php namespace peer\unittest\net;
 
-use peer\net\Inet4Address;
-use peer\net\Network;
 use lang\FormatException;
+use peer\net\{Inet4Address, Network};
 
 class Inet4AddressTest extends \unittest\TestCase {
 

@@ -2,8 +2,7 @@
 
 use lang\XPClass;
 use peer\ServerSocket;
-use peer\server\Server;
-use peer\server\ServerProtocol;
+use peer\server\{Server, ServerProtocol};
 use util\cmd\Console;
 
 /**

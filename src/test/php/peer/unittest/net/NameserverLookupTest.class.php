@@ -1,9 +1,7 @@
 <?php namespace peer\unittest\net;
 
-use peer\net\Inet4Address;
-use peer\net\Inet6Address;
-use peer\net\NameserverLookup;
 use lang\ElementNotFoundException;
+use peer\net\{Inet4Address, Inet6Address, NameserverLookup};
 
 /**
  * Test nameserver lookup API

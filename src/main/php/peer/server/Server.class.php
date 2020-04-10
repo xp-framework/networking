@@ -1,7 +1,6 @@
 <?php namespace peer\server;
 
-use peer\BSDServerSocket;
-use peer\ServerSocket;
+use peer\{BSDServerSocket, ServerSocket};
 
 /**
  * Basic TCP/IP Server
