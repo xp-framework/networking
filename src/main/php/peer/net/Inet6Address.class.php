@@ -164,26 +164,21 @@ class Inet6Address implements InetAddress {
     $addr= $this->addr;
     
     for ($i= 15; $i >= $subnetSize / 8; --$i) {
-      $addr[$i]= "\x0";
+      $addr[$i]= "\0";
     }
     
-    if($subnetSize%8 > 0) {
-      $lastNibblePos= (int)($subnetSize/8);
-      $lastByte= ord($addr[$lastNibblePos]) & (0xFF << (8 - $subnetSize % 8));
-      $addr[$lastNibblePos]= pack('i*', $lastByte);
+    if($subnetSize % 8 > 0) {
+      $lastNibblePos= (int)($subnetSize / 8);
+      $addr[$lastNibblePos]= chr(ord($addr[$lastNibblePos]) & (0xFF << (8 - $subnetSize % 8)));
     }
     return new Network(new Inet6Address($addr, true), $subnetSize);
   }
 
   /** @return string */
-  public function toString() {
-    return nameof($this).'('.$this->asString().')';
-  }
+  public function toString() { return nameof($this).'('.$this->asString().')'; }
 
   /** @return string */
-  public function hashCode() {
-    return $this->asString();
-  }
+  public function hashCode() { return $this->asString(); }
 
   /**
    * Compare

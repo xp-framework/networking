@@ -5,6 +5,9 @@ Networking changelog
 
 ## 10.0.0 / 2020-04-10
 
+* Fixed "Only the first byte will be assigned to the string offset"
+  warning in PHP 8.0
+  (@thekid)
 * Implemented xp-framework/rfc#334: Drop PHP 5.6:
   . **Heads up:** Minimum required PHP version now is PHP 7.0.0
   . Rewrote code base, grouping use statements
