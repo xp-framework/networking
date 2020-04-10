@@ -75,7 +75,7 @@ class URL implements Value {
    * @return  string scheme or default if none is set
    */
   public function getScheme($default= null) {
-    return isset($this->_info['scheme']) ? $this->_info['scheme'] : $default;
+    return $this->_info['scheme'] ?? $default;
   }
   
   /**
@@ -97,7 +97,7 @@ class URL implements Value {
    * @return  string host or default if none is set
    */
   public function getHost($default= null) {
-    return isset($this->_info['host']) ? $this->_info['host'] : $default;
+    return $this->_info['host'] ?? $default;
   }
   
   /**
@@ -119,7 +119,7 @@ class URL implements Value {
    * @return  string path or default if none is set
    */
   public function getPath($default= null) {
-    return isset($this->_info['path']) ? $this->_info['path'] : $default;
+    return $this->_info['path'] ?? $default;
   }
   
   /**
@@ -141,7 +141,7 @@ class URL implements Value {
    * @return  string user or default if none is set
    */
   public function getUser($default= null) {
-    return isset($this->_info['user']) ? $this->_info['user'] : $default;
+    return $this->_info['user'] ?? $default;
   }
   
   /**
@@ -163,7 +163,7 @@ class URL implements Value {
    * @return  string password or default if none is set
    */
   public function getPassword($default= null) {
-    return isset($this->_info['pass']) ? $this->_info['pass'] : $default;
+    return $this->_info['pass'] ?? $default;
   }
 
   /**
@@ -284,7 +284,7 @@ class URL implements Value {
    * @return  string fragment or default if none is set
    */
   public function getFragment($default= null) {
-    return isset($this->_info['fragment']) ? $this->_info['fragment'] : $default;
+    return $this->_info['fragment'] ?? $default;
   }
 
   /**
@@ -306,7 +306,7 @@ class URL implements Value {
    * @return  int port or default if none is set
    */
   public function getPort($default= null) {
-    return isset($this->_info['port']) ? $this->_info['port'] : $default;
+    return $this->_info['port'] ?? $default;
   }
   
   /**
@@ -329,7 +329,7 @@ class URL implements Value {
    * @return  string url-decoded parameter value or default if none is set
    */
   public function getParam($name, $default= null) {
-    return isset($this->_info['params'][$name]) ? $this->_info['params'][$name] : $default;
+    return $this->_info['params'][$name] ?? $default;
   }
 
   /**
