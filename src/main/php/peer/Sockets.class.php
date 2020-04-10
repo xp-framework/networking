@@ -6,7 +6,7 @@ abstract class Sockets extends Enum {
   public static $STREAM, $BSD;
 
   static function __static() {
-    self::$STREAM= newinstance(self::class, [0, 'STREAM'], '{
+    self::$STREAM= new class(0, 'STREAM') extends Sockets {
       static function __static() { }
 
       public function select0(&$r, &$w, &$e, $timeout= null) {
@@ -26,10 +26,10 @@ abstract class Sockets extends Enum {
         //   error (regardless of the return value)
         if (isset(\xp::$errors[__FILE__])) {
           $msg= key(\xp::$errors[__FILE__][__LINE__ - 8]);
-          if (stristr($msg, "Interrupted system call")) {
+          if (stristr($msg, 'Interrupted system call')) {
             \xp::gc(__FILE__);
             return null;
-          } else if (stristr($msg, "Invalid CRT parameters detected")) {
+          } else if (stristr($msg, 'Invalid CRT parameters detected')) {
             \xp::gc(__FILE__);
           } else {
             $n= false;
@@ -44,8 +44,8 @@ abstract class Sockets extends Enum {
 
         return $n;
       }
-    }');
-    self::$BSD= newinstance(self::class, [1, 'BSD'], '{
+    };
+    self::$BSD= new class(1, 'BSD') extends Sockets {
       static function __static() { }
 
       public function select0(&$r, &$w, &$e, $timeout= null) {
@@ -71,7 +71,7 @@ abstract class Sockets extends Enum {
 
         return $n;
       }
-    }');
+    };
   }
 
   /** Maps sockets -> handles */
