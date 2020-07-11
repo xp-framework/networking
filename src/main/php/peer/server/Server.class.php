@@ -67,7 +67,7 @@ class Server {
   public function init() {
     $this->socket->create();
     $this->socket->bind(true);
-    $this->socket->listen(SOMAXCONN);
+    $this->socket->listen();
   }
   
   /**

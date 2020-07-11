@@ -3,6 +3,11 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.0.1 / 2020-07-11
+
+* Fix issue #14: Discover SOMAXCONN programmatically if not defined
+  (@thekid)
+
 ## 10.0.0 / 2020-04-10
 
 * Fixed "Only the first byte will be assigned to the string offset"

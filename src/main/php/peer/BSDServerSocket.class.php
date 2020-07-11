@@ -90,11 +90,11 @@ class BSDServerSocket extends BSDSocket {
    * succeed. 
    * </quote>
    *
-   * @param   int backlog default 10
+   * @param   int backlog default SOMAXCONN
    * @return  bool success
    * @throws  peer.SocketException in case of an error
    */
-  public function listen($backlog= 10) {
+  public function listen($backlog= SOMAXCONN) {
     if (false === socket_listen($this->_sock, $backlog)) {
       throw new SocketException(sprintf(
         'Listening on socket failed: %s',

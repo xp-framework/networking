@@ -11,6 +11,29 @@ use lang\IllegalAccessException;
  */
 class ServerSocket extends Socket {
 
+  static function __static() {
+    if (defined('SOMAXCONN')) return;
+
+    // Discover SOMAXCONN depending on platform, using 128 as fallback
+    // See https://stackoverflow.com/q/1198564
+    if (0 === strncasecmp(PHP_OS, 'Win', 3)) {
+      $value= 0x7fffffff;
+    } else if (file_exists('/proc/sys/net/core/somaxconn')) {
+      $value= (int)file_get_contents('/proc/sys/net/core/somaxconn');
+    } else if (file_exists('/etc/sysctl.conf')) {
+      $value= 128;
+      foreach (file('/etc/sysctl.conf') as $line) {
+        if (0 === strncmp($line, 'kern.ipc.somaxconn=', 19)) {
+          $value= (int)substr($line, 19);
+          break;
+        }
+      }
+    } else {
+      $value= 128;
+    }
+    define('SOMAXCONN', $value);
+  }
+
   /**
    * Connect. Overwritten method from BSDSocket that will always throw
    * an exception because connect() doesn't make sense here!
@@ -56,11 +79,11 @@ class ServerSocket extends Socket {
    * succeed. 
    * </quote>
    *
-   * @param   int backlog default 10
+   * @param   int backlog default SOMAXCONN
    * @return  bool success
    * @throws  peer.SocketException in case of an error
    */
-  public function listen($backlog= 10) {
+  public function listen($backlog= SOMAXCONN) {
     stream_context_set_option($this->context, 'socket', 'backlog', $backlog);
 
     // Force IPv4 for localhost, see https://github.com/xp-framework/networking/issues/0
