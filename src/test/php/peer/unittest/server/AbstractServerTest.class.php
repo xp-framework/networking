@@ -2,7 +2,7 @@
 
 use lang\Runtime;
 use peer\Socket;
-use unittest\TestCase;
+use unittest\{AfterClass, TestCase};
 
 /**
  * TestCase
@@ -80,7 +80,7 @@ abstract class AbstractServerTest extends TestCase {
    * Shut down socket server
    *
    */
-  #[@afterClass]
+  #[AfterClass]
   public static function shutdownServer() {
 
     // Tell the server to shut down

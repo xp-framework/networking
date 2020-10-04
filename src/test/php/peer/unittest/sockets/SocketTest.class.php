@@ -9,10 +9,7 @@ use unittest\actions\VerifyThat;
  *
  * @see      xp://peer.Socket
  */
-#[@action([
-#  new VerifyThat(function() { return !defined('HHVM_VERSION'); }),
-#  new StartServer('peer.unittest.sockets.TestingServer', 'connected', 'shutdown')
-#])]
+#[Action(eval: 'new StartServer(TestingServer::class, "connected", "shutdown")')]
 class SocketTest extends AbstractSocketTest {
 
   /**

@@ -1,9 +1,7 @@
 <?php namespace peer\unittest\server;
 
-/**
- * TestCase for default server protocol
- *
- */
+use unittest\{BeforeClass, Ignore, Test};
+
 class ServerTest extends AbstractServerTest {
   
   /**
@@ -11,25 +9,25 @@ class ServerTest extends AbstractServerTest {
    *
    * @return void
    */
-  #[@beforeClass]
+  #[BeforeClass]
   public static function startServer() {
     parent::startServerWith('peer.unittest.server.TestingProtocol');
   }
 
-  #[@test]
+  #[Test]
   public function connected() {
     $this->connect();
     $this->assertHandled(['CONNECT']);
   }
 
-  #[@test]
+  #[Test]
   public function disconnected() {
     $this->connect();
     $this->conn->close();
     $this->assertHandled(['CONNECT', 'DISCONNECT']);
   }
 
-  #[@test, @ignore('Fragile test, dependant on OS / platform and implementation vagaries')]
+  #[Test, Ignore('Fragile test, dependant on OS / platform and implementation vagaries')]
   public function error() {
     $this->connect();
     $this->conn->write("SEND\n");

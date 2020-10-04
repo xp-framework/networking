@@ -2,6 +2,7 @@
 
 use lang\FormatException;
 use peer\net\{Inet6Address, Network};
+use unittest\{Expect, Test};
 
 /**
  * IPv6 addresses test 
@@ -10,7 +11,7 @@ use peer\net\{Inet6Address, Network};
  */
 class Inet6AddressTest extends \unittest\TestCase {
 
-  #[@test]
+  #[Test]
   public function createAddress() {
     $this->assertEquals(
       'febc:a574:382b:23c1:aa49:4592:4efe:9982',
@@ -18,7 +19,7 @@ class Inet6AddressTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function createAddressFromUpperCase() {
     $this->assertEquals(
       'febc:a574:382b:23c1:aa49:4592:4efe:9982',
@@ -26,7 +27,7 @@ class Inet6AddressTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function createAddressFromPackedForm() {
     $this->assertEquals(
       '::1',
@@ -34,7 +35,7 @@ class Inet6AddressTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function createAddressFromPackedFormWithColonSpecialCase() {
     $this->assertEquals(
       '::3a',
@@ -42,7 +43,7 @@ class Inet6AddressTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function addressIsShortened() {
     $this->assertEquals(
       'febc:a574:382b::4592:4efe:9982',
@@ -50,7 +51,7 @@ class Inet6AddressTest extends \unittest\TestCase {
     );
   }
   
-  #[@test]
+  #[Test]
   public function addressShorteningOnlyTakesPlaceOnce() {
     $this->assertEquals(
       'febc::23c1:aa49:0:0:9982',
@@ -58,7 +59,7 @@ class Inet6AddressTest extends \unittest\TestCase {
     );
   }
   
-  #[@test]
+  #[Test]
   public function hexquadsAreShortenedWhenStartingWithZero() {
     $this->assertEquals(
       'febc:a574:2b:23c1:aa49:4592:4efe:9982',
@@ -66,7 +67,7 @@ class Inet6AddressTest extends \unittest\TestCase {
     );
   }
   
-  #[@test]
+  #[Test]
   public function addressPrefixIsShortened() {
     $this->assertEquals(
       '::382b:23c1:aa49:4592:4efe:9982',
@@ -74,7 +75,7 @@ class Inet6AddressTest extends \unittest\TestCase {
     );
   }
   
-  #[@test]
+  #[Test]
   public function addressPostfixIsShortened() {
     $this->assertEquals(
       'febc:a574:382b:23c1:aa49::',
@@ -82,87 +83,87 @@ class Inet6AddressTest extends \unittest\TestCase {
     );
   }
   
-  #[@test]
+  #[Test]
   public function loopbackAddress() {
     $this->assertEquals('::1', (new Inet6Address('::1'))->asString());
   }
   
-  #[@test]
+  #[Test]
   public function isLoopbackAddress() {
     $this->assertTrue((new Inet6Address('::1'))->isLoopback());
   }
   
-  #[@test]
+  #[Test]
   public function isNotLoopbackAddress() {
     $this->assertFalse((new Inet6Address('::2'))->isLoopback());
   }
   
-  #[@test]
+  #[Test]
   public function inSubnet() {
     $this->assertTrue((new Inet6Address('::1'))->inSubnet(new Network(new Inet6Address('::1'), 120)));
   }
   
-  #[@test]
+  #[Test]
   public function inSmallestPossibleSubnet() {
     $this->assertTrue((new Inet6Address('::1'))->inSubnet(new Network(new Inet6Address('::0'), 127)));
   }
   
-  #[@test]
+  #[Test]
   public function notInSubnet() {
     $this->assertFalse((new Inet6Address('::1'))->inSubnet(new Network(new Inet6Address('::0101'), 120)));
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function illegalAddress() {
     new Inet6Address('::ffffff:::::a');
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function anotherIllegalAddress() {
     new Inet6Address('');
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function invalidInputOfNumbers() {
     new Inet6Address('12345678901234567');
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function invalidHexQuadBeginning() {
     new Inet6Address('XXXX::a574:382b:23c1:aa49:4592:4efe:9982');
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function invalidHexQuadEnd() {
     new Inet6Address('9982::a574:382b:23c1:aa49:4592:4efe:XXXX');
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function invalidHexQuad() {
     new Inet6Address('a574::XXXX:382b:23c1:aa49:4592:4efe:9982');
   }
   
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function invalidHexDigit() {
     new Inet6Address('a574::382X:382b:23c1:aa49:4592:4efe:9982');
   }
 
-  #[@test]
+  #[Test]
   public function sameIPsShouldBeEqual() {
     $this->assertEquals(new Inet6Address('::1'), new Inet6Address('::1'));
   }
 
-  #[@test]
+  #[Test]
   public function differentIPsShouldBeDifferent() {
     $this->assertNotEquals(new Inet6Address('::1'), new Inet6Address('::fe08'));
   }
 
-  #[@test]
+  #[Test]
   public function castToString() {
     $this->assertEquals('[::1]', (string)new Inet6Address('::1'));
   }
 
-  #[@test]
+  #[Test]
   public function reversedNotation() {
     $this->assertEquals(
       'b.a.9.8.7.6.5.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa',
@@ -170,7 +171,7 @@ class Inet6AddressTest extends \unittest\TestCase {
     );
   }
   
-  #[@test]
+  #[Test]
   public function createSubnet_creates_subnet_with_trailing_zeros() {
     $addr= new Inet6Address('febc:a574:382b:23c1:aa49:4592:4efe:9982');
     $subNetSize= 64;

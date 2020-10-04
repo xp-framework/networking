@@ -2,6 +2,7 @@
 
 use lang\FormatException;
 use peer\net\{Inet4Address, Inet6Address, Network, NetworkParser};
+use unittest\{Expect, Test};
 
 class NetworkParserTest extends \unittest\TestCase {
   private $cut;
@@ -11,7 +12,7 @@ class NetworkParserTest extends \unittest\TestCase {
     $this->cut= new NetworkParser();
   }
 
-  #[@test]
+  #[Test]
   public function parseV4Network() {
     $this->assertEquals(
       new Network(new Inet4Address('192.168.1.1'), 24),
@@ -19,12 +20,12 @@ class NetworkParserTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function parseV4NetworkThrowsExceptionOnIllegalNetworkString() {
     $this->cut->parse('192.168.1.1 b24');
   }
 
-  #[@test]
+  #[Test]
   public function parseV6Network() {
     $this->assertEquals(
       new Network(new Inet6Address('fc00::'), 7),
@@ -32,7 +33,7 @@ class NetworkParserTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function tryParse() {
     $this->assertEquals(
       new Network(new Inet4Address('172.16.0.0'), 12),
@@ -40,7 +41,7 @@ class NetworkParserTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function tryParseReturnsNullOnFailure() {
     $this->assertEquals(null, $this->cut->tryParse('not a network'));
   }

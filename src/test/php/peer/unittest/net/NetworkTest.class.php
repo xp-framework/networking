@@ -2,21 +2,22 @@
 
 use lang\FormatException;
 use peer\net\{Inet4Address, Inet6Address, Network};
+use unittest\{Expect, Test};
 
 class NetworkTest extends \unittest\TestCase {
 
-  #[@test]
+  #[Test]
   public function createNetwork() {
     $net= new Network(new Inet4Address("127.0.0.1"), 24);
     $this->assertEquals('127.0.0.1/24', $net->asString());
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function createNetworkFailsIfTooLargeNetmaskGiven() {
     new Network(new Inet4Address("127.0.0.1"), 33);
   }
 
-  #[@test]
+  #[Test]
   public function createNetworkV6() {
     $this->assertEquals(
       'fe00::/7',
@@ -24,7 +25,7 @@ class NetworkTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function createNetworkV6WorkAlsoWithNetmaskTooBigInV4() {
     $this->assertEquals(
       'fe00::/35',
@@ -32,38 +33,38 @@ class NetworkTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function createNetworkV6FailsIfTooLargeNetmaskGiven() {
     new Network(new Inet6Address('fe00::'), 763);
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function createNetworkFailsIfTooSmallNetmaskGiven() {
     new Network(new Inet4Address("127.0.0.1"), -1);
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function createNetworkFailsIfNonIntegerNetmaskGiven() {
     new Network(new Inet4Address("127.0.0.1"), 0.5);
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function createNetworkFailsIfStringGiven() {
     new Network(new Inet4Address("127.0.0.1"), "Hello");
   }
 
-  #[@test]
+  #[Test]
   public function networkAddress() {
     $net= new Network(new Inet4Address("127.0.0.0"), 24);
     $this->assertEquals(new Inet4Address("127.0.0.0"), $net->getNetworkAddress());
   }
 
-  #[@test]
+  #[Test]
   public function loopbackNetworkContainsLoopbackAddressV4() {
     $this->assertTrue((new Network(new Inet4Address('127.0.0.5'), 24))->contains(new Inet4Address('127.0.0.1')));
   }
 
-  #[@test]
+  #[Test]
   public function equalNetworksAreEqual() {
     $this->assertEquals(
       new Network(new Inet4Address('127.0.0.1'), 8),

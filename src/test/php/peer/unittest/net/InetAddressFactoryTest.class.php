@@ -2,7 +2,7 @@
 
 use lang\FormatException;
 use peer\net\{Inet4Address, Inet6Address, InetAddressFactory};
-use unittest\TestCase;
+use unittest\{Expect, Test, TestCase};
 
 class InetAddressFactoryTest extends TestCase {
   private $cut;
@@ -12,42 +12,42 @@ class InetAddressFactoryTest extends TestCase {
     $this->cut= new InetAddressFactory();
   }
 
-  #[@test]
+  #[Test]
   public function createLocalhostV4() {
     $this->assertInstanceOf(Inet4Address::class, $this->cut->parse('127.0.0.1'));
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function parseInvalidAddressThatLooksLikeV4() {
     $this->cut->parse('3.33.333.333');
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function parseInvalidAddressThatAlsoLooksLikeV4() {
     $this->cut->parse('10..3.3');
   }
 
-  #[@test]
+  #[Test]
   public function tryParse() {
     $this->assertEquals(new Inet4Address('172.17.29.6'), $this->cut->tryParse('172.17.29.6'));
   }
 
-  #[@test]
+  #[Test]
   public function tryParseReturnsNullOnFailure() {
     $this->assertEquals(null, $this->cut->tryParse('not an ip address'));
   }
 
-  #[@test]
+  #[Test]
   public function parseLocalhostV6() {
     $this->assertInstanceOf(Inet6Address::class, $this->cut->parse('::1'));
   }
 
-  #[@test]
+  #[Test]
   public function parseV6() {
     $this->assertInstanceOf(Inet6Address::class, $this->cut->parse('fe80::a6ba:dbff:fefe:7755'));
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function parseThatLooksLikeV6() {
     $this->cut->parse('::ffffff:::::a');
   }

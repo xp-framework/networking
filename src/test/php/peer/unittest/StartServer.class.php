@@ -21,7 +21,7 @@ class StartServer implements TestClassAction {
    * @param string[] $arguments Arguments to server process
    */
   public function __construct($mainClass, $connected, $shutdown, $arguments= []) {
-    $this->mainClass= $mainClass;
+    $this->mainClass= strtr($mainClass, '\\', '.');
     $this->connected= $connected;
     $this->shutdown= $shutdown;
     $this->arguments= $arguments;
