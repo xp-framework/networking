@@ -191,11 +191,11 @@ class URL implements Value {
     if (is_array($value)) {
       if (is_int(key($value))) {
         foreach ($value as $i => $v) {
-          $query.= $this->buildQuery(null, $v, $postfix.$key.'[]');
+          $query.= $this->buildQuery('', $v, $postfix.$key.'[]');
         }
       } else {
         foreach ($value as $k => $v) {
-          $query.= $this->buildQuery(null, $v, $postfix.$key.'['.$k.']');
+          $query.= $this->buildQuery('', $v, $postfix.$key.'['.$k.']');
         }
       }
     } else if ('' === $value) {
@@ -219,7 +219,7 @@ class URL implements Value {
 
     $params= [];
     foreach (explode('&', $query) as $pair) {
-      $key= $value= null;
+      $key= $value= '';
       sscanf($pair, "%[^=]=%[^\r]", $key, $value);
       $key= urldecode($key);
       if (substr_count($key, '[') !== substr_count($key, ']')) {

@@ -3,6 +3,9 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Prevented warnings when building and extracting query in PHP 8.1
+  (@thekid)
+
 ## 10.0.1 / 2020-07-11
 
 * Fixed issue #14: Discover SOMAXCONN programmatically if not defined
