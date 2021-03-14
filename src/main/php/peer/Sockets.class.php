@@ -76,21 +76,19 @@ abstract class Sockets extends Enum {
   }
 
   /** Maps sockets -> handles */
-  private function handles($sockets, &$lookup) {
+  private function handles($sockets) {
     $r= [];
     foreach ($sockets as $key => $socket) {
-      $handle= $socket->getHandle();
-      $r[$key]= $handle;
-      $lookup[(int)$handle]= $socket;
+      $r[$key]= $socket->getHandle();
     }
     return $r;
   }
 
   /** Maps handles -> socket */
-  private function sockets($handles, &$lookup) {
+  private function sockets($handles, $sockets) {
     $r= [];
-    foreach ($handles as $key => $handle) {
-      $r[$key]= $lookup[(int)$handle];
+    foreach ($handles as $key => $_) {
+      $r[$key]= $sockets[$key];
     }
     return $r;
   }
@@ -118,20 +116,19 @@ abstract class Sockets extends Enum {
    * @throws peer.SocketException
    */
   public function select(&$read, &$write, &$except, $timeout= null) {
-    $sockets= [];
 
     // Map sockets to handles
-    $r= null === $read ? null : $this->handles($read, $sockets);
-    $w= null === $write ? null : $this->handles($write, $sockets);
-    $e= null === $except ? null : $this->handles($except, $sockets);
+    $r= null === $read ? null : $this->handles($read);
+    $w= null === $write ? null : $this->handles($write);
+    $e= null === $except ? null : $this->handles($except);
 
     // Call "raw" select on handles
     $n= $this->select0($r, $w, $e, $timeout);
 
     // Map handles to sockets
-    $read= null === $r ? null : $this->sockets($r, $sockets);
-    $write= null === $w ? null : $this->sockets($w, $sockets);
-    $except= null === $e ? null : $this->sockets($e, $sockets);
+    $read= null === $r ? null : $this->sockets($r, $read);
+    $write= null === $w ? null : $this->sockets($w, $write);
+    $except= null === $e ? null : $this->sockets($e, $except);
     
     return $n;
   }

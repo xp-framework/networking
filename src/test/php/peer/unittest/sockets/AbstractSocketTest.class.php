@@ -359,6 +359,21 @@ abstract class AbstractSocketTest extends \unittest\TestCase {
   }
 
   #[Test]
+  public function select_from_two_sockets() {
+    $a= clone $this->fixture;
+    $b= clone $this->fixture;
+
+    $a->connect();
+    $b->connect();
+    $a->write("ECHO EOF\n");
+
+    $r= [$b, $a]; $w= null; $e= null;
+    $this->fixture->kind()->select($r, $w, $e, 0.1);
+
+    $this->assertEquals([1 => $a], $r);
+  }
+
+  #[Test]
   public function select_keyed_array() {
     $this->fixture->connect();
     
