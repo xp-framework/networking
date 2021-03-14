@@ -5,6 +5,9 @@ Networking changelog
 
 ## 10.0.2 / 2021-03-14
 
+* Fixed issue #16: PHP 8+ compatibility: ext/sockets after it changed
+  from resources to opaque objects.
+  (@thekid)
 * Fixed issue #15: PHP 8.1 compatibility: Socket select argument types
   (@thekid)
 * Prevented warnings when building and extracting query in PHP 8.1
