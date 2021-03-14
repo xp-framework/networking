@@ -64,7 +64,7 @@ class Socket implements Channel, Value {
    * @throws  peer.SocketException
    */
   public function localEndpoint() {
-    if (is_resource($this->_sock)) {
+    if ($this->_sock) {
       if (false === ($addr= stream_socket_get_name($this->_sock, false))) {
         throw new SocketException('Cannot get socket name on '.$this->_sock);
       }
@@ -113,7 +113,7 @@ class Socket implements Channel, Value {
    * @return  bool connected
    */
   public function isConnected() {
-    return is_resource($this->_sock);
+    return null !== $this->_sock;
   }
 
   /**
@@ -147,6 +147,7 @@ class Socket implements Channel, Value {
       STREAM_CLIENT_CONNECT,
       $this->context
     )) {
+      $this->_sock= null;
       $e= new ConnectException(sprintf(
         'Failed connecting to %s:%s within %s seconds [%d: %s]',
         $this->host,
@@ -169,7 +170,7 @@ class Socket implements Channel, Value {
    * @return  bool success
    */
   public function close() {
-    if (!is_resource($this->_sock)) return false;
+    if (null === $this->_sock) return false;
 
     $res= fclose($this->_sock);
     $this->_sock= null;
@@ -186,7 +187,7 @@ class Socket implements Channel, Value {
     $this->_timeout= $timeout;
     
     // Apply changes to already opened connection
-    if (is_resource($this->_sock)) {
+    if ($this->_sock) {
       stream_set_timeout($this->_sock, $this->_timeout);
     }
   }

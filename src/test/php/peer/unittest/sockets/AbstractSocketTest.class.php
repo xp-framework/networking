@@ -270,7 +270,7 @@ abstract class AbstractSocketTest extends \unittest\TestCase {
   #[Test]
   public function getHandle() {
     $this->fixture->connect();
-    $this->assertTrue(is_resource($this->fixture->getHandle()));
+    $this->assertNotEquals(null, $this->fixture->getHandle());
   }
 
   #[Test]

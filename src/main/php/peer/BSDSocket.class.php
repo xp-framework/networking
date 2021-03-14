@@ -34,7 +34,7 @@ class BSDSocket extends Socket {
    * @throws  peer.SocketException
    */
   public function localEndpoint() {
-    if (is_resource($this->_sock)) {
+    if ($this->_sock) {
       if (false === socket_getsockname($this->_sock, $host, $port)) {
         throw new SocketException('Cannot get socket name on '.$this->_sock);
       }
@@ -160,6 +160,7 @@ class BSDSocket extends Socket {
     
     // Create socket...
     if (!($this->_sock= socket_create($this->domain, $this->type, $this->protocol))) {
+      $this->_sock= null;
       $e= new ConnectException(sprintf(
         'Create of %s socket (type %s, protocol %s) failed: %d: %s',
         $domains[$this->domain],
@@ -209,6 +210,7 @@ class BSDSocket extends Socket {
 
     // Check return status
     if (false === $r) {
+      $this->_sock= null;
       $e= new ConnectException(sprintf(
         'Connect to %s:%d failed: %s',
         $this->host,
@@ -227,7 +229,7 @@ class BSDSocket extends Socket {
    * @return  bool success
    */
   public function close() {
-    if (!is_resource($this->_sock)) return false;
+    if (null === $this->_sock) return false;
 
     socket_close($this->_sock);
     $this->_sock= null;
