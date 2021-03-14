@@ -3,6 +3,8 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.0.2 / 2021-03-14
+
 * Prevented warnings when building and extracting query in PHP 8.1
   (@thekid)
 
