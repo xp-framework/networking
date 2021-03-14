@@ -409,4 +409,16 @@ class BSDSocket extends Socket {
     
     return $bytesWritten;
   }
+
+  /** @return string */
+  public function toString() {
+    return sprintf(
+      '%s(%s -> %s%s:%d)',
+      nameof($this),
+      null === $this->_sock ? '(closed)' : spl_object_id($this->_sock),
+      $this->_prefix,
+      $this->host,
+      $this->port
+    );
+  }
 }
