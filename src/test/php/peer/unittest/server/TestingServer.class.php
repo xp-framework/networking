@@ -2,7 +2,6 @@
 
 use lang\XPClass;
 use peer\ServerSocket;
-use peer\server\{Server, ServerProtocol};
 use util\cmd\Console;
 
 /**
@@ -27,11 +26,11 @@ class TestingServer {
    * @param   string[] args
    */
   public static function main(array $args) {
-    $s= new Server();
+    $s= XPClass::forName($args[1] ?? 'peer.server.Server')->newInstance();
+    $socket= new ServerSocket('127.0.0.1', 0);
     try {
-      $s->listen(new ServerSocket('127.0.0.1', 0), XPClass::forName($args[0])->newInstance());
-      $s->init();
-      Console::writeLinef('+ Service %s:%d', $s->socket->host, $s->socket->port);
+      $s->listen($socket, XPClass::forName($args[0])->newInstance());
+      Console::writeLinef('+ Service %s:%d', $socket->host, $socket->port);
       $s->service();
       Console::writeLine('+ Done');
     } catch (\lang\Throwable $e) {
