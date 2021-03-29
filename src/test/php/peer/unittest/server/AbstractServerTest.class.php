@@ -50,19 +50,19 @@ abstract class AbstractServerTest extends TestCase {
   /**
    * Starts server in background
    *
-   * @param  string $protocol
-   * @param  string $impl
+   * @param  string $protocol Protocol implementation
+   * @param  string $server Server implementation
    * @throws unittest.PrerequisitesNotMetError
    * @return void
    */
-  public static function startServerWith($protocol, $impl= 'peer.server.Server') {
+  public static function startServerWith($protocol, $server) {
 
     // Start server process
     with ($rt= Runtime::getInstance()); {
       self::$serverProcess= $rt->getExecutable()->newInstance(array_merge(
         $rt->startupOptions()->asArguments(),
         [$rt->bootstrapScript('class')],
-        ['peer.unittest.server.TestingServer', $protocol, $impl]
+        ['peer.unittest.server.TestingServer', $protocol, $server]
       ));
     }
     self::$serverProcess->in->close();
