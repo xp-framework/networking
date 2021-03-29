@@ -66,9 +66,6 @@ class AsyncServer extends Server {
    */
   public function shutdown() {
     $this->terminate= true;
-    while ($socket= array_pop($this->select)) {
-      $socket->close();
-    }
   }
 
   /**
@@ -126,7 +123,7 @@ class AsyncServer extends Server {
       // already invalid at that time) and remove it from the clients list.
       $read= [];
       foreach ($this->select as $i => $socket) {
-        if (!$socket->isConnected()) {
+        if (!$socket->isConnected() || $socket->eof()) {
           if ($f= $this->handle[$i][1] ?? null) $f($socket);
           unset($this->select[$i], $this->handle[$i], $next[$i]);
           continue;
@@ -149,7 +146,7 @@ class AsyncServer extends Server {
 
         $read[$i]= $socket;
       }
-      // echo '* SELECT (', \util\Objects::stringOf($next), ")\n";
+      // echo '* SELECT (', \util\Objects::stringOf($next), ' -> ', $next ? max(0, min($next) - $time) : null, ")\n";
       $sockets->select($read, $null, $null, $next ? max(0, min($next) - $time) : null);
 
       // Run scheduled tasks, recording their next run immediately thereafter
@@ -189,6 +186,12 @@ class AsyncServer extends Server {
 
       $time= time();
     } while (!$this->terminate);
+
+    // Close all accepted sockets first, then the listening sockets
+    for ($i= sizeof($this->select) - 1; $i >= 0; $i--) {
+      $this->select[$i]->close();
+      if ($f= $this->handle[$i][1] ?? null) $f($this->select[$i]);
+    }
   }
 
   /**
