@@ -10,7 +10,6 @@ use peer\{BSDServerSocket, ServerSocket};
  *   
  * $server= new Server();
  * $server->listen(new ServerSocket('127.0.0.1', 6100), new MyProtocol());
- * $server->init();
  * $server->service();
  * $server->shutdown();
  * ```
@@ -55,6 +54,10 @@ class Server {
   public function listen($socket, ServerProtocol $protocol) {
     $protocol->server= $this;
 
+    $socket->create();
+    $socket->bind(true);
+    $socket->listen();
+
     $this->socket= $socket;
     $this->protocol= $protocol;
     return $this;
@@ -63,21 +66,21 @@ class Server {
   /**
    * Initialize the server
    *
+   * @deprecated
    */
   public function init() {
-    $this->socket->create();
-    $this->socket->bind(true);
-    $this->socket->listen();
+    // NOOP
   }
   
   /**
    * Shutdown the server
    *
+   * @return void
    */
   public function shutdown() {
-    $this->server->terminate= true;
+    $this->terminate= true;
     $this->socket->close();
-    $this->server->terminate= false;
+    $this->terminate= false;
   }
   
   /**
@@ -187,7 +190,7 @@ class Server {
         $index= (int)$handle;
         $lastAction[$index]= $currentTime;
         try {
-          $this->protocol->handleData($handles[$index]);
+          foreach ($this->protocol->handleData($handles[$index]) ?? [] as $_) { }
         } catch (\io\IOException $e) {
           $this->protocol->handleError($handles[$index], $e);
           $handles[$index]->close();
