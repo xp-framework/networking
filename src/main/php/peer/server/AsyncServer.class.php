@@ -176,17 +176,17 @@ class AsyncServer extends Server {
 
             $this->tasks[$task]= [0, function() use(&$continuation, $i) {
               try {
-                if (!isset($continuation[$i]) || !$continuation[$i]->valid()) {
-                  unset($continuation[$i]);
-                  return -1;
+                if ($continuation[$i]->valid()) {
+                  $continuation[$i]->next();
+                  return;
                 }
-
-                $continuation[$i]->next();
               } catch (SocketException $t) {
                 if ($f= $this->handle[$i][2] ?? null) $f($this->select[$i], $t);
                 $this->select[$i]->close();
-                return -1;
               }
+
+              unset($continuation[$i]);
+              return -1;
             }];
           }
 
