@@ -2,7 +2,7 @@
 
 use lang\{IllegalStateException, Throwable};
 use peer\server\protocol\SocketAcceptHandler;
-use peer\{ServerSocket, SocketTimeoutException};
+use peer\{ServerSocket, SocketException, SocketTimeoutException};
 
 /**
  * Asynchronous TCP/IP Server
@@ -13,7 +13,6 @@ use peer\{ServerSocket, SocketTimeoutException};
  * $server= new AsyncServer();
  * $server->listen(new ServerSocket('127.0.0.1', 6100), new MyProtocol());
  * $server->service();
- * $server->shutdown();
  * ```
  *
  * @see   xp://peer.ServerSocket
@@ -82,10 +81,13 @@ class AsyncServer extends Server {
   }
 
   /**
-   * Schedule a given task to execute every given seconds
+   * Schedule a given task to execute every given seconds. The task
+   * function can return an integer to indicate in how many seconds
+   * its next invocation should occur, overwriting the default value
+   * given here. If this integer is negative, the task stops running.
    *
    * @param  int $seconds
-   * @param  function(): void
+   * @param  function(): ?int
    */
   public function schedule($seconds, $function) {
     $this->tasks[-1 - sizeof($this->tasks)]= [$seconds, $function];
@@ -109,7 +111,7 @@ class AsyncServer extends Server {
 
     // Set up scheduled tasks
     $time= time();
-    $next= $cont= [];
+    $next= $continuation= [];
     foreach ($this->tasks as $i => $task) {
       $next[$i]= $time + $task[0];
     }
@@ -125,12 +127,12 @@ class AsyncServer extends Server {
       foreach ($this->select as $i => $socket) {
         if (!$socket->isConnected() || $socket->eof()) {
           if ($f= $this->handle[$i][1] ?? null) $f($socket);
-          unset($this->select[$i], $this->handle[$i], $next[$i]);
+          unset($this->select[$i], $this->handle[$i], $next[$i], $continuation[$i]);
           continue;
         }
 
         // Do not re-enter handler as long as we have a continuation
-        if (isset($cont[$i])) continue;
+        if (isset($continuation[$i])) continue;
 
         // Handle timeouts manually instead of leaving this up to the sockets
         // themselves - the latter has proven not to be 100% reliable.
@@ -138,7 +140,7 @@ class AsyncServer extends Server {
           if ($f= $this->handle[$i][2] ?? null) {
             $f($socket, new SocketTimeoutException('Timed out', $socket->getTimeout()));
             $socket->close();
-            unset($this->select[$i], $this->handle[$i], $next[$i]);
+            unset($this->select[$i], $this->handle[$i], $next[$i], $continuation[$i]);
             continue;
           }
           $next[$i]= $time + $socket->getTimeout();
@@ -146,15 +148,19 @@ class AsyncServer extends Server {
 
         $read[$i]= $socket;
       }
-      // echo '* SELECT (', \util\Objects::stringOf($next), ' -> ', $next ? max(0, min($next) - $time) : null, ")\n";
+      // echo '* SELECT (', $time, '::', var_export($next, 1), ' -> ', $next ? max(0, min($next) - $time) : null, ")\n";
       $sockets->select($read, $null, $null, $next ? max(0, min($next) - $time) : null);
 
       // Run scheduled tasks, recording their next run immediately thereafter
       $time= time();
       foreach ($this->tasks as $i => $task) {
         if ($next[$i] <= $time) {
-          $next[$i]= $time + $task[0];
-          $task[1]();
+          $n= $task[1]();
+          if ($n < 0) {
+            unset($this->tasks[$i], $next[$i]);
+          } else {
+            $next[$i]= $time + ($n ?? $task[0]);
+          }
         }
       }
 
@@ -163,17 +169,23 @@ class AsyncServer extends Server {
       // into their respective data handler
       foreach ($read as $i => $socket) {
         try {
-          $r= $this->handle[$i][0]($socket);
-          if ($r instanceof \Generator) {
-            $cont[$i]= true;
+          $continuation[$i]= $this->handle[$i][0]($socket);
+          if ($continuation[$i] instanceof \Generator) {
             $task= -1 - sizeof($this->tasks);
             $next[$task]= $time;
 
-            $this->tasks[$task]= [0, function() use($r, $i, $task, &$cont, &$next) {
-              if ($r->valid()) {
-                $r->next();
-              } else {
-                unset($this->tasks[$task], $next[$task], $cont[$i]);
+            $this->tasks[$task]= [0, function() use(&$continuation, $i) {
+              try {
+                if (!isset($continuation[$i]) || !$continuation[$i]->valid()) {
+                  unset($continuation[$i]);
+                  return -1;
+                }
+
+                $continuation[$i]->next();
+              } catch (SocketException $t) {
+                if ($f= $this->handle[$i][2] ?? null) $f($this->select[$i], $t);
+                $this->select[$i]->close();
+                return -1;
               }
             }];
           }

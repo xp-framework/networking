@@ -11,7 +11,6 @@ use peer\{BSDServerSocket, ServerSocket};
  * $server= new Server();
  * $server->listen(new ServerSocket('127.0.0.1', 6100), new MyProtocol());
  * $server->service();
- * $server->shutdown();
  * ```
  *
  * @ext   sockets
