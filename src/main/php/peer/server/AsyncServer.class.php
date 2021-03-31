@@ -181,7 +181,7 @@ class AsyncServer extends Server {
       foreach ($read as $i => $socket) {
         try {
           $r= $this->handle[$i][0]($socket);
-          if ($r instanceof \Generator) {
+          if ($r instanceof \Generator && $r->valid()) {
             $continuation[$i]= $r;
             $task= $this->schedule(0, function() use(&$continuation, $i) {
               try {
