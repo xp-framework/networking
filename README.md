@@ -59,6 +59,7 @@ Server
 package peer.server {
   public interface peer.server.ServerProtocol
 
+  public class peer.server.AsyncServer
   public class peer.server.EventServer
   public class peer.server.EventSocket
   public class peer.server.ForkingServer
