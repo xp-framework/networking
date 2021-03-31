@@ -2,7 +2,7 @@
 
 use unittest\{BeforeClass, Ignore, Test};
 
-class ServerTest extends AbstractServerTest {
+class AsyncServerTest extends AbstractServerTest {
   
   /**
    * Starts server in background
@@ -11,7 +11,7 @@ class ServerTest extends AbstractServerTest {
    */
   #[BeforeClass]
   public static function startServer() {
-    parent::startServerWith('peer.unittest.server.TestingProtocol', 'peer.server.Server');
+    parent::startServerWith('peer.unittest.server.TestingProtocol', 'peer.server.AsyncServer');
   }
 
   #[Test]

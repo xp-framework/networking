@@ -70,7 +70,7 @@ class ForkingServer extends Server {
         // Loop
         do {
           try {
-            $this->protocol->handleData($m);
+            foreach ($this->protocol->handleData($m) ?? [] as $_) { }
           } catch (\io\IOException $e) {
             $this->protocol->handleError($m, $e);
             break;

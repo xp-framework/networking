@@ -23,7 +23,7 @@ class EventServer extends Server {
         $event= new \EventBufferEvent($base, $fd, \EventBufferEvent::OPT_CLOSE_ON_FREE);
         $event->setCallbacks(
           function($event) {
-            $this->protocol->handleData(new EventSocket($event));
+            foreach ($this->protocol->handleData(new EventSocket($event)) ?? [] as $_) { }
           },
           function($event) {
             if (0 === $event->output->length) {

@@ -126,7 +126,7 @@ class PreforkingServer extends Server implements Traceable {
         $this->cat && $this->cat->debugf('Child #%d handling data on %s...', getmypid(), $m->toString());
 
         try {
-          $this->protocol->handleData($m);
+          foreach ($this->protocol->handleData($m) ?? [] as $_) { }
         } catch (\io\IOException $e) {
           $this->protocol->handleError($m, $e);
           break;
