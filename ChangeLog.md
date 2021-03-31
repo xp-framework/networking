@@ -3,6 +3,13 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.1.0 / 2021-03-31
+
+* Implemented PR #17: Implement asynchronous server. This adds the new
+  class `peer.server.AsyncServer` and changes the `handleData()` method
+  in protocol to be able to return a generator.
+  (@thekid)
+
 ## 10.0.2 / 2021-03-14
 
 * Fixed issue #16: PHP 8+ compatibility: ext/sockets after it changed
