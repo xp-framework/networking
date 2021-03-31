@@ -48,8 +48,7 @@ class AsyncServer extends Server {
       $this->select($connection, [
         [$protocol, 'handleData'],
         [$protocol, 'handleDisconnect'],
-        [$protocol, 'handleError'],
-        [$protocol, 'initialize']
+        [$protocol, 'handleError']
       ]);
     });
 
