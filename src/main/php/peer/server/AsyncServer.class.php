@@ -176,11 +176,13 @@ class AsyncServer extends Server {
 
       // There is data on the server socket (meaning a client connection is
       // waiting to be socket), or on any of the other sockets, so we'll call
-      // into their respective data handler
+      // into their respective data handler. If a generator is returned,
+      // schedule its continuation for the next possible point.
       foreach ($read as $i => $socket) {
         try {
-          $continuation[$i]= $this->handle[$i][0]($socket);
-          if ($continuation[$i] instanceof \Generator) {
+          $r= $this->handle[$i][0]($socket);
+          if ($r instanceof \Generator) {
+            $continuation[$i]= $r;
             $task= $this->schedule(0, function() use(&$continuation, $i) {
               try {
                 if ($continuation[$i]->valid()) {
