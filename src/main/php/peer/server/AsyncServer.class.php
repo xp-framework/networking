@@ -29,14 +29,14 @@ class AsyncServer extends Server {
    * @return self
    */
   public function listen($socket, $protocol) {
-    $protocol->server= $this;
-
     $socket->create();
     $socket->bind(true);
     $socket->listen();
 
-    $this->select[]= $socket;
-    $this->handle[]= [function($socket) use($protocol) {
+    $protocol->server= $this;
+    $protocol->initialize();
+
+    $this->select($socket, function($socket) use($protocol) {
       $connection= $socket->accept();
       if ($protocol instanceof SocketAcceptHandler && !$protocol->handleAccept($connection)) {
         $connection->close();
@@ -45,15 +45,13 @@ class AsyncServer extends Server {
 
       $this->tcpnodelay && $connection->useNoDelay();
       $protocol->handleConnect($connection);
-
-      $this->select[]= $connection;
-      $this->handle[]= [
+      $this->select($connection, [
         [$protocol, 'handleData'],
         [$protocol, 'handleDisconnect'],
         [$protocol, 'handleError'],
         [$protocol, 'initialize']
-      ];
-    }];
+      ]);
+    });
 
     return $this;
   }
@@ -71,12 +69,19 @@ class AsyncServer extends Server {
    * Adds socket to select, associating a function to call for data
    *
    * @param  peer.Socket|peer.BSDSocket $socket
-   * @param  function(peer.Socket|peer.BSDSocket): void $function
+   * @param  callable[]|function(peer.Socket|peer.BSDSocket): void $function
    * @return peer.Socket|peer.BSDSocket
    */
   public function select($socket, $function) {
-    $this->select[]= $socket;
-    $this->handle[]= [$function];
+    if ($this->select) {
+      end($this->select);
+      $i= key($this->select) + 1;
+    } else {
+      $i= 0;
+    }
+
+    $this->select[$i]= $socket;
+    $this->handle[$i]= is_array($function) ? $function : [$function];
     return $socket;
   }
 
@@ -85,12 +90,22 @@ class AsyncServer extends Server {
    * function can return an integer to indicate in how many seconds
    * its next invocation should occur, overwriting the default value
    * given here. If this integer is negative, the task stops running.
+   * Returns the added task's ID.
    *
    * @param  int $seconds
    * @param  function(): ?int
+   * @return int
    */
   public function schedule($seconds, $function) {
-    $this->tasks[-1 - sizeof($this->tasks)]= [$seconds, $function];
+    if ($this->tasks) {
+      end($this->tasks);
+      $i= key($this->tasks) - 1;
+    } else {
+      $i= -1;
+    }
+
+    $this->tasks[$i]= [$seconds, $function];
+    return $i;
   } 
 
   /**
@@ -102,11 +117,6 @@ class AsyncServer extends Server {
   public function service() {
     if (empty($this->select)) {
       throw new IllegalStateException('No sockets to select on');
-    }
-
-    // Initialize handles if necessary
-    foreach ($this->handle as $handle) {
-      if ($f= $handle[3] ?? null) $f();
     }
 
     // Set up scheduled tasks
@@ -148,7 +158,7 @@ class AsyncServer extends Server {
 
         $read[$i]= $socket;
       }
-      // echo '* SELECT (', $time, '::', var_export($next, 1), ' -> ', $next ? max(0, min($next) - $time) : null, ")\n";
+      // echo '* SELECT ([', implode(', ', array_keys($next)), '] -> ', $next ? max(0, min($next) - $time) : null, ")\n";
       $sockets->select($read, $null, $null, $next ? max(0, min($next) - $time) : null);
 
       // Run scheduled tasks, recording their next run immediately thereafter
@@ -171,10 +181,7 @@ class AsyncServer extends Server {
         try {
           $continuation[$i]= $this->handle[$i][0]($socket);
           if ($continuation[$i] instanceof \Generator) {
-            $task= -1 - sizeof($this->tasks);
-            $next[$task]= $time;
-
-            $this->tasks[$task]= [0, function() use(&$continuation, $i) {
+            $task= $this->schedule(0, function() use(&$continuation, $i) {
               try {
                 if ($continuation[$i]->valid()) {
                   $continuation[$i]->next();
@@ -187,7 +194,8 @@ class AsyncServer extends Server {
 
               unset($continuation[$i]);
               return -1;
-            }];
+            });
+            $next[$task]= $time;
           }
 
           $next[$i]= $time + $socket->getTimeout();
