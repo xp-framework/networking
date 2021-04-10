@@ -184,8 +184,8 @@ class AsyncServer extends Server {
             $continuation[$i]= $r;
             $task= $this->schedule(0, function() use(&$continuation, $i) {
               try {
-                if ($continuation[$i]->valid()) {
-                  $continuation[$i]->next();
+                if (($c= $continuation[$i] ?? null) && $c->valid()) {
+                  $c->next();
                   return;
                 }
               } catch (SocketException $t) {

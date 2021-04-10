@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.1.1 / 2021-04-10
+
+* Fixed handling in async server for interrupted reads - @thekid
+
 ## 10.1.0 / 2021-03-31
 
 * Implemented PR #17: Implement asynchronous server. This adds the new

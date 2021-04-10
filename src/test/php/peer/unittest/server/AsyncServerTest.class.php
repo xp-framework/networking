@@ -53,6 +53,23 @@ class AsyncServerTest extends AbstractServerTest {
     $this->assertHandled(['CONNECT', 'DISCONNECT']);
   }
 
+  #[Test]
+  public function interrupt_asynchronously_written_data() {
+    $this->connect();
+    $this->conn->write("ASNC 3\n");
+    $this->conn->readLine();
+    $this->conn->close();
+
+    $this->assertHandled(['CONNECT', 'ERROR', 'DISCONNECT']);
+
+    $this->connect();
+    $this->conn->write("SYNC 1\n");
+    $this->conn->readLine();
+    $this->conn->close();
+
+    $this->assertHandled(['CONNECT', 'DISCONNECT']);
+  }
+
   #[Test, Ignore('Fragile test, dependant on OS / platform and implementation vagaries')]
   public function error() {
     $this->connect();
