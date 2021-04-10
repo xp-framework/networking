@@ -88,6 +88,22 @@ class TestingProtocol implements ServerProtocol {
         break;
       }
 
+      case 'SYNC': {
+        for ($i= 0, $s= (int)substr($cmd, 5); $i < $s; $i++) {
+          $socket->write(($i + 1)."\n");
+        }
+        $socket->write(".\n");
+        break;
+      }
+
+      case 'ASNC': {
+        for ($i= 0, $s= (int)substr($cmd, 5); $i < $s; $i++) {
+          yield $socket->write(($i + 1)."\n");
+        }
+        $socket->write(".\n");
+        break;
+      }
+
       case 'HALT': {
         $socket->write("+HALT\n"); 
         $this->server->terminate= true; 
