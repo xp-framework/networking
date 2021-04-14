@@ -8,7 +8,7 @@ class Inet4AddressTest extends TestCase {
 
   /** @return iterable */
   private function localhost() {
-    return [['127.0.0.1'], ['0177.0000.000.01'], ['0177.0.0.1'], ['0x7F.0.0.1'], ['0X7F.0.0.1']];
+    return [['127.0.0.1'], ['0177.0000.000.01'], ['0177.0.0.1'], ['0x7F.0.0.1'], ['0x7f.0.0.1'], ['0X7F.0.0.1']];
   }
 
   #[Test, Values('localhost')]
