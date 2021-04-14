@@ -31,6 +31,16 @@ class Inet4AddressTest extends TestCase {
     new Inet4Address('10.0.0.255.5');
   }
 
+  #[Test, Expect(FormatException::class)]
+  public function invalidHexRaisesException() {
+    new Inet4Address('0xZZ.0.0.1');
+  }
+
+  #[Test, Expect(FormatException::class)]
+  public function invalidOctalRaisesException() {
+    new Inet4Address('0ABC.0.0.1');
+  }
+
   #[Test, Values('localhost')]
   public function loopbackAddress($addr) {
     $this->assertTrue((new Inet4Address($addr))->isLoopback());

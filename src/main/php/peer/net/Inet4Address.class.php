@@ -29,7 +29,7 @@ class Inet4Address implements InetAddress {
       $l= strlen($byte);
       $n= -1;
       if ($l > 1 && '0' === $byte[0]) {
-        if ('x' === $byte[1] || 'X' === $byte[1] && $l === strspn($byte, '0123456789aAbBcCdDeEfF', 2) + 2) {
+        if (('x' === $byte[1] || 'X' === $byte[1]) && $l === strspn($byte, '0123456789aAbBcCdDeEfF', 2) + 2) {
           $n= hexdec($byte);
         } else if ($l === strspn($byte, '0123456789')) {
           $n= octdec($byte);
