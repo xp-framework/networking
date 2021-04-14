@@ -34,7 +34,7 @@ class Inet4Address implements InetAddress {
         } else if ($l === strspn($byte, '0123456789')) {
           $n= octdec($byte);
         }
-      } else if ($l === strspn($byte, '0123456789')) {
+      } else if ($l > 0 && $l === strspn($byte, '0123456789')) {
         $n= (int)$byte;
       }
 

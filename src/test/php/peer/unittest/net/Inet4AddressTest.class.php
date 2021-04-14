@@ -22,6 +22,11 @@ class Inet4AddressTest extends TestCase {
   }
 
   #[Test, Expect(FormatException::class)]
+  public function emptySegmentRaisesException() {
+    new Inet4Address('127.0..1');
+  }
+
+  #[Test, Expect(FormatException::class)]
   public function createInvalidAddressThatLooksLikeAddressRaisesException() {
     new Inet4Address('10.0.0.355');
   }
