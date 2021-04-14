@@ -2,13 +2,18 @@
 
 use lang\FormatException;
 use peer\net\{Inet4Address, Network};
-use unittest\{Expect, Test};
+use unittest\{Expect, Test, Values, TestCase};
 
-class Inet4AddressTest extends \unittest\TestCase {
+class Inet4AddressTest extends TestCase {
 
-  #[Test]
-  public function createAddress() {
-    $this->assertEquals('127.0.0.1', (new Inet4Address('127.0.0.1'))->asString());
+  /** @return iterable */
+  private function localhost() {
+    return [['127.0.0.1'], ['0177.0000.000.01'], ['0177.0.0.1'], ['0x7F.0.0.1'], ['0X7F.0.0.1']];
+  }
+
+  #[Test, Values('localhost')]
+  public function createAddress($addr) {
+    $this->assertEquals('127.0.0.1', (new Inet4Address($addr))->asString());
   }
 
   #[Test, Expect(FormatException::class)]
@@ -26,9 +31,9 @@ class Inet4AddressTest extends \unittest\TestCase {
     new Inet4Address('10.0.0.255.5');
   }
 
-  #[Test]
-  public function loopbackAddress() {
-    $this->assertTrue((new Inet4Address('127.0.0.1'))->isLoopback());
+  #[Test, Values('localhost')]
+  public function loopbackAddress($addr) {
+    $this->assertTrue((new Inet4Address($addr))->isLoopback());
   }
   
   #[Test]

@@ -1,5 +1,7 @@
 <?php namespace peer\net;
 
+use lang\FormatException;
+
 /**
  * IPv4 address
  *
@@ -9,21 +11,38 @@
 class Inet4Address implements InetAddress {
 
   /**
-   * Convert IPv4 address from dotted form into a long
+   * Convert IPv4 address from dotted form into a long. Supports hexadecimal and
+   * octal notations. Yes, 0177.0.0.1 and 0x7F.0.0.1 are both equivalent with
+   * 127.0.0.1 - localhost!
    *
-   * @param   string ip
-   * @return  int
+   * @param  string $ip
+   * @return int
+   * @throws lang.FormatException
    */
   protected static function ip2long($ip) {
     $i= 0; $addr= 0; $count= 0;
     foreach (explode('.', $ip) as $byte) {
-      if (++$count > 4)
-        throw new \lang\FormatException('Given IP string has more than 4 blocks: ['.$ip.']');
+      if (++$count > 4) {
+        throw new FormatException('Given IP string has more than 4 blocks: ['.$ip.']');
+      }
 
-      if (!is_numeric($byte) || $byte < 0 || $byte > 255)
-        throw new \lang\FormatException('Invalid format of ip address: ['.$ip.']');
+      $l= strlen($byte);
+      $n= -1;
+      if ($l > 1 && '0' === $byte[0]) {
+        if ('x' === $byte[1] || 'X' === $byte[1] && $l === strspn($byte, '0123456789aAbBcCdDeEfF', 2) + 2) {
+          $n= hexdec($byte);
+        } else if ($l === strspn($byte, '0123456789')) {
+          $n= octdec($byte);
+        }
+      } else if ($l === strspn($byte, '0123456789')) {
+        $n= (int)$byte;
+      }
 
-      $addr|= ($byte << (8 * (3 - $i++)));
+      if ($n < 0 || $n > 255) {
+        throw new FormatException('Invalid format of IP address: ['.$ip.']'); 
+      }
+
+      $addr|= ($n << (8 * (3 - $i++)));
     }
     return $addr;
   }
@@ -31,8 +50,8 @@ class Inet4Address implements InetAddress {
   /**
    * Constructor
    *
-   * @param   string address
-   * @throws  lang.FormatException in case address is illegal
+   * @param  string $address
+   * @throws lang.FormatException in case address is illegal
    */
   public function __construct($address) {
     $this->addr= self::ip2long($address);
@@ -71,7 +90,7 @@ class Inet4Address implements InetAddress {
    * @return  bool
    */
   public function isLoopback() {
-    return $this->addr >> 8 == 0x7F0000;
+    return $this->addr >> 8 === 0x7F0000;
   }
   
   /**
@@ -86,18 +105,18 @@ class Inet4Address implements InetAddress {
     
     $addrn= $net->getAddress()->addr;
     $mask= $net->getNetmask();
-    return $this->addr >> (32 - $mask) == $addrn >> (32 - $mask);
+    return $this->addr >> (32 - $mask) === $addrn >> (32 - $mask);
   }
   
   /**
    * Create a subnet of this address, with the specified size.
    *
    * @param   int subnetSize
-   * @return  Network
+   * @return  peer.net.Network
    * @throws  lang.IllegalArgumentException in case the subnetSize is not correct
    */
   public function createSubnet($subnetSize) {
-    $addr= $this->addr & (0xFFFFFFFF << (32-$subnetSize));
+    $addr= $this->addr & (0xFFFFFFFF << (32 - $subnetSize));
     return new Network(new Inet4Address(long2ip($addr)), $subnetSize);
   }
 
