@@ -3,6 +3,9 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Fixed issue #18: IPv4 addresses using octal and hexadecimal notation
+  (@thekid)
+
 ## 10.1.1 / 2021-04-10
 
 * Fixed handling in async server for interrupted reads - @thekid
