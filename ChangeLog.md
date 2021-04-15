@@ -3,6 +3,8 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.1.2 / 2021-04-15
+
 * Fixed issue #18: IPv4 addresses using octal and hexadecimal notation
   (@thekid)
 
