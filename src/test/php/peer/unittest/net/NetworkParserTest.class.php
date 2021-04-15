@@ -43,9 +43,9 @@ class NetworkParserTest extends \unittest\TestCase {
 
   #[Test]
   public function parseShortNetwork() {
-    this->assertEquals(
+    $this->assertEquals(
       new Network(new Inet4Address('172.16.0.0'), 12),
-      this->cut->tryParse('172.16/12')
+      $this->cut->tryParse('172.16/12')
     );
   }
 
