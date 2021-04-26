@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Fixed *stream_select(): Argument 5 ($microseconds) should be null
+  instead of 0 when argument 4 ($seconds) is null* warning in PHP 8.1
+  (@thekid)
+
 ## 10.1.2 / 2021-04-15
 
 * Fixed issue #18: IPv4 addresses using octal and hexadecimal notation
