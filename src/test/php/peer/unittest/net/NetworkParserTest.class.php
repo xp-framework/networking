@@ -42,6 +42,22 @@ class NetworkParserTest extends \unittest\TestCase {
   }
 
   #[Test]
+  public function parseShortNetwork() {
+    $this->assertEquals(
+      new Network(new Inet4Address('172.16.0.0'), 12),
+      $this->cut->tryParse('172.16/12')
+    );
+  }
+
+  #[Test]
+  public function parseShortNetworkHex() {
+    $this->assertEquals(
+      new Network(new Inet4Address('172.16.0.0'), 12),
+      $this->cut->tryParse('0xac.0x10/12')
+    );
+  }
+
+  #[Test]
   public function tryParseReturnsNullOnFailure() {
     $this->assertEquals(null, $this->cut->tryParse('not a network'));
   }
