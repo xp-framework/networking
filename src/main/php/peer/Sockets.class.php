@@ -12,7 +12,7 @@ abstract class Sockets extends Enum {
       public function select0(&$r, &$w, &$e, $timeout= null) {
         if (null === $timeout) {
           $tv_sec= null;
-          $tv_usec= 0;
+          $tv_usec= null;
         } else {
           $tv_sec= (int)floor($timeout);
           $tv_usec= (int)(($timeout - $tv_sec)  * 1000000);
