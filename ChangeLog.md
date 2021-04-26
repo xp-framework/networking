@@ -3,6 +3,9 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.2.0 / 2021-04-15
+
+* Merged PR #19: Add support for shortened netmasks - @kiesel
 * Fixed *stream_select(): Argument 5 ($microseconds) should be null
   instead of 0 when argument 4 ($seconds) is null* warning in PHP 8.1
   (@thekid)
