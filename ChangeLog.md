@@ -3,6 +3,12 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.2.1 / 2021-06-03
+
+* Fixed warning *Declaration of AsyncServer::listen($socket, $protocol)
+  should be compatible* in PHP 7.0, 7.1 and 7.2
+  (@thekid)
+
 ## 10.2.0 / 2021-04-15
 
 * Merged PR #19: Add support for shortened netmasks - @kiesel
