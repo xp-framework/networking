@@ -245,10 +245,10 @@ class BSDSocket extends Socket {
     $this->_timeout= $timeout;
 
     // Apply changes to already opened connection
-    $s= (int)$this->_timeout;
-    $usec= (int)(1000 * ($this->_timeout - $s);
-    $this->setOption(SOL_SOCKET, SO_RCVTIMEO, ['sec' => $s, 'usec' => $usec]);
-    $this->setOption(SOL_SOCKET, SO_SNDTIMEO, ['sec' => $s, 'usec' => $usec]);
+    $sec= (int)$this->_timeout;
+    $usec= (int)(1000 * ($this->_timeout - $sec));
+    $this->setOption(SOL_SOCKET, SO_RCVTIMEO, ['sec' => $sec, 'usec' => $usec]);
+    $this->setOption(SOL_SOCKET, SO_SNDTIMEO, ['sec' => $sec, 'usec' => $usec]);
   }
 
   /**

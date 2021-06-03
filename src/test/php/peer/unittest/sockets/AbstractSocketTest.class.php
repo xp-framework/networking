@@ -62,7 +62,7 @@ abstract class AbstractSocketTest extends \unittest\TestCase {
 
   /** @return void */
   public function tearDown() {
-    $this->fixture->isConnected() && $this->fixture->close();
+    $this->fixture && $this->fixture->isConnected() && $this->fixture->close();
   }
   
   #[Test]
