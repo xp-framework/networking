@@ -313,7 +313,12 @@ class Socket implements Channel, Value {
 
     $res= fread($this->_sock, $maxLen);
     if (false === $res || null === $res) {
-      $e= new SocketException('Read of '.$maxLen.' bytes failed: '.$this->getLastError());
+      $m= stream_get_meta_data($this->_sock);
+      if ($m['timed_out']) {
+        $e= new SocketTimeoutException('Read of '.$maxLen.' bytes failed: '.$this->getLastError(), $this->_timeout);
+      } else {
+        $e= new SocketException('Read of '.$maxLen.' bytes failed: '.$this->getLastError());
+      }
       \xp::gc(__FILE__);
       throw $e;
     } else if ('' === $res) {

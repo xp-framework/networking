@@ -5,6 +5,8 @@ Networking changelog
 
 ## 10.2.1 / 2021-06-03
 
+* Fixed timeouts for reading from sockets with newer PHP 8.1 builds
+  (@thekid)
 * Fixed floating point values for `Socket::setTimeout()` - @thekid
 * Fixed warning *Declaration of AsyncServer::listen($socket, $protocol)
   should be compatible* in PHP 7.0, 7.1 and 7.2
