@@ -159,8 +159,9 @@ class Socket implements Channel, Value {
       \xp::gc(__FILE__);
       throw $e;
     }
-    
-    stream_set_timeout($this->_sock, $this->_timeout);
+
+    $s= (int)$this->_timeout;
+    stream_set_timeout($this->_sock, $s, (int)(1000 * ($this->_timeout - $s)));
     return true;
   }
 
@@ -181,21 +182,22 @@ class Socket implements Channel, Value {
   /**
    * Set timeout
    *
-   * @param   var _timeout
+   * @param  int|float $timeout
    */
   public function setTimeout($timeout) {
-    $this->_timeout= $timeout;
+    $this->_timeout= (float)$timeout;
     
     // Apply changes to already opened connection
     if ($this->_sock) {
-      stream_set_timeout($this->_sock, $this->_timeout);
+      $s= (int)$timeout;
+      stream_set_timeout($this->_sock, $s, (int)(1000 * ($timeout - $s)));
     }
   }
 
   /**
    * Get timeout
    *
-   * @return  var
+   * @return float
    */
   public function getTimeout() {
     return $this->_timeout;

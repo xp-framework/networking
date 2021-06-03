@@ -239,16 +239,16 @@ class BSDSocket extends Socket {
   /**
    * Set timeout
    *
-   * @param   var _timeout
+   * @param  int|float $timeout
    */
   public function setTimeout($timeout) {
     $this->_timeout= $timeout;
 
     // Apply changes to already opened connection
-    $sec= floor($this->_timeout);
-    $usec= ($this->_timeout- $sec) * 1000;
-    $this->setOption(SOL_SOCKET, SO_RCVTIMEO, ['sec' => $sec, 'usec' => $usec]);
-    $this->setOption(SOL_SOCKET, SO_SNDTIMEO, ['sec' => $sec, 'usec' => $usec]);
+    $s= (int)$this->_timeout;
+    $usec= (int)(1000 * ($this->_timeout - $s);
+    $this->setOption(SOL_SOCKET, SO_RCVTIMEO, ['sec' => $s, 'usec' => $usec]);
+    $this->setOption(SOL_SOCKET, SO_SNDTIMEO, ['sec' => $s, 'usec' => $usec]);
   }
 
   /**
