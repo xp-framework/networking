@@ -28,7 +28,7 @@ class AsyncServer extends Server {
    * @param  peer.server.ServerProtocol $protocol
    * @return self
    */
-  public function listen($socket, $protocol) {
+  public function listen($socket, ServerProtocol $protocol) {
     $socket->create();
     $socket->bind(true);
     $socket->listen();
