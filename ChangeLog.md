@@ -3,6 +3,11 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.2.2 / 2021-10-21
+
+* Made compatible with XP 11 and `xp-framework/logging` version 11.0.0
+  (@thekid)
+
 ## 10.2.1 / 2021-06-03
 
 * Fixed timeouts for reading from sockets with newer PHP 8.1 builds
