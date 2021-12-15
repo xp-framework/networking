@@ -10,12 +10,10 @@ use lang\Value;
  * @see      php://network
  */
 class Socket implements Channel, Value {
-  public
-    $_eof     = false,
-    $host     = '',
-    $port     = 0;
+  public $host, $port;
     
   public
+    $_eof     = false,
     $_sock    = null,
     $_prefix  = 'tcp://',
     $_timeout = 60;
@@ -101,7 +99,7 @@ class Socket implements Channel, Value {
    * any PHP error/warning is returned - but since there's no function like
    * flasterror() we must rely on this
    *
-   * @return  string error
+   * @return string
    */  
   public function getLastError() {
     return isset(\xp::$errors[__FILE__]) ? trim(key(end(\xp::$errors[__FILE__]))) : 'unknown error';
@@ -110,41 +108,51 @@ class Socket implements Channel, Value {
   /**
    * Returns whether a connection has been established
    *
-   * @return  bool connected
+   * @return bool
    */
   public function isConnected() {
-    return null !== $this->_sock;
+    if (null === $this->_sock) return false;
+
+    // For asynchronously connected sockets, the only way we seem to be able to
+    // reliably determine connectivity is to look up the remote socket name.
+    // See https://github.com/reactphp/socket/blob/master/src/TcpConnector.php#L105
+    if ((stream_context_get_options($this->context)['socket']['flags'] ?? 0) & STREAM_CLIENT_ASYNC_CONNECT) {
+      if (false === stream_socket_get_name($this->_sock, true)) return false;
+    }
+    return true;
   }
 
   /**
-   * Clone method. Ensure reconnect
+   * Ensures reconnect on clone
    *
+   * @return void
    */
   public function __clone() {
-    if (!$this->isConnected()) return;
-    $this->close();
-    $this->connect();
-  }
-  
-  /**
-   * Connect
-   *
-   * @param   float timeout default 2.0
-   * @see     php://fsockopen
-   * @return  bool success
-   * @throws  peer.ConnectException
-   */
-  public function connect($timeout= 2.0) {
-    if ($this->isConnected()) return true;
+    if (null === $this->_sock) return;
 
-    // Force IPv4 for localhost, see https://github.com/xp-framework/networking/issues/2
+    $options= stream_context_get_options($this->context)['socket'];
+    $this->close();
+    $this->establish($options['timeout'] ?? 2.0, $options['flags'] ?? STREAM_CLIENT_CONNECT);
+  }
+
+  /**
+   * Establish a connection
+   *
+   * @see    https://github.com/xp-framework/networking/issues/2
+   * @see    php://stream_socket_client
+   * @param  float $timeout
+   * @param  int $flags
+   * @return bool success
+   * @throws peer.ConnectException
+   */
+  protected function establish($timeout, $flags) {
     $host= (string)$this->host;
     if (!$this->_sock= stream_socket_client(
       $this->_prefix.('localhost' === $host ? '127.0.0.1' : $host).':'.$this->port,
       $errno,
       $errstr,
       $timeout,
-      STREAM_CLIENT_CONNECT,
+      $flags,
       $this->context
     )) {
       $this->_sock= null;
@@ -160,15 +168,47 @@ class Socket implements Channel, Value {
       throw $e;
     }
 
+    // Remember connection attributes
+    stream_context_set_option($this->context, 'socket', 'timeout', $timeout);
+    stream_context_set_option($this->context, 'socket', 'flags', $flags);
+
     $s= (int)$this->_timeout;
     stream_set_timeout($this->_sock, $s, (int)(1000 * ($this->_timeout - $s)));
     return true;
   }
 
   /**
+   * Open a connection asynchronously. Unlike `connect()`, returns immediately.
+   *
+   * @param  float $timeout default 2.0
+   * @return bool
+   * @throws peer.ConnectException
+   */
+  public function open($timeout= 2.0) {
+    return null === $this->_sock
+      ? $this->establish($timeout, STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT)
+      : true
+    ;
+  }
+
+  /**
+   * Open a connection. Waits for it to be completely established before returning.
+   *
+   * @param  float $timeout default 2.0
+   * @return bool
+   * @throws peer.ConnectException
+   */
+  public function connect($timeout= 2.0) {
+    return null === $this->_sock
+      ? $this->establish($timeout, STREAM_CLIENT_CONNECT)
+      : true
+    ;
+  }
+
+  /**
    * Close socket
    *
-   * @return  bool success
+   * @return bool
    */
   public function close() {
     if (null === $this->_sock) return false;
