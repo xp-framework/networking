@@ -145,14 +145,14 @@ class BSDSocket extends Socket {
     if (null === $this->_sock) return false;
 
     // For asynchronously connected sockets, check whether we can get the
-    // peer name. Once we get one, we've successfully established a connection
-    // and need not repeat this.
+    // peer name. Once we get one, we've successfully established a connection!
     if (1 === $this->state) {
       if (false === socket_getpeername($this->_sock, $_, $_)) {
         \xp::gc(__FILE__, __LINE__ - 1);
         return false;
       }
 
+      socket_set_block($this->_sock);
       $this->state= 2;
     }
 
