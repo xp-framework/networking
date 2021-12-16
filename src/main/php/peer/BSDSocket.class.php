@@ -17,7 +17,8 @@ class BSDSocket extends Socket {
     $options  = [];
   
   protected 
-    $rq       = '';
+    $rq       = '',
+    $state    = 0;
 
   /** @return peer.Sockets */
   public function kind() { return Sockets::$BSD; }
@@ -50,7 +51,7 @@ class BSDSocket extends Socket {
    * @throws  lang.IllegalStateException if socket is already connected
    */
   public function setDomain($domain) {
-    if ($this->isConnected()) {
+    if ($this->_sock) {
       throw new \lang\IllegalStateException('Cannot set domain on connected socket');
     }
     $this->domain= $domain;
@@ -72,7 +73,7 @@ class BSDSocket extends Socket {
    * @throws  lang.IllegalStateException if socket is already connected
    */
   public function setType($type) {
-    if ($this->isConnected()) {
+    if ($this->_sock) {
       throw new \lang\IllegalStateException('Cannot set type on connected socket');
     }
     $this->type= $type;
@@ -95,7 +96,7 @@ class BSDSocket extends Socket {
    * @throws  lang.IllegalStateException if socket is already connected
    */
   public function setProtocol($protocol) {
-    if ($this->isConnected()) {
+    if ($this->_sock) {
       throw new \lang\IllegalStateException('Cannot set protocol on connected socket');
     }
     $this->protocol= $protocol;
@@ -130,19 +131,43 @@ class BSDSocket extends Socket {
   public function setOption($level, $name, $value) {
     $this->options[$level][$name]= $value;
 
-    if ($this->isConnected()) {
+    if ($this->_sock) {
       socket_set_option($this->_sock, $level, $name, $value);
     }
   }
-  
+
   /**
-   * Connect
+   * Returns whether a connection has been established
    *
-   * @param   float timeout default 2.0
-   * @return  bool success
-   * @throws  peer.ConnectException
+   * @return bool
    */
-  public function connect($timeout= 2.0) {
+  public function isConnected() {
+    if (null === $this->_sock) return false;
+
+    // For asynchronously connected sockets, check whether we can get the
+    // peer name. Once we get one, we've successfully established a connection
+    // and need not repeat this.
+    if (1 === $this->state) {
+      if (false === socket_getpeername($this->_sock, $_, $_)) {
+        \xp::gc(__FILE__, __LINE__ - 1);
+        return false;
+      }
+
+      $this->state= 2;
+    }
+
+    return true;
+  }
+
+  /**
+   * Establish a connection
+   *
+   * @param  float $timeout
+   * @param  int $flags
+   * @return bool
+   * @throws peer.ConnectException
+   */
+  protected function establish($timeout, $flags) {
     static $domains= [
       AF_INET   => 'AF_INET',
       AF_INET6  => 'AF_INET6',
@@ -155,9 +180,7 @@ class BSDSocket extends Socket {
       SOCK_SEQPACKET  => 'SOCK_SEQPACKET',
       SOCK_RDM        => 'SOCK_RDM'
     ];
-    
-    if ($this->isConnected()) return true;    // Short-cuircuit this
-    
+
     // Create socket...
     if (!($this->_sock= socket_create($this->domain, $this->type, $this->protocol))) {
       $this->_sock= null;
@@ -185,22 +208,24 @@ class BSDSocket extends Socket {
     $this->setTimeout($timeout);
 
     // ...and connect it
+    $host= (string)$this->host;
     switch ($this->domain) {
       case AF_INET:
       case AF_INET6: {
-        $host= null;
-        if ($this->host instanceof \InetAddress) {
-          $host= $this->host->asString();
+        if ($flags & STREAM_CLIENT_ASYNC_CONNECT) {
+          socket_set_nonblock($this->_sock);
+          socket_connect($this->_sock, $host, $this->port);
+          $this->state= 1;
+          $r= null;
         } else {
-          // TBD: Refactor
-          $host= gethostbyname($this->host);
+          $r= socket_connect($this->_sock, $host, $this->port);
+          $this->state= 2;
         }
-        $r= socket_connect($this->_sock, $host, $this->port);
         break;
       }
       
       case AF_UNIX: {
-        $r= socket_connect($this->_sock, $this->host);
+        $r= socket_connect($this->_sock, $host);
         break;
       }
     }
@@ -210,6 +235,7 @@ class BSDSocket extends Socket {
 
     // Check return status
     if (false === $r) {
+      $this->state= 0;
       $this->_sock= null;
       $e= new ConnectException(sprintf(
         'Connect to %s:%d failed: %s',
@@ -222,7 +248,7 @@ class BSDSocket extends Socket {
     }
     return true;
   }
-  
+
   /**
    * Close socket
    *
@@ -234,6 +260,7 @@ class BSDSocket extends Socket {
     socket_close($this->_sock);
     $this->_sock= null;
     $this->_eof= false;
+    $this->state= 0;
     return true;
   }
   /**
