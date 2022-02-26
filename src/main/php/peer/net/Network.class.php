@@ -7,6 +7,7 @@ use util\Objects;
  * Represent IP network
  */
 class Network implements Value {
+  private $address, $netmask;
 
   /**
    * Constructor

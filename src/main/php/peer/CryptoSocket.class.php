@@ -11,7 +11,7 @@ use security\cert\X509Certificate;
 class CryptoSocket extends Socket {
   const CTX_WRP = 'ssl';      // stream context option key
 
-  protected $crpytoImpl= null;
+  public $cryptoImpl= null;
 
   /**
    * Constructor

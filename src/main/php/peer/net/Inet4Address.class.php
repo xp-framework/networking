@@ -9,6 +9,7 @@ use lang\FormatException;
  * @see   php://ip2long
  */
 class Inet4Address implements InetAddress {
+  private $addr;
 
   /**
    * Convert IPv4 address from dotted form into a long. Supports hexadecimal and
