@@ -32,7 +32,7 @@ class AsyncServerTest extends AbstractServerTest {
     $this->connect();
     $this->conn->write("SYNC 3\n");
     $read= [];
-    while ('.' !== ($line= $this->conn->readLine())) {
+    while ('.' !== ($line= $this->conn->readLine()) && !$this->conn->eof()) {
       $read[]= $line;
     }
     $this->conn->close();
@@ -45,7 +45,7 @@ class AsyncServerTest extends AbstractServerTest {
     $this->connect();
     $this->conn->write("ASNC 3\n");
     $read= [];
-    while ('.' !== ($line= $this->conn->readLine())) {
+    while ('.' !== ($line= $this->conn->readLine()) && !$this->conn->eof()) {
       $read[]= $line;
     }
     $this->conn->close();
