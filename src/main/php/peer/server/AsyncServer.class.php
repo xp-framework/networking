@@ -123,7 +123,7 @@ class AsyncServer extends Server {
    * handled within the function!
    *
    * @param  int $seconds
-   * @param  function(): ?int
+   * @param  function(): ?int|float
    * @return int
    */
   public function schedule($seconds, $function) {
@@ -215,8 +215,8 @@ class AsyncServer extends Server {
 
       // When asked to terminate, close sockets in reverse order
       if ($this->terminate) {
-        for ($i= sizeof($this->select) - 1; $i >= 0; $i--) {
-          $this->select[$i]->close();
+        for ($i= array_key_last($this->select); $i > 0; $i--) {
+          isset($this->select[$i]) && $this->select[$i]->close();
           // FIXME $continuation->throw() or ->send(INTERRUPTED)? or nothing?
         }
         break;
