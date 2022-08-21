@@ -94,7 +94,7 @@ class AsyncServer extends Server {
             yield 'read' => $socket;
             yield from $handler->handleData($socket) ?? [];
           }
-    
+
           // Handle disconnnect gracefully, ensure socket is closed
           $handler->handleDisconnect($socket);
           $socket->close();
@@ -117,7 +117,7 @@ class AsyncServer extends Server {
    * its next invocation should occur, overwriting the default value
    * given here. If this integer is negative, the task stops running.
    * Returns the added task's ID.
-   * 
+   *
    * Note: If the task function raises any exception the task stops
    * running. To continue executing, exceptions must be caught and
    * handled within the function!
@@ -222,7 +222,7 @@ class AsyncServer extends Server {
         break;
       }
 
-      // echo date('H:i:s'), " SELECT ", \util\Objects::stringOf($wait), " @ {\n", 
+      // echo date('H:i:s'), " SELECT ", \util\Objects::stringOf($wait), " @ {\n",
       //   "  R: ", \util\Objects::stringOf($readable), "\n",
       //   "  W: ", \util\Objects::stringOf($writeable), "\n",
       // "}\n";
