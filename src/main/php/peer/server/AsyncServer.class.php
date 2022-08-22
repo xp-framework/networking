@@ -122,7 +122,7 @@ class AsyncServer extends Server {
    * running. To continue executing, exceptions must be caught and
    * handled within the function!
    *
-   * @param  int $seconds
+   * @param  int|float $seconds
    * @param  function(): ?int|float
    * @return int
    */

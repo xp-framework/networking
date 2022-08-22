@@ -18,16 +18,37 @@ class AsyncServerTest extends AbstractServerTest {
   #[Test]
   public function scheduled_function_immediately_invoked() {
     $invoked= 0;
-
     $s= new AsyncServer();
     $s->schedule(1, function() use($s, &$invoked) {
       $invoked++;
       $s->shutdown();
     });
 
-    $this->assertEquals(0, $invoked, 'before service()');
+    $before= $invoked;
     $s->service();
+
+    $this->assertEquals(0, $before, 'before service()');
     $this->assertEquals(1, $invoked, 'after service()');
+  }
+
+  #[Test, Values([1, 2, 3])]
+  public function scheduled_function_invoked_after_delay($executions) {
+    $delay= 0.05; // 50 ms
+
+    $invoked= 0;
+    $s= new AsyncServer();
+    $s->schedule($delay, function() use($s, $executions, &$invoked) {
+      $invoked++;
+      if ($invoked >= $executions) $s->shutdown();
+    });
+
+    $start= microtime(true);
+    $s->service();
+    $time= microtime(true) - $start;
+    $expected= $delay * ($executions - 1);
+
+    $this->assertEquals($executions, $invoked);
+    $this->assertTrue($time >= $expected, $time.' >= '.$expected);
   }
 
   #[Test]
