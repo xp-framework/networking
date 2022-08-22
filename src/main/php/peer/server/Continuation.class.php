@@ -1,5 +1,10 @@
 <?php namespace peer\server;
 
+/**
+ * Continuable coroutine. Not a public API!
+ *
+ * @see  peer.server.AsyncServer
+ */
 class Continuation {
   private $function;
   private $continuation= null;
