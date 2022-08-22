@@ -127,7 +127,7 @@ class AsyncServer extends Server {
    * @return int
    */
   public function schedule($seconds, $function) {
-    $i= $this->last ? array_key_last($this->last) - 1 : -1;
+    $i= $this->tasks ? array_key_last($this->tasks) - 1 : -1;
     $this->tasks[$i]= $function;
     $this->continuation[$i]= new Continuation(function($function) use($seconds) {
       try {
@@ -148,15 +148,14 @@ class AsyncServer extends Server {
    * @throws lang.IllegalStateException
    */
   public function service() {
-    if (empty($this->select)) {
-      throw new IllegalStateException('No sockets to select on');
+    if (empty($this->select) && empty($this->tasks)) {
+      throw new IllegalStateException('No sockets or tasks to execute');
     }
 
-    $sockets= current($this->select)->kind();
     $readable= $writeable= $waitable= $write= [];
-    $errors= null;
-    $time= microtime(true);
+    $sockets= $errors= null;
     do {
+      $time= microtime(true);
       $wait= [];
       foreach ($this->continuation as $i => $continuation) {
         if ($continuation->next >= $time) {
@@ -222,13 +221,18 @@ class AsyncServer extends Server {
         break;
       }
 
-      // echo date('H:i:s'), " SELECT ", \util\Objects::stringOf($wait), " @ {\n",
-      //   "  R: ", \util\Objects::stringOf($readable), "\n",
-      //   "  W: ", \util\Objects::stringOf($writeable), "\n",
-      // "}\n";
-      $sockets->select($readable, $writeable, $errors, $wait ? min($wait) : null);
-      $time= microtime(true);
-    } while ($this->select);
+      if ($this->select) {
+        // echo date('H:i:s'), " SELECT ", \util\Objects::stringOf($wait), " @ {\n",
+        //   "  R: ", \util\Objects::stringOf($readable), "\n",
+        //   "  W: ", \util\Objects::stringOf($writeable), "\n",
+        // "}\n";
+        $sockets ?? $sockets= current($this->select)->kind();
+        $sockets->select($readable, $writeable, $errors, $wait ? min($wait) : null);
+      } else {
+        // echo date('H:i:s'), " SLEEP ", \util\Objects::stringOf($wait), "\n";
+        $wait && usleep(min($wait) * 1000000);
+      }
+    } while (!$this->terminate);
   }
 
   /**

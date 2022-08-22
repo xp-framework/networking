@@ -1,5 +1,6 @@
 <?php namespace peer\unittest\server;
 
+use peer\server\AsyncServer;
 use unittest\{BeforeClass, Ignore, Test};
 
 class AsyncServerTest extends AbstractServerTest {
@@ -12,6 +13,21 @@ class AsyncServerTest extends AbstractServerTest {
   #[BeforeClass]
   public static function startServer() {
     parent::startServerWith('peer.unittest.server.TestingProtocol', 'peer.server.AsyncServer');
+  }
+
+  #[Test]
+  public function scheduled_function_immediately_invoked() {
+    $invoked= 0;
+
+    $s= new AsyncServer();
+    $s->schedule(1, function() use($s, &$invoked) {
+      $invoked++;
+      $s->shutdown();
+    });
+
+    $this->assertEquals(0, $invoked, 'before service()');
+    $s->service();
+    $this->assertEquals(1, $invoked, 'after service()');
   }
 
   #[Test]
