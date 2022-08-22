@@ -58,10 +58,13 @@ class AsyncServer extends Server {
         }
 
         $this->tcpnodelay && $connection->useNoDelay();
+        $protocol->handleConnect($connection);
         yield 'accept' => $this->select($connection, $protocol);
       } while (!$this->terminate);
     });
 
+    // Never time out sockets we listen on
+    $this->continuation[$i]->next= null;
     return $this;
   }
 
@@ -87,7 +90,6 @@ class AsyncServer extends Server {
     if ($handler instanceof ServerProtocol) {
       $this->continuation[$i]= new Continuation(function($socket) use($handler) {
         try {
-          $handler->handleConnect($socket);
 
           // Check for readability, then handle incoming data
           while ($socket->isConnected() && !$socket->eof()) {
@@ -157,7 +159,7 @@ class AsyncServer extends Server {
       $time= microtime(true);
       $wait= [];
       foreach ($this->continuation as $i => $continuation) {
-        if ($continuation->next >= $time) {
+        if (null !== $continuation->next && $continuation->next >= $time) {
           $wait[]= $continuation->next - $time;
           continue;
         } else if (isset($this->tasks[$i])) {
@@ -165,10 +167,24 @@ class AsyncServer extends Server {
           unset($waitable[$i]);
         } else if (isset($readable[$i]) || isset($writeable[$i]) || isset($waitable[$i])) {
           $execute= $continuation->continue($this->select[$i]);
+          if (null !== $continuation->next) $continuation->next= $time;
           unset($readable[$i], $writeable[$i], $waitable[$i]);
         } else {
           isset($write[$i]) ? $writeable[$i]= $this->select[$i] : $readable[$i]= $this->select[$i];
-          continue;
+          if (null === $continuation->next) continue;
+
+          // Check if the socket has timed out...
+          $idle= $time - $continuation->next;
+          $timeout= $this->select[$i]->getTimeout();
+          if ($idle < $timeout) {
+            $wait[]= $timeout - $idle;
+            continue;
+          }
+
+          // ...and if so, throw an exception, allowing the continuation to handle it.
+          $execute= $continuation->throw($this->select[$i], new SocketTimeoutException('Timed out', $timeout));
+          $continuation->next= $time;
+          unset($readable[$i], $writeable[$i]);
         }
 
         // Check whether execution has finished

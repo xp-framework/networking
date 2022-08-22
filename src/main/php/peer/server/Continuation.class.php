@@ -26,4 +26,20 @@ class Continuation {
 
     return $this->continuation->valid() ? $this->continuation : $this->continuation= null;
   }
+
+  /**
+   * Throw an exception into the execution flow
+   *
+   * @param  var $arg
+   * @param  Throwable $t
+   * @return ?Generator
+   */
+  public function throw($arg, $t) {
+    if (null === $this->continuation) {
+      $this->continuation= ($this->function)($arg);
+    }
+    $this->continuation->throw($t);
+
+    return $this->continuation->valid() ? $this->continuation : $this->continuation= null;
+  }
 }
