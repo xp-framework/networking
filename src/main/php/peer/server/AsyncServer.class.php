@@ -113,10 +113,9 @@ class AsyncServer extends Server {
 
   /**
    * Schedule a given task to execute every given seconds. The task
-   * function can return an integer to indicate in how many seconds
-   * its next invocation should occur, overwriting the default value
-   * given here. If this integer is negative, the task stops running.
-   * Returns the added task's ID.
+   * function can return how many seconds its next invocation should
+   * occur, overwriting the default value given here. If this number
+   * is negative, the task stops running. Returns the added task's ID.
    *
    * Note: If the task function raises any exception the task stops
    * running. To continue executing, exceptions must be caught and
@@ -216,7 +215,6 @@ class AsyncServer extends Server {
       if ($this->terminate) {
         for ($i= array_key_last($this->select); $i > 0; $i--) {
           isset($this->select[$i]) && $this->select[$i]->close();
-          // FIXME $continuation->throw() or ->send(INTERRUPTED)? or nothing?
         }
         break;
       }
@@ -232,7 +230,7 @@ class AsyncServer extends Server {
         // echo date('H:i:s'), " SLEEP ", \util\Objects::stringOf($wait), "\n";
         $wait && usleep(min($wait) * 1000000);
       }
-    } while (!$this->terminate);
+    } while ($this->select || $this->tasks);
   }
 
   /**
