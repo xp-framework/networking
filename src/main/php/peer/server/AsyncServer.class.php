@@ -228,7 +228,7 @@ class AsyncServer extends Server {
         $sockets->select($readable, $writeable, $errors, $wait ? min($wait) : null);
       } else {
         // echo date('H:i:s'), " SLEEP ", \util\Objects::stringOf($wait), "\n";
-        $wait && usleep(min($wait) * 1000000);
+        $wait && usleep(1000000 * (int)min($wait));
       }
     } while ($this->select || $this->tasks);
   }
