@@ -1,10 +1,12 @@
 <?php namespace peer\net;
 
-use lang\Value;
+use lang\{Value, FormatException};
 use util\Objects;
 
 /**
- * Represent IP network
+ * Represent an IP network
+ *
+ * @test  peer.unittest.net.NetworkTest
  */
 class Network implements Value {
   private $address, $netmask;
@@ -12,14 +14,22 @@ class Network implements Value {
   /**
    * Constructor
    *
-   * @param   peer.InetAddress addr
-   * @param   int netmask
+   * @param  string|peer.InetAddress $address
+   * @param  ?int $netmask
+   * @throws lang.FormatException
    */
-  public function __construct(InetAddress $addr, $netmask) {
-    if (!is_int($netmask) || $netmask < 0 || $netmask > $addr->sizeInBits())
-      throw new \lang\FormatException('Netmask must be integer, between 0 and '.$addr->sizeInBits());
+  public function __construct($address, $netmask= null) {
+    if ($address instanceof InetAddress) {
+      $this->address= $address;
+    } else {
+      sscanf($address, '%[^/]/%d', $base, $netmask);
+      $this->address= InetAddressFactory::parse($base);
+    }
 
-    $this->address= $addr;
+    $size= $this->address->sizeInBits();
+    if (!is_int($netmask) || $netmask < 0 || $netmask > $size) {
+      throw new FormatException('Netmask must be integer, between 0 and '.$size);
+    }
     $this->netmask= $netmask;
   }
 
@@ -62,11 +72,11 @@ class Network implements Value {
   /**
    * Determine whether given address is part of this network
    *
-   * @param   peer.InetAddress addr
-   * @return  bool
+   * @param  string|peer.InetAddress $address
+   * @return bool
    */
-  public function contains(InetAddress $addr) {
-    return $addr->inSubnet($this);
+  public function contains($address) {
+    return ($address instanceof InetAddress ? $address : InetAddressFactory::parse($address))->inSubnet($this);
   }
 
   /** @return string */

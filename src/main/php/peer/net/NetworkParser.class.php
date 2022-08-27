@@ -1,46 +1,43 @@
 <?php namespace peer\net;
 
+use lang\FormatException;
+
 /**
- * Description of NetworkParser
+ * Parses string notations into `peer.net.Network` instances.
  *
- * @test  xp://peer.unittest.net.NetworkParserTest
+ * @test  peer.unittest.net.NetworkParserTest
  */
 class NetworkParser {
-  protected $addressParser  = null;
-
-  /**
-   * Constructor
-   *
-   */
-  public function __construct() {
-    $this->addressParser= new InetAddressFactory();
-  }
 
   /**
    * Parse given string into network object
    *
-   * @param   string string
-   * @return  peer.Network
-   * @throws  lang.FormatException if string could not be parsed
+   * @param  string $input
+   * @return peer.Network
+   * @throws lang.FormatException if string could not be parsed
    */
-  public function parse($string) {
-    if (2 !== sscanf($string, '%[^/]/%d$', $addr, $mask)) 
-      throw new \lang\FormatException('Given string cannot be parsed to network: ['.$string.']');
+  public function parse(string $input) {
+    if (2 !== sscanf($input, '%[^/]/%d', $base, $netmask)) {
+      throw new FormatException('Given string cannot be parsed to network: '.$input);
+    }
 
-    return new Network($this->addressParser->parse($addr), $mask);
+    return new Network(InetAddressFactory::parse($base), $netmask);
   }
 
   /**
    * Parse given string into network object, return NULL if it fails.
    *
-   * @param   string string
-   * @return  peer.Network
+   * @param  string $input
+   * @return ?peer.Network
    */
-  public function tryParse($string) {
-    try {
-      return $this->parse($string);
-    } catch (\lang\FormatException $e) {
-      return null;
-    }
+  public function tryParse(string $input) {
+    $valid= (
+      (2 === sscanf($input, '%[^/]/%d', $base, $netmask)) &&
+      ($address= InetAddressFactory::tryParse($base)) &&
+      ($netmask >= 0) && 
+      ($netmask <= $address->sizeInBits())
+    );
+
+    return $valid ? new Network($address, $netmask) : null;
   }
 }
