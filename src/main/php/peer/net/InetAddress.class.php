@@ -24,11 +24,11 @@ interface InetAddress extends Value {
   /**
    * Determine whether this address is in the given network.
    *
-   * @param   peer.net.Network net
-   * @return  bool
-   * @throws  lang.FormatException in case net has invalid format
+   * @param  string|peer.net.Network $subnet
+   * @return bool
+   * @throws lang.FormatException in case net has invalid format
    */
-  public function inSubnet(Network $net);
+  public function inSubnet($subnet);
 
   /**
    * Create a subnet of this address, with the specified size.
