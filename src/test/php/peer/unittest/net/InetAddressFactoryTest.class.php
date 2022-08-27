@@ -2,7 +2,7 @@
 
 use lang\FormatException;
 use peer\net\{Inet4Address, Inet6Address, InetAddressFactory};
-use unittest\{Expect, Test, TestCase};
+use unittest\{Expect, Test, Values, TestCase};
 
 class InetAddressFactoryTest extends TestCase {
   private $cut;
@@ -28,13 +28,18 @@ class InetAddressFactoryTest extends TestCase {
   }
 
   #[Test]
-  public function tryParse() {
+  public function tryParse_v4() {
     $this->assertEquals(new Inet4Address('172.17.29.6'), $this->cut->tryParse('172.17.29.6'));
   }
 
   #[Test]
-  public function tryParseReturnsNullOnFailure() {
-    $this->assertEquals(null, $this->cut->tryParse('not an ip address'));
+  public function tryParse_v6() {
+    $this->assertEquals(new Inet6Address('::1'), $this->cut->tryParse('::1'));
+  }
+
+  #[Test, Values(['', '3.33.333.333', '10..3.3', '::ffffff:::::a', 'not an ip address'])]
+  public function tryParseReturnsNullOnFailure($input) {
+    $this->assertEquals(null, $this->cut->tryParse($input));
   }
 
   #[Test]

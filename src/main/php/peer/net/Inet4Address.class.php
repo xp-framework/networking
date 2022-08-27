@@ -17,44 +17,55 @@ class Inet4Address extends InetAddress {
    * octal notations. Yes, 0177.0.0.1 and 0x7F.0.0.1 are both equivalent with
    * 127.0.0.1 - localhost!
    *
-   * @see    https://www.php.net/ip2long
    * @param  string|int $address
    * @throws lang.FormatException in case address is illegal
    */
   public function __construct($address) {
     if (is_int($address)) {
-      if ($address < 0 || $address > 4294967295) {
-        throw new FormatException('Integer out of range: '.$address);
-      }
       $this->addr= $address;
     } else {
-      $blocks= explode('.', $address);
-      if (sizeof($blocks) > 4) {
-        throw new FormatException('Given IP string has more than 4 blocks: '.$address);
-      }
-
-      // PHP's ip2long() doesn't support hexadecimal and octal representations
-      $this->addr= 0;
-      foreach ($blocks as $i => $block) {
-        $l= strlen($block);
-        $n= -1;
-        if ($l > 1 && '0' === $block[0]) {
-          if (('x' === $block[1] || 'X' === $block[1]) && $l === strspn($block, '0123456789aAbBcCdDeEfF', 2) + 2) {
-            $n= hexdec($block);
-          } else if ($l === strspn($block, '01234567')) {
-            $n= octdec($block);
-          }
-        } else if ($l > 0 && $l === strspn($block, '0123456789')) {
-          $n= (int)$block;
-        }
-
-        if ($n < 0 || $n > 255) {
-          throw new FormatException('Invalid format of IP address: '.$address); 
-        }
-
-        $this->addr|= $n << (8 * (3 - $i));
-      }
+      $this->addr= self::parse($address);
     }
+  }
+
+  /**
+   * Parse a given input string, either raising exceptions or silently returning NULL.
+   *
+   * @see    https://www.php.net/ip2long (doesn't support hexadecimal and octal representations)
+   * @param  string $input
+   * @param  bool $throw
+   * @return ?int
+   * @throws lang.FormatException
+   */
+  public static function parse($input, $throw= true) {
+    $blocks= explode('.', $input);
+    if (sizeof($blocks) > 4) {
+      if ($throw) throw new FormatException('Given IP string has more than 4 blocks: '.$input);
+      return null;
+    }
+
+    $r= 0;
+    foreach ($blocks as $i => $block) {
+      $l= strlen($block);
+      $n= -1;
+      if ($l > 1 && '0' === $block[0]) {
+        if (('x' === $block[1] || 'X' === $block[1]) && $l === strspn($block, '0123456789aAbBcCdDeEfF', 2) + 2) {
+          $n= hexdec($block);
+        } else if ($l === strspn($block, '01234567')) {
+          $n= octdec($block);
+        }
+      } else if ($l > 0 && $l === strspn($block, '0123456789')) {
+        $n= (int)$block;
+      }
+
+      if ($n < 0 || $n > 255) {
+        if ($throw) throw new FormatException('Invalid format of IP address: '.$input);
+        return null;
+      }
+
+      $r|= $n << (8 * (3 - $i));
+    }
+    return $r;
   }
 
   /** @return int */

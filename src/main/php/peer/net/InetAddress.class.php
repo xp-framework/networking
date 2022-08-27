@@ -1,9 +1,11 @@
 <?php namespace peer\net;
 
-use lang\Value;
+use lang\{Value, FormatException, IllegalArgumentException};
 
 /**
  * Common ancestor for IPv4 and IPv6
+ *
+ * @test  peer.unittest.net.InetAddressTest
  */
 abstract class InetAddress implements Value {
 
@@ -52,4 +54,19 @@ abstract class InetAddress implements Value {
    * @return string
    */
   public abstract function reversedNotation();
+
+  /**
+   * Returns an IPv4 or IPv6 address based on the given input
+   *
+   * @throws lang.FormatException
+   */
+  public static function new(string $arg): self {
+    if (preg_match('/^[a-fA-F0-9x\.]+$/', $arg)) {
+      return new Inet4Address($arg);
+    } else if (preg_match('/^[a-f0-9\:]+$/', $arg)) {
+      return new Inet6Address($arg);
+    } else {
+      throw new FormatException('Given argument does not look like an IP address: '.$arg);
+    }
+  }
 }

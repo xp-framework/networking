@@ -21,7 +21,7 @@ class Inet6Address extends InetAddress {
     if ($binary) {
       $this->addr= $addr;
     } else {
-      $this->addr= pack('H*', self::normalize($addr));
+      $this->addr= self::parse($addr);
     }
   }
 
@@ -29,41 +29,46 @@ class Inet6Address extends InetAddress {
   public function sizeInBits() { return 128; }
 
   /**
-   * Normalize address
+   * Parse a given input string, either raising exceptions or silently returning NULL.
    *
-   * @param   string addr
-   * @return  string
+   * @param  string $input
+   * @param  bool $throw
+   * @return ?string
+   * @throws lang.FormatException
    */
-  public static function normalize($addr) {
+  public static function parse($input, $throw= true) {
     $out= '';
-    $hexquads= explode(':', $addr);
+    $quads= explode(':', $input);
 
     // Shortest address is ::1, this results in 3 parts...
-    if (sizeof($hexquads) < 3) {
-      throw new FormatException('Address contains less than 1 hexquad part: ['.$addr.']');
+    if (sizeof($quads) < 3) {
+      if ($throw) throw new FormatException('Address contains less than 1 hexquad part: '.$input);
+      return null;
     }
 
-    if ('' == $hexquads[0]) array_shift($hexquads);
-    foreach ($hexquads as $hq) {
-      if ('' == $hq) {
-        $out.= str_repeat('0000', 8 - (sizeof($hexquads)- 1));
+    if ('' === $quads[0]) array_shift($quads);
+    foreach ($quads as $hq) {
+      if ('' === $hq) {
+        $out.= str_repeat('0000', 8 - (sizeof($quads) - 1));
         continue;
       }
 
       // Catch cases like ::ffaadd00::
       if (strlen($hq) > 4) {
-        throw new FormatException('Detected hexquad w/ more than 4 digits in ['.$addr.']');
+        if ($throw) throw new FormatException('Detected hexquad w/ more than 4 digits in '.$input);
+        return null;
       }
       
       // Not hex
       if (strspn($hq, '0123456789abcdefABCDEF') < strlen($hq)) {
-        throw new FormatException('Illegal digits in ['.$addr.']');
+        if ($throw) throw new FormatException('Illegal digits in '.$input);
+        return null;
       }
 
-      $out.= str_repeat('0', 4- strlen($hq)).$hq;
+      $out.= str_repeat('0', 4 - strlen($hq)).$hq;
     }
-    
-    return $out;
+
+    return pack('H*', $out);
   }
       
   /**

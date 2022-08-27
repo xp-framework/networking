@@ -33,9 +33,13 @@ class InetAddressFactory {
    * @return ?peer.InetAddress
    */
   public static function tryParse(string $input) {
-    try {
-      return self::parse($input);
-    } catch (FormatException $e) {
+    if (preg_match('#^[a-fA-F0-9x\.]+$#', $input)) {
+      $addr= Inet4Address::parse($input, false);
+      return null === $addr ? null : new Inet4Address($addr);
+    } else if (preg_match('#^[a-f0-9\:]+$#', $input)) {
+      $addr= Inet6Address::parse($input, false);
+      return null === $addr ? null : new Inet6Address($addr, true);
+    } else {
       return null;
     }
   }
