@@ -5,67 +5,71 @@ use lang\FormatException;
 /**
  * IPv4 address
  *
- * @test  xp://peer.unittest.Inet4AddressTest
- * @see   php://ip2long
+ * @test peer.unittest.Inet4AddressTest
  */
-class Inet4Address implements InetAddress {
+class Inet4Address extends InetAddress {
   private $addr;
 
   /**
-   * Convert IPv4 address from dotted form into a long. Supports hexadecimal and
+   * Constructor
+   *
+   * Converts IPv4 address from dotted form into a long. Supports hexadecimal and
    * octal notations. Yes, 0177.0.0.1 and 0x7F.0.0.1 are both equivalent with
    * 127.0.0.1 - localhost!
    *
-   * @param  string $ip
-   * @return int
-   * @throws lang.FormatException
-   */
-  protected static function ip2long($ip) {
-    $i= 0; $addr= 0; $count= 0;
-    foreach (explode('.', $ip) as $byte) {
-      if (++$count > 4) {
-        throw new FormatException('Given IP string has more than 4 blocks: ['.$ip.']');
-      }
-
-      $l= strlen($byte);
-      $n= -1;
-      if ($l > 1 && '0' === $byte[0]) {
-        if (('x' === $byte[1] || 'X' === $byte[1]) && $l === strspn($byte, '0123456789aAbBcCdDeEfF', 2) + 2) {
-          $n= hexdec($byte);
-        } else if ($l === strspn($byte, '0123456789')) {
-          $n= octdec($byte);
-        }
-      } else if ($l > 0 && $l === strspn($byte, '0123456789')) {
-        $n= (int)$byte;
-      }
-
-      if ($n < 0 || $n > 255) {
-        throw new FormatException('Invalid format of IP address: ['.$ip.']'); 
-      }
-
-      $addr|= ($n << (8 * (3 - $i++)));
-    }
-    return $addr;
-  }
-  
-  /**
-   * Constructor
-   *
-   * @param  string $address
+   * @param  string|int $address
    * @throws lang.FormatException in case address is illegal
    */
   public function __construct($address) {
-    $this->addr= self::ip2long($address);
+    if (is_int($address)) {
+      $this->addr= $address;
+    } else {
+      $this->addr= self::parse($address);
+    }
   }
 
   /**
-   * Retrieve size of ips of this kind in bits.
+   * Parse a given input string, either raising exceptions or silently returning NULL.
    *
-   * @return  int
+   * @see    https://www.php.net/ip2long (doesn't support hexadecimal and octal representations)
+   * @param  string $input
+   * @param  bool $throw
+   * @return ?int
+   * @throws lang.FormatException
    */
-  public function  sizeInBits() {
-    return 32;
+  public static function parse($input, $throw= true) {
+    $blocks= explode('.', $input);
+    if (sizeof($blocks) > 4) {
+      if ($throw) throw new FormatException('Given IP string has more than 4 blocks: '.$input);
+      return null;
+    }
+
+    $r= 0;
+    foreach ($blocks as $i => $block) {
+      $l= strlen($block);
+      $n= -1;
+      if ($l > 1 && '0' === $block[0]) {
+        if (('x' === $block[1] || 'X' === $block[1]) && $l === strspn($block, '0123456789aAbBcCdDeEfF', 2) + 2) {
+          $n= hexdec($block);
+        } else if ($l === strspn($block, '01234567')) {
+          $n= octdec($block);
+        }
+      } else if ($l > 0 && $l === strspn($block, '0123456789')) {
+        $n= (int)$block;
+      }
+
+      if ($n < 0 || $n > 255) {
+        if ($throw) throw new FormatException('Invalid format of IP address: '.$input);
+        return null;
+      }
+
+      $r|= $n << (8 * (3 - $i));
+    }
+    return $r;
   }
+
+  /** @return int */
+  public function sizeInBits() { return 32; }
 
   /**
    * Retrieve IP address notation for DNS reverse query
@@ -97,11 +101,12 @@ class Inet4Address implements InetAddress {
   /**
    * Determine whether address is in the given subnet
    *
-   * @param   string net
-   * @return  bool
-   * @throws  lang.FormatException in case net has invalid format
+   * @param  string|peer.net.Network $subnet
+   * @return bool
+   * @throws lang.FormatException in case net has invalid format
    */
-  public function inSubnet(Network $net) {
+  public function inSubnet($subnet) {
+    $net= $subnet instanceof Network ? $subnet : new Network($subnet);
     if (!$net->getAddress() instanceof self) return false;
     
     $addrn= $net->getAddress()->addr;

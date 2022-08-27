@@ -28,7 +28,7 @@ class NameserverLookup {
    * Lookup all inet4 addresses
    *
    * @param   string host
-   * @return  peer.netInet4Address[]
+   * @return  peer.net.Inet4Address[]
    */
   public function lookupAllInet4($host) {
     $res= [];
@@ -43,7 +43,7 @@ class NameserverLookup {
    * Lookup inet4 address
    *
    * @param   string host
-   * @return  peer.netInet4Address
+   * @return  peer.net.Inet4Address
    */
   public function lookupInet4($host) {
     $addr= $this->_nativeLookup($host, DNS_A);
@@ -105,7 +105,7 @@ class NameserverLookup {
    * Lookup inet4 address
    *
    * @param   string host
-   * @return  peer.netInet4Address
+   * @return  peer.net.Inet4Address
    */
   public function lookup($host) {
     $addr= $this->_nativeLookup($host, DNS_A|DNS_AAAA);
@@ -118,7 +118,7 @@ class NameserverLookup {
   /**
    * Perform reverse lookup for given address
    *
-   * @param   peer.InetAddress addr
+   * @param   peer.net.InetAddress addr
    * @return  string
    * @throws  lang.ElementNotFoundException in case no reverse lookup exists
    */
@@ -133,7 +133,7 @@ class NameserverLookup {
    * Try to perform reverse lookup for given address; if no reverse lookup
    * exists, returns NULL.
    *
-   * @param   peer.InetAddress addr
+   * @param   peer.net.InetAddress addr
    * @return  string
    */
   public function tryReverseLookup(InetAddress $addr) {
