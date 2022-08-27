@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #24: Simplify peer.net API, implementing features sugggested
+  in issue #23
+  (@thekid)
+
 ## 10.2.3 / 2022-02-26
 
 * Fixed "Creation of dynamic property" warnings in PHP 8.2 - @thekid
