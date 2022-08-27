@@ -14,8 +14,9 @@ class Inet6Address extends InetAddress {
   /**
    * Constructor
    *
-   * @param   string addr
-   * @param   bool   binary
+   * @param  string $addr
+   * @param  bool $binary
+   * @throws lang.FormatException in case address is illegal
    */
   public function __construct($addr, $binary= false) {
     if ($binary) {
