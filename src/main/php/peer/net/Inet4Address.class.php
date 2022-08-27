@@ -97,11 +97,12 @@ class Inet4Address implements InetAddress {
   /**
    * Determine whether address is in the given subnet
    *
-   * @param   string net
-   * @return  bool
-   * @throws  lang.FormatException in case net has invalid format
+   * @param  string|peer.net.Network $subnet
+   * @return bool
+   * @throws lang.FormatException in case net has invalid format
    */
-  public function inSubnet(Network $net) {
+  public function inSubnet($subnet) {
+    $net= $subnet instanceof Network ? $subnet : new Network($subnet);
     if (!$net->getAddress() instanceof self) return false;
     
     $addrn= $net->getAddress()->addr;

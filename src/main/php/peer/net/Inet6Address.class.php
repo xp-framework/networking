@@ -131,26 +131,27 @@ class Inet6Address implements InetAddress {
   /**
    * Determine whether address is in the given subnet
    *
-   * @param   string net
-   * @return  bool
-   * @throws  lang.FormatException in case net has invalid format
+   * @param  string|peer.net.Network $subnet
+   * @return bool
+   * @throws lang.FormatException in case net has invalid format
    */
-  public function inSubnet(Network $net) {
+  public function inSubnet($subnet) {
+    $net= $subnet instanceof Network ? $subnet : new Network($subnet);
+    if (!$net->getAddress() instanceof self) return false;
+
     $addr= $net->getAddress();
     $mask= $net->getNetmask();
-    
     $position= 0;
     while ($mask > 8) {
-      if ($addr->addr[$position] != $this->addr[$position]) return false;
+      if ($addr->addr[$position] !== $this->addr[$position]) return false;
       $position++;
       $mask-= 8;
     }
 
-    if ($mask > 0) {
-      return ord($addr->addr[$position]) >> (8 - $mask) == ord($this->addr[$position]) >> (8 - $mask);
-    }
-    
-    return true;
+    return $mask > 0
+      ? ord($addr->addr[$position]) >> (8 - $mask) === ord($this->addr[$position]) >> (8 - $mask)
+      : true
+    ;
   }
   
   /**
