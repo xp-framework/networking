@@ -3,6 +3,8 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.3.0 / 2022-08-26
+
 * Merged PR #24: Simplify peer.net API, implementing features sugggested
   in issue #23
   (@thekid)
