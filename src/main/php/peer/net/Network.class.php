@@ -14,7 +14,7 @@ class Network implements Value {
   /**
    * Constructor
    *
-   * @param  string|peer.InetAddress $address
+   * @param  string|peer.net.InetAddress $address
    * @param  ?int $netmask
    * @throws lang.FormatException
    */
@@ -36,7 +36,7 @@ class Network implements Value {
   /**
    * Acquire address
    *
-   * @return  peer.InetAddress
+   * @return  peer.net.InetAddress
    */
   public function getAddress() {
     return $this->address;
@@ -63,7 +63,7 @@ class Network implements Value {
   /**
    * Get base / network IP
    *
-   * @return  peer.InetAddress
+   * @return  peer.net.InetAddress
    */
   public function getNetworkAddress() {
     return $this->address;
@@ -72,7 +72,7 @@ class Network implements Value {
   /**
    * Determine whether given address is part of this network
    *
-   * @param  string|peer.InetAddress $address
+   * @param  string|peer.net.InetAddress $address
    * @return bool
    */
   public function contains($address) {

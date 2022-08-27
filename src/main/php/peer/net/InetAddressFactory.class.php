@@ -13,7 +13,7 @@ class InetAddressFactory {
    * Parse address from string
    *
    * @param  string $input
-   * @return peer.InetAddress
+   * @return peer.net.InetAddress
    * @throws lang.FormatException if address could not be matched
    */
   public function parse(string $input) {
@@ -30,7 +30,7 @@ class InetAddressFactory {
    * Parse address from string, return NULL on failure
    *
    * @param  string $input
-   * @return ?peer.InetAddress
+   * @return ?peer.net.InetAddress
    */
   public function tryParse(string $input) {
     if (preg_match('#^[a-fA-F0-9x\.]+$#', $input)) {

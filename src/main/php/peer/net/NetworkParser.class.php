@@ -19,7 +19,7 @@ class NetworkParser {
    * Parse given string into network object
    *
    * @param  string $input
-   * @return peer.Network
+   * @return peer.net.Network
    * @throws lang.FormatException if string could not be parsed
    */
   public function parse(string $input) {
@@ -34,7 +34,7 @@ class NetworkParser {
    * Parse given string into network object, return NULL if it fails.
    *
    * @param  string $input
-   * @return ?peer.Network
+   * @return ?peer.net.Network
    */
   public function tryParse(string $input) {
     $valid= (
