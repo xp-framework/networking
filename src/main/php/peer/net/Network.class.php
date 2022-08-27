@@ -23,7 +23,7 @@ class Network implements Value {
       $this->address= $address;
     } else {
       sscanf($address, '%[^/]/%d', $base, $netmask);
-      $this->address= InetAddressFactory::parse($base);
+      $this->address= InetAddress::new($base);
     }
 
     $size= $this->address->sizeInBits();
@@ -76,7 +76,7 @@ class Network implements Value {
    * @return bool
    */
   public function contains($address) {
-    return ($address instanceof InetAddress ? $address : InetAddressFactory::parse($address))->inSubnet($this);
+    return ($address instanceof InetAddress ? $address : InetAddress::new($address))->inSubnet($this);
   }
 
   /** @return string */

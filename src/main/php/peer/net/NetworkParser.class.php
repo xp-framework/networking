@@ -8,6 +8,12 @@ use lang\FormatException;
  * @test  peer.unittest.net.NetworkParserTest
  */
 class NetworkParser {
+  private $addresses;
+
+  /** Constructor */
+  public function __construct() {
+    $this->addresses= new InetAddressFactory();
+  }
 
   /**
    * Parse given string into network object
@@ -21,7 +27,7 @@ class NetworkParser {
       throw new FormatException('Given string cannot be parsed to network: '.$input);
     }
 
-    return new Network(InetAddressFactory::parse($base), $netmask);
+    return new Network($this->addresses->parse($base), $netmask);
   }
 
   /**
@@ -33,7 +39,7 @@ class NetworkParser {
   public function tryParse(string $input) {
     $valid= (
       (2 === sscanf($input, '%[^/]/%d', $base, $netmask)) &&
-      ($address= InetAddressFactory::tryParse($base)) &&
+      ($address= $this->addresses->tryParse($base)) &&
       ($netmask >= 0) && 
       ($netmask <= $address->sizeInBits())
     );

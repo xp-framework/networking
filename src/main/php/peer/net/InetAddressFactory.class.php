@@ -16,7 +16,7 @@ class InetAddressFactory {
    * @return peer.InetAddress
    * @throws lang.FormatException if address could not be matched
    */
-  public static function parse(string $input) {
+  public function parse(string $input) {
     if (preg_match('#^[a-fA-F0-9x\.]+$#', $input)) {
       return new Inet4Address($input);
     } else if (preg_match('#^[a-f0-9\:]+$#', $input)) {
@@ -32,7 +32,7 @@ class InetAddressFactory {
    * @param  string $input
    * @return ?peer.InetAddress
    */
-  public static function tryParse(string $input) {
+  public function tryParse(string $input) {
     if (preg_match('#^[a-fA-F0-9x\.]+$#', $input)) {
       $addr= Inet4Address::parse($input, false);
       return null === $addr ? null : new Inet4Address($addr);
