@@ -5,67 +5,60 @@ use lang\FormatException;
 /**
  * IPv4 address
  *
- * @test  xp://peer.unittest.Inet4AddressTest
- * @see   php://ip2long
+ * @test peer.unittest.Inet4AddressTest
  */
-class Inet4Address implements InetAddress {
+class Inet4Address extends InetAddress {
   private $addr;
 
   /**
-   * Convert IPv4 address from dotted form into a long. Supports hexadecimal and
+   * Constructor
+   *
+   * Converts IPv4 address from dotted form into a long. Supports hexadecimal and
    * octal notations. Yes, 0177.0.0.1 and 0x7F.0.0.1 are both equivalent with
    * 127.0.0.1 - localhost!
    *
-   * @param  string $ip
-   * @return int
-   * @throws lang.FormatException
-   */
-  protected static function ip2long($ip) {
-    $i= 0; $addr= 0; $count= 0;
-    foreach (explode('.', $ip) as $byte) {
-      if (++$count > 4) {
-        throw new FormatException('Given IP string has more than 4 blocks: ['.$ip.']');
-      }
-
-      $l= strlen($byte);
-      $n= -1;
-      if ($l > 1 && '0' === $byte[0]) {
-        if (('x' === $byte[1] || 'X' === $byte[1]) && $l === strspn($byte, '0123456789aAbBcCdDeEfF', 2) + 2) {
-          $n= hexdec($byte);
-        } else if ($l === strspn($byte, '0123456789')) {
-          $n= octdec($byte);
-        }
-      } else if ($l > 0 && $l === strspn($byte, '0123456789')) {
-        $n= (int)$byte;
-      }
-
-      if ($n < 0 || $n > 255) {
-        throw new FormatException('Invalid format of IP address: ['.$ip.']'); 
-      }
-
-      $addr|= ($n << (8 * (3 - $i++)));
-    }
-    return $addr;
-  }
-  
-  /**
-   * Constructor
-   *
-   * @param  string $address
+   * @see    https://www.php.net/ip2long
+   * @param  string|int $address
    * @throws lang.FormatException in case address is illegal
    */
   public function __construct($address) {
-    $this->addr= self::ip2long($address);
+    if (is_int($address)) {
+      if ($address < 0 || $address > 4294967295) {
+        throw new FormatException('Integer out of range: '.$address);
+      }
+      $this->addr= $address;
+    } else {
+      $blocks= explode('.', $address);
+      if (sizeof($blocks) > 4) {
+        throw new FormatException('Given IP string has more than 4 blocks: '.$address);
+      }
+
+      // PHP's ip2long() doesn't support hexadecimal and octal representations
+      $this->addr= 0;
+      foreach ($blocks as $i => $block) {
+        $l= strlen($block);
+        $n= -1;
+        if ($l > 1 && '0' === $block[0]) {
+          if (('x' === $block[1] || 'X' === $block[1]) && $l === strspn($block, '0123456789aAbBcCdDeEfF', 2) + 2) {
+            $n= hexdec($block);
+          } else if ($l === strspn($block, '01234567')) {
+            $n= octdec($block);
+          }
+        } else if ($l > 0 && $l === strspn($block, '0123456789')) {
+          $n= (int)$block;
+        }
+
+        if ($n < 0 || $n > 255) {
+          throw new FormatException('Invalid format of IP address: '.$address); 
+        }
+
+        $this->addr|= $n << (8 * (3 - $i));
+      }
+    }
   }
 
-  /**
-   * Retrieve size of ips of this kind in bits.
-   *
-   * @return  int
-   */
-  public function  sizeInBits() {
-    return 32;
-  }
+  /** @return int */
+  public function sizeInBits() { return 32; }
 
   /**
    * Retrieve IP address notation for DNS reverse query

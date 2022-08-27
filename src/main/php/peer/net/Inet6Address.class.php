@@ -8,9 +8,9 @@ use util\Objects;
  *
  * @test  xp://peer.unittest.net.Inet6AddressTest
  */
-class Inet6Address implements InetAddress {
-  protected $addr;
-  
+class Inet6Address extends InetAddress {
+  private $addr;
+
   /**
    * Constructor
    *
@@ -25,14 +25,8 @@ class Inet6Address implements InetAddress {
     }
   }
 
-  /**
-   * Retrieve size of ips of this kind in bits.
-   *
-   * @return  int
-   */
-  public function sizeInBits() {
-    return 128;
-  }
+  /** @return int */
+  public function sizeInBits() { return 128; }
 
   /**
    * Normalize address

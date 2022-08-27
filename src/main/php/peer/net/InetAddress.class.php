@@ -5,21 +5,21 @@ use lang\Value;
 /**
  * Common ancestor for IPv4 and IPv6
  */
-interface InetAddress extends Value {
+abstract class InetAddress implements Value {
 
   /**
    * Retrieve "human-readable" address
    *
-   * @return  string
+   * @return string
    */
-  public function asString();
+  public abstract function asString();
   
   /**
    * Check whether this address is a loopback address
    *
-   * @return  bool
+   * @return bool
    */
-  public function isLoopback();
+  public abstract function isLoopback();
   
   /**
    * Determine whether this address is in the given network.
@@ -28,28 +28,28 @@ interface InetAddress extends Value {
    * @return bool
    * @throws lang.FormatException in case net has invalid format
    */
-  public function inSubnet($subnet);
+  public abstract function inSubnet($subnet);
 
   /**
    * Create a subnet of this address, with the specified size.
    *
-   * @param   int subnetSize
-   * @return  peer.net.Network
-   * @throws  lang.IllegalArgumentException in case the subnetSize is not correct
+   * @param  int $size
+   * @return peer.net.Network
+   * @throws lang.IllegalArgumentException in case the $size is not correct
    */
-  public function createSubnet($subnetSize);
+  public abstract function createSubnet($size);
   
   /**
    * Retrieve size of address in bits
    *
-   * @return  int
+   * @return int
    */
-  public function sizeInBits();
+  public abstract function sizeInBits();
 
   /**
    * Retrieve reversed notation for reverse DNS lookups
    *
-   * @return  string
+   * @return string
    */
-  public function reversedNotation();
+  public abstract function reversedNotation();
 }
