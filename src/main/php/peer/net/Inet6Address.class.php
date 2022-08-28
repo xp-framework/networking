@@ -8,68 +8,68 @@ use util\Objects;
  *
  * @test  xp://peer.unittest.net.Inet6AddressTest
  */
-class Inet6Address implements InetAddress {
-  protected $addr;
-  
+class Inet6Address extends InetAddress {
+  private $addr;
+
   /**
    * Constructor
    *
-   * @param   string addr
-   * @param   bool   binary
+   * @param  string $addr
+   * @param  bool $binary
+   * @throws lang.FormatException in case address is illegal
    */
   public function __construct($addr, $binary= false) {
     if ($binary) {
       $this->addr= $addr;
     } else {
-      $this->addr= pack('H*', self::normalize($addr));
+      $this->addr= self::parse($addr);
     }
   }
 
-  /**
-   * Retrieve size of ips of this kind in bits.
-   *
-   * @return  int
-   */
-  public function sizeInBits() {
-    return 128;
-  }
+  /** @return int */
+  public function sizeInBits() { return 128; }
 
   /**
-   * Normalize address
+   * Parse a given input string, either raising exceptions or silently returning NULL.
    *
-   * @param   string addr
-   * @return  string
+   * @param  string $input
+   * @param  bool $throw
+   * @return ?string
+   * @throws lang.FormatException
    */
-  public static function normalize($addr) {
+  public static function parse($input, $throw= true) {
     $out= '';
-    $hexquads= explode(':', $addr);
+    $quads= explode(':', $input);
 
     // Shortest address is ::1, this results in 3 parts...
-    if (sizeof($hexquads) < 3) {
-      throw new FormatException('Address contains less than 1 hexquad part: ['.$addr.']');
+    if (sizeof($quads) < 3) {
+      if ($throw) throw new FormatException('Address contains less than 1 hexquad part: '.$input);
+      return null;
     }
 
-    if ('' == $hexquads[0]) array_shift($hexquads);
-    foreach ($hexquads as $hq) {
-      if ('' == $hq) {
-        $out.= str_repeat('0000', 8 - (sizeof($hexquads)- 1));
+    if ('' === $quads[0]) array_shift($quads);
+    foreach ($quads as $hq) {
+      if ('' === $hq) {
+        $out.= str_repeat('0000', 8 - (sizeof($quads) - 1));
         continue;
       }
 
       // Catch cases like ::ffaadd00::
       if (strlen($hq) > 4) {
-        throw new FormatException('Detected hexquad w/ more than 4 digits in ['.$addr.']');
+        if ($throw) throw new FormatException('Detected hexquad w/ more than 4 digits in '.$input);
+        return null;
       }
       
       // Not hex
       if (strspn($hq, '0123456789abcdefABCDEF') < strlen($hq)) {
-        throw new FormatException('Illegal digits in ['.$addr.']');
+        if ($throw) throw new FormatException('Illegal digits in '.$input);
+        return null;
       }
 
-      $out.= str_repeat('0', 4- strlen($hq)).$hq;
+      $out.= str_repeat('0', 4 - strlen($hq)).$hq;
     }
-    
-    return $out;
+
+    return pack('H*', $out);
   }
       
   /**
@@ -131,26 +131,27 @@ class Inet6Address implements InetAddress {
   /**
    * Determine whether address is in the given subnet
    *
-   * @param   string net
-   * @return  bool
-   * @throws  lang.FormatException in case net has invalid format
+   * @param  string|peer.net.Network $subnet
+   * @return bool
+   * @throws lang.FormatException in case net has invalid format
    */
-  public function inSubnet(Network $net) {
+  public function inSubnet($subnet) {
+    $net= $subnet instanceof Network ? $subnet : new Network($subnet);
+    if (!$net->getAddress() instanceof self) return false;
+
     $addr= $net->getAddress();
     $mask= $net->getNetmask();
-    
     $position= 0;
     while ($mask > 8) {
-      if ($addr->addr[$position] != $this->addr[$position]) return false;
+      if ($addr->addr[$position] !== $this->addr[$position]) return false;
       $position++;
       $mask-= 8;
     }
 
-    if ($mask > 0) {
-      return ord($addr->addr[$position]) >> (8 - $mask) == ord($this->addr[$position]) >> (8 - $mask);
-    }
-    
-    return true;
+    return $mask > 0
+      ? ord($addr->addr[$position]) >> (8 - $mask) === ord($this->addr[$position]) >> (8 - $mask)
+      : true
+    ;
   }
   
   /**

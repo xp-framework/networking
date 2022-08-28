@@ -1,41 +1,45 @@
 <?php namespace peer\net;
 
+use lang\FormatException;
+
 /**
- * InetAddress Factory
+ * Parses string notations into `peer.net.InetAddress` instances.
  *
- * @test  xp://peer.unittest.net.InetAddressFactoryTest
+ * @test  peer.unittest.net.InetAddressFactoryTest
  */
 class InetAddressFactory {
 
   /**
    * Parse address from string
    *
-   * @param   string string
-   * @return  peer.InetAddress
-   * @throws  lang.FormatException if address could not be matched
+   * @param  string $input
+   * @return peer.net.InetAddress
+   * @throws lang.FormatException if address could not be matched
    */
-  public function parse($string) {
-    if (preg_match('#^[a-fA-F0-9x\.]+$#', $string)) {
-      return new Inet4Address($string);
+  public function parse(string $input) {
+    if (preg_match('#^[a-fA-F0-9x\.]+$#', $input)) {
+      return new Inet4Address($input);
+    } else if (preg_match('#^[a-f0-9\:]+$#', $input)) {
+      return new Inet6Address($input);
+    } else {
+      throw new FormatException('Given argument does not look like an IP address: '.$input);
     }
-
-    if (preg_match('#^[a-f0-9\:]+$#', $string)) {
-      return new Inet6Address($string);
-    }
-
-    throw new \lang\FormatException('Given argument does not look like an IP address: '.$string);
   }
 
   /**
    * Parse address from string, return NULL on failure
    *
-   * @param   string string
-   * @return  peer.InetAddress
+   * @param  string $input
+   * @return ?peer.net.InetAddress
    */
-  public function tryParse($string) {
-    try {
-      return $this->parse($string);
-    } catch (\lang\FormatException $e) {
+  public function tryParse(string $input) {
+    if (preg_match('#^[a-fA-F0-9x\.]+$#', $input)) {
+      $addr= Inet4Address::parse($input, false);
+      return null === $addr ? null : new Inet4Address($addr);
+    } else if (preg_match('#^[a-f0-9\:]+$#', $input)) {
+      $addr= Inet6Address::parse($input, false);
+      return null === $addr ? null : new Inet6Address($addr, true);
+    } else {
       return null;
     }
   }
