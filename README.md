@@ -15,7 +15,7 @@ Basic low-level
 
 ```php
 package peer {
-  public enum peer.Sockets
+  public abstract enum peer.Sockets
 
   public class peer.AuthenticationException
   public class peer.BSDSocket
@@ -41,7 +41,7 @@ Networks and DNS
 
 ```php
 package peer.net {
-  public interface peer.net.InetAddress
+  public abstract class peer.net.InetAddress
 
   public class peer.net.Inet4Address
   public class peer.net.Inet6Address

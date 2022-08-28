@@ -21,12 +21,14 @@ class PreforkingServer extends Server implements Traceable {
   /**
    * Constructor
    *
-   * @param   string addr
-   * @param   int port
-   * @param   int count default 10 number of children to fork
-   * @param   int maxrequests default 1000 maxmimum # of requests per child
+   * @param  string $addr
+   * @param  int $port
+   * @param  int $count default 10 number of children to fork
+   * @param  int $maxrequests default 1000 maxmimum # of requests per child
+   * @throws lang.IllegalAccessException
    */
   public function __construct($addr, $port, $count= 10, $maxrequests= 1000) {
+    self::extension();
     parent::__construct($addr, $port);
     $this->count= (int)$count;
     $this->maxrequests= (int)$maxrequests;

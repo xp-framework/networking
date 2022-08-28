@@ -29,12 +29,12 @@ class Socket implements Channel, Value {
    * as value for the parameter "host", you must enclose the IP in
    * square brackets.
    *
-   * @param   string host hostname or IP address
-   * @param   int port
-   * @param   resource socket default NULL
+   * @param  string|peer.net.InetAddress $host either hostname or an IP address
+   * @param  int $port
+   * @param  resource $socket default NULL
    */
   public function __construct($host, $port, $socket= null) {
-    $this->host= $host;
+    $this->host= (string)$host;
     $this->port= $port;
     $this->_sock= $socket;
     $this->context= stream_context_create();
