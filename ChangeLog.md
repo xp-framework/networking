@@ -3,6 +3,13 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.3.1 / 2022-08-28
+
+* Fixed package reflection for `peer.server` by deferring the check for
+  `ext/pcntl` until server implementations based on its functionality
+  are instantiated, not just loaded
+  (@thekid)
+
 ## 10.3.0 / 2022-08-26
 
 * Merged PR #24: Simplify peer.net API, implementing features sugggested

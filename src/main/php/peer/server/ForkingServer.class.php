@@ -10,7 +10,19 @@ use lang\SystemException;
  */
 class ForkingServer extends Server {
   use Pcntl;
-  
+
+  /**
+   * Constructor
+   *
+   * @param  string $addr
+   * @param  int $port
+   * @throws lang.IllegalAccessException
+   */
+  public function __construct($addr, $port) {
+    self::extension();
+    parent::__construct($addr, $port);
+  }
+
   /**
    * Service
    *
