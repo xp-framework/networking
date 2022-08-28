@@ -4,9 +4,10 @@ use lang\IllegalAccessException;
 
 trait Pcntl {
 
-  static function __static() {
+  /** Verify PCNTL extension is loaded and useable */
+  private static function extension() {
     if (!extension_loaded('pcntl')) {
-      throw new IllegalAccessException('PCNTL extension not available');
+      throw new IllegalAccessException('PCNTL extension not loaded');
     }
 
     // https://stackoverflow.com/questions/16262854/pcntl-not-working-on-ubuntu-for-security-reasons
