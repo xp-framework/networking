@@ -15,7 +15,7 @@ Basic low-level
 
 ```php
 package peer {
-  public enum peer.Sockets
+  public abstract enum peer.Sockets
 
   public class peer.AuthenticationException
   public class peer.BSDSocket
