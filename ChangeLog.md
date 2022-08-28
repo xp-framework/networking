@@ -3,6 +3,16 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.3.0 / 2022-08-26
+
+* Merged PR #24: Simplify peer.net API, implementing features sugggested
+  in issue #23
+  (@thekid)
+
+## 10.2.3 / 2022-02-26
+
+* Fixed "Creation of dynamic property" warnings in PHP 8.2 - @thekid
+
 ## 10.2.2 / 2021-10-21
 
 * Made compatible with XP 11 and `xp-framework/logging` version 11.0.0

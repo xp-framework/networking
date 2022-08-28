@@ -1,31 +1,42 @@
 <?php namespace peer\net;
 
-use lang\Value;
+use lang\{Value, FormatException};
 use util\Objects;
 
 /**
- * Represent IP network
+ * Represent an IP network
+ *
+ * @test  peer.unittest.net.NetworkTest
  */
 class Network implements Value {
+  private $address, $netmask;
 
   /**
    * Constructor
    *
-   * @param   peer.InetAddress addr
-   * @param   int netmask
+   * @param  string|peer.net.InetAddress $address
+   * @param  ?int $netmask
+   * @throws lang.FormatException
    */
-  public function __construct(InetAddress $addr, $netmask) {
-    if (!is_int($netmask) || $netmask < 0 || $netmask > $addr->sizeInBits())
-      throw new \lang\FormatException('Netmask must be integer, between 0 and '.$addr->sizeInBits());
+  public function __construct($address, $netmask= null) {
+    if ($address instanceof InetAddress) {
+      $this->address= $address;
+    } else {
+      sscanf($address, '%[^/]/%d', $base, $netmask);
+      $this->address= InetAddress::new($base);
+    }
 
-    $this->address= $addr;
+    $size= $this->address->sizeInBits();
+    if (!is_int($netmask) || $netmask < 0 || $netmask > $size) {
+      throw new FormatException('Netmask must be integer, between 0 and '.$size);
+    }
     $this->netmask= $netmask;
   }
 
   /**
    * Acquire address
    *
-   * @return  peer.InetAddress
+   * @return  peer.net.InetAddress
    */
   public function getAddress() {
     return $this->address;
@@ -52,7 +63,7 @@ class Network implements Value {
   /**
    * Get base / network IP
    *
-   * @return  peer.InetAddress
+   * @return  peer.net.InetAddress
    */
   public function getNetworkAddress() {
     return $this->address;
@@ -61,11 +72,11 @@ class Network implements Value {
   /**
    * Determine whether given address is part of this network
    *
-   * @param   peer.InetAddress addr
-   * @return  bool
+   * @param  string|peer.net.InetAddress $address
+   * @return bool
    */
-  public function contains(InetAddress $addr) {
-    return $addr->inSubnet($this);
+  public function contains($address) {
+    return ($address instanceof InetAddress ? $address : InetAddress::new($address))->inSubnet($this);
   }
 
   /** @return string */
