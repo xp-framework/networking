@@ -41,7 +41,7 @@ Networks and DNS
 
 ```php
 package peer.net {
-  public interface peer.net.InetAddress
+  public abstract class peer.net.InetAddress
 
   public class peer.net.Inet4Address
   public class peer.net.Inet6Address
