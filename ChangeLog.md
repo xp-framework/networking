@@ -3,6 +3,11 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.4.0 / 2022-10-29
+
+* Merged PR #22: Asynchronous server with finer-grained I/O control
+  (@thekid)
+
 ## 10.3.1 / 2022-08-28
 
 * Fixed package reflection for `peer.server` by deferring the check for
