@@ -11,7 +11,7 @@ class AcceptingServerTest extends AbstractServerTest {
    */
   #[BeforeClass]
   public static function startServer() {
-    parent::startServerWith('peer.unittest.server.AcceptTestingProtocol');
+    parent::startServerWith('peer.unittest.server.AcceptTestingProtocol', 'peer.server.Server');
   }
 
   #[Test]
