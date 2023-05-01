@@ -85,7 +85,18 @@ abstract class Sockets extends Enum {
   }
 
   /** Maps handles -> socket */
-  private function sockets($handles, $sockets) {
+  private function search($handles, $sockets) {
+    $r= [];
+    foreach ($sockets as $key => $socket) {
+      if (false !== array_search($socket->getHandle(), $handles, true)) {
+        $r[$key]= $socket;
+      }
+    }
+    return $r;
+  }
+
+  /** Maps handles -> socket */
+  private function map($handles, $sockets) {
     $r= [];
     foreach ($handles as $key => $_) {
       $r[$key]= $sockets[$key];
@@ -125,10 +136,19 @@ abstract class Sockets extends Enum {
     // Call "raw" select on handles
     $n= $this->select0($r, $w, $e, $timeout);
 
-    // Map handles to sockets
-    $read= null === $r ? null : $this->sockets($r, $read);
-    $write= null === $w ? null : $this->sockets($w, $write);
-    $except= null === $e ? null : $this->sockets($e, $except);
+    // Map handles to sockets. For PHP < 7.2, use less-performant search-based lookup
+    // as stream_select() sometimes (?!) doesn't preserve the keys even though PHP bug
+    // #53427 was fixed in PHP 5.4.1, see https://bugs.php.net/bug.php?id=53427 and
+    // https://github.com/php/php-src/commit/22d461df621a1c059800a50c9d5c8bba41a14f16
+    if (PHP_VERSION_ID < 70200) {
+      $read= null === $r ? null : $this->search($r, $read);
+      $write= null === $w ? null : $this->search($w, $write);
+      $except= null === $e ? null : $this->search($e, $except);
+    } else {
+      $read= null === $r ? null : $this->map($r, $read);
+      $write= null === $w ? null : $this->map($w, $write);
+      $except= null === $e ? null : $this->map($e, $except);
+    }
     
     return $n;
   }
