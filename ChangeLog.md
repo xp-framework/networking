@@ -3,6 +3,13 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 10.4.1 / 2023-05-01
+
+* Fixed vagary of stream_select() sometimes not preserving array keys.
+  This occurs *sometimes (?!)* in PHP 7.0 and PHP 7.1 even though bug
+  53427 was fixed in PHP 5.4.1, see https://bugs.php.net/bug.php?id=53427
+  (@thekid)
+
 ## 10.4.0 / 2022-10-29
 
 * Merged PR #22: Asynchronous server with finer-grained I/O control
