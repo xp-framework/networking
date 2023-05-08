@@ -2,7 +2,7 @@
 
 use lang\FormatException;
 use peer\net\{Inet4Address, Network};
-use unittest\{Assert, Expect, Test, Values, TestCase};
+use unittest\{Assert, Expect, Test, Values};
 
 class Inet4AddressTest {
 
