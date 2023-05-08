@@ -4,14 +4,8 @@ use lang\IllegalStateException;
 use peer\BSDSocket;
 use peer\unittest\StartServer;
 use unittest\actions\{Actions, ExtensionAvailable};
-use unittest\{Expect, Test};
+use unittest\{Assert, Expect, Test};
 
-/**
- * TestCase
- *
- * @ext      sockets
- * @see      xp://peer.BSDSocket
- */
 #[Action(eval: '[new ExtensionAvailable("sockets"), new StartServer(TestingServer::class, "connected", "shutdown")]')]
 class BSDSocketTest extends AbstractSocketTest {
 
@@ -29,13 +23,13 @@ class BSDSocketTest extends AbstractSocketTest {
   #[Test]
   public function inetDomain() {
     $this->fixture->setDomain(AF_INET);
-    $this->assertEquals(AF_INET, $this->fixture->getDomain());
+    Assert::equals(AF_INET, $this->fixture->getDomain());
   }
 
   #[Test]
   public function unixDomain() {
     $this->fixture->setDomain(AF_UNIX);
-    $this->assertEquals(AF_UNIX, $this->fixture->getDomain());
+    Assert::equals(AF_UNIX, $this->fixture->getDomain());
   }
 
   #[Test, Expect(IllegalStateException::class)]
@@ -47,13 +41,13 @@ class BSDSocketTest extends AbstractSocketTest {
   #[Test]
   public function streamType() {
     $this->fixture->setType(SOCK_STREAM);
-    $this->assertEquals(SOCK_STREAM, $this->fixture->getType());
+    Assert::equals(SOCK_STREAM, $this->fixture->getType());
   }
 
   #[Test]
   public function dgramType() {
     $this->fixture->setType(SOCK_DGRAM);
-    $this->assertEquals(SOCK_DGRAM, $this->fixture->getType());
+    Assert::equals(SOCK_DGRAM, $this->fixture->getType());
   }
 
   #[Test, Expect(IllegalStateException::class)]
@@ -65,13 +59,13 @@ class BSDSocketTest extends AbstractSocketTest {
   #[Test]
   public function tcpProtocol() {
     $this->fixture->setProtocol(SOL_TCP);
-    $this->assertEquals(SOL_TCP, $this->fixture->getProtocol());
+    Assert::equals(SOL_TCP, $this->fixture->getProtocol());
   }
 
   #[Test]
   public function udpProtocol() {
     $this->fixture->setProtocol(SOL_UDP);
-    $this->assertEquals(SOL_UDP, $this->fixture->getProtocol());
+    Assert::equals(SOL_UDP, $this->fixture->getProtocol());
   }
 
   #[Test, Expect(IllegalStateException::class)]

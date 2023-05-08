@@ -2,98 +2,98 @@
 
 use lang\ElementNotFoundException;
 use peer\net\{Inet4Address, Inet6Address, NameserverLookup};
-use unittest\{Expect, Test};
+use unittest\{Assert, Expect, Test};
 
 /**
  * Test nameserver lookup API
  *
  * @see   xp://peer.net.NameserverLookup'
  */
-class NameserverLookupTest extends \unittest\TestCase {
-  private $cut;
+class NameserverLookupTest {
 
-  /**
-   * Sets up test case and defines dummy nameserver lookup fixture
-   *
-   * @return void
-   */
-  public function setUp() {
-    $this->cut= newinstance(NameserverLookup::class, [], [
-      'results' => [],
-      'addLookup' => function($ip, $type= 'ip') { $this->results[]= [$type => $ip]; },
-      '_nativeLookup' => function($what, $type) { return $this->results; }
-    ]);
+  /** Creates a testable nameserver lookup implementation */
+  private function lookup() {
+    return new class() extends NameserverLookup {
+      private $results= [];
+
+      public function returning($ip, $type= 'ip') {
+        $this->results[]= [$type => $ip];
+        return $this;
+      }
+
+      protected function _nativeLookup($what, $type) {
+        return $this->results;
+      }
+    };
   }
 
   #[Test]
   public function lookupLocalhostAllInet4() {
-    $this->cut->addLookup('127.0.0.1');
-    $this->assertEquals([new Inet4Address('127.0.0.1')], $this->cut->lookupAllInet4('localhost'));
+    $fixture= $this->lookup()->returning('127.0.0.1');
+    Assert::equals([new Inet4Address('127.0.0.1')], $fixture->lookupAllInet4('localhost'));
   }
 
   #[Test]
   public function lookupLocalhostInet4() {
-    $this->cut->addLookup('127.0.0.1');
-    $this->assertEquals(new Inet4Address('127.0.0.1'), $this->cut->lookupInet4('localhost'));
+    $fixture= $this->lookup()->returning('127.0.0.1');
+    Assert::equals(new Inet4Address('127.0.0.1'), $fixture->lookupInet4('localhost'));
   }
 
   #[Test]
   public function lookupLocalhostAllInet6() {
-    $this->cut->addLookup('::1', 'ipv6');
-    $this->assertEquals([new Inet6Address('::1')], $this->cut->lookupAllInet6('localhost'));
+    $fixture= $this->lookup()->returning('::1', 'ipv6');
+    Assert::equals([new Inet6Address('::1')], $fixture->lookupAllInet6('localhost'));
   }
 
   #[Test]
   public function lookupLocalhostInet6() {
-    $this->cut->addLookup('::1', 'ipv6');
-    $this->assertEquals(new Inet6Address('::1'), $this->cut->lookupInet6('localhost'));
+    $fixture= $this->lookup()->returning('::1', 'ipv6');
+    Assert::equals(new Inet6Address('::1'), $fixture->lookupInet6('localhost'));
   }
 
   #[Test]
   public function lookupLocalhostAll() {
-    $this->cut->addLookup('127.0.0.1');
-    $this->cut->addLookup('::1', 'ipv6');
+    $fixture= $this->lookup()->returning('127.0.0.1')->returning('::1', 'ipv6');
     
-    $this->assertEquals(
+    Assert::equals(
       [new Inet4Address('127.0.0.1'), new Inet6Address('::1')],
-      $this->cut->lookupAll('localhost')
+      $fixture->lookupAll('localhost')
     );
   }
 
   #[Test]
   public function lookupLocalhost() {
-    $this->cut->addLookup('127.0.0.1');
-    $this->cut->addLookup('::1', 'ipv6');
+    $fixture= $this->lookup()->returning('127.0.0.1')->returning('::1', 'ipv6');
 
-    $this->assertEquals(
-      new Inet4Address('127.0.0.1'),
-      $this->cut->lookup('localhost')
-    );
+    Assert::equals(new Inet4Address('127.0.0.1'), $fixture->lookup('localhost'));
   }
 
   #[Test]
   public function lookupAllNonexistantGivesEmptyArray() {
-    $this->assertEquals([], $this->cut->lookupAll('localhost'));
+    $fixture= $this->lookup();
+    Assert::equals([], $fixture->lookupAll('localhost'));
   }
 
   #[Test, Expect(ElementNotFoundException::class)]
   public function lookupNonexistantThrowsException() {
-    $this->cut->lookup('localhost');
+    $this->lookup()->lookup('localhost');
   }
 
   #[Test]
   public function reverseLookup() {
-    $this->cut->addLookup('localhost', 'target');
-    $this->assertEquals('localhost', $this->cut->reverseLookup(new Inet4Address('127.0.0.1')));
+    $fixture= $this->lookup()->returning('localhost', 'target');
+    Assert::equals('localhost', $fixture->reverseLookup(new Inet4Address('127.0.0.1')));
   }
 
   #[Test, Expect(ElementNotFoundException::class)]
   public function nonexistingReverseLookupCausesException() {
-    $this->cut->reverseLookup(new Inet4Address('192.168.1.1'));
+    $fixture= $this->lookup();
+    $fixture->reverseLookup(new Inet4Address('192.168.1.1'));
   }
 
   #[Test]
   public function tryReverseLookupReturnsNullWhenNoneFound() {
-    $this->assertNull($this->cut->tryReverseLookup(new Inet4Address('192.178.1.1')));
+    $fixture= $this->lookup();
+    Assert::null($fixture->tryReverseLookup(new Inet4Address('192.178.1.1')));
   }
 }

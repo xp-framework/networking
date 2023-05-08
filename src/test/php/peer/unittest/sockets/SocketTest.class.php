@@ -4,11 +4,6 @@ use peer\Socket;
 use peer\unittest\StartServer;
 use unittest\actions\VerifyThat;
 
-/**
- * TestCase
- *
- * @see      xp://peer.Socket
- */
 #[Action(eval: 'new StartServer(TestingServer::class, "connected", "shutdown")')]
 class SocketTest extends AbstractSocketTest {
 
