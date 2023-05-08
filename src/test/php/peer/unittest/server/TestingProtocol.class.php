@@ -1,26 +1,16 @@
 <?php namespace peer\unittest\server;
 
-
- 
 use peer\server\ServerProtocol;
 use util\cmd\Console;
-
 
 /**
  * TestingProtocol implements a simple line-based protocol with the 
  * following commands:
- * <ul>
- *   <li>
- *     CLNT: Sends client ID terminated by a "\n" separator.
- *   </li>
- *   <li>
- *     SEND: Sends 64 kB data terminated by a "\n" separator.
- *   </li>
- *   <li>
- *     HALT: Sends "+HALT" to the client and then shuts down the 
- *     server immediately.
- *   </li>
- * </ul>
+ * 
+ * - CLNT: Sends client ID terminated by a "\n" separator.
+ * - SEND: Sends 64 kB data terminated by a "\n" separator.
+ * - HALT: Sends "+HALT" to the client and then shuts down the 
+ *   server immediately.
  * 
  * Status reporting is performed on STDERR
  */

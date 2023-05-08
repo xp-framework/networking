@@ -1,15 +1,9 @@
 <?php namespace peer\unittest\server;
 
-use lang\Runtime;
+use lang\{Runtime, IllegalStateException};
 use peer\Socket;
-use unittest\{AfterClass, TestCase};
+use unittest\{AfterClass, TestCase, PrerequisitesNotMetError};
 
-/**
- * TestCase
- *
- * @see   xp://peer.unittest.server.TestingServer
- * @see   xp://peer.server.Server
- */
 abstract class AbstractServerTest extends TestCase {
   protected static
     $serverProcess = null,
@@ -18,10 +12,7 @@ abstract class AbstractServerTest extends TestCase {
   protected $conn= null;
   protected $client= null;
 
-  /**
-   * Setup this test case
-   *
-   */
+  /** @return void */
   public function setUp() {
     $this->conn= new Socket(self::$bindAddress[0], self::$bindAddress[1]);
   }
@@ -29,6 +20,7 @@ abstract class AbstractServerTest extends TestCase {
   /**
    * Connect helper
    *
+   * @return void
    */
   protected function connect() {
     $this->conn->connect();
@@ -36,10 +28,7 @@ abstract class AbstractServerTest extends TestCase {
     $this->client= $this->conn->readLine();
   }
   
-  /**
-   * Tears down this test case
-   *
-   */
+  /** @return void */
   public function tearDown() {
     if ($this->conn->isConnected()) {
       $this->conn->close();
@@ -72,10 +61,10 @@ abstract class AbstractServerTest extends TestCase {
     if (2 !== sscanf($status, '+ Service %[0-9.]:%d', self::$bindAddress[0], self::$bindAddress[1])) {
       try {
         self::shutdownServer();
-      } catch (\lang\IllegalStateException $e) {
+      } catch (IllegalStateException $e) {
         $status.= $e->getMessage();
       }
-      throw new \unittest\PrerequisitesNotMetError('Cannot start server: '.$status, null);
+      throw new PrerequisitesNotMetError('Cannot start server: '.$status, null);
     }
   }
 

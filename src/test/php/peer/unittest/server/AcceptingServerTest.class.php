@@ -4,11 +4,6 @@ use unittest\{BeforeClass, Ignore, Test};
 
 class AcceptingServerTest extends AbstractServerTest {
   
-  /**
-   * Starts server in background
-   *
-   * @return void
-   */
   #[BeforeClass]
   public static function startServer() {
     parent::startServerWith('peer.unittest.server.AcceptTestingProtocol', 'peer.server.Server');
