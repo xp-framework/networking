@@ -1,22 +1,19 @@
 <?php namespace peer\unittest\server;
 
-use lang\XPClass;
+use lang\{XPClass, Throwable};
 use peer\ServerSocket;
 use util\cmd\Console;
 
 /**
- * Socket server used by ServerTest. 
+ * Socket server used by ServerTest. Process interaction is performed by messages
+ * this server prints to standard out:
  *
- * Process interaction is performed by messages this server prints to
- * standard out:
- * <ul>
- *   <li>Server listens on a free port @ 127.0.0.1</li>
- *   <li>On startup success, "+ Service (IP):(PORT)" is written</li>
- *   <li>On shutdown, "+ Done" is written</li>
- *   <li>On errors during any phase, "- " and the exception message are written</li>
- * </ul>
+ * - Server listens on a free port @ 127.0.0.1
+ * - On startup success, "+ Service (IP):(PORT)" is written
+ * - On shutdown, "+ Done" is written
+ * - On errors during any phase, "- " and the exception message are written
  *
- * @see   xp://peer.unittest.server.AbstractServerTest
+ * @see  peer.unittest.server.AbstractServerTest
  */
 class TestingServer {
 
@@ -28,12 +25,13 @@ class TestingServer {
   public static function main(array $args) {
     $s= XPClass::forName($args[1] ?? 'peer.server.Server')->newInstance();
     $socket= new ServerSocket('127.0.0.1', 0);
+
     try {
       $s->listen($socket, XPClass::forName($args[0])->newInstance());
       Console::writeLinef('+ Service %s:%d', $socket->host, $socket->port);
       $s->service();
       Console::writeLine('+ Done');
-    } catch (\lang\Throwable $e) {
+    } catch (Throwable $e) {
       Console::writeLine('- ', $e->getMessage());
     }
   }

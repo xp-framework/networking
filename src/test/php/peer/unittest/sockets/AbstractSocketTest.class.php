@@ -3,11 +3,11 @@
 use lang\Runtime;
 use peer\{ConnectException, Socket, SocketEndpoint, SocketException, SocketTimeoutException};
 use unittest\actions\IsPlatform;
-use unittest\{Expect, Ignore, Test};
+use unittest\{Assert, After, Expect, Ignore, Test};
 
-abstract class AbstractSocketTest extends \unittest\TestCase {
+abstract class AbstractSocketTest {
   protected static $bindAddress= [null, -1];
-  protected $fixture= null;
+  protected $sockets= [];
 
   /**
    * Callback for when server is connected
@@ -41,39 +41,49 @@ abstract class AbstractSocketTest extends \unittest\TestCase {
   protected abstract function newSocket($addr, $port);
 
   /**
+   * Creates a new client socket
+   *
+   * @return  peer.Socket
+   */
+  protected function newFixture() {
+    $s= $this->newSocket(self::$bindAddress[0], self::$bindAddress[1]);
+    $this->sockets[]= $s;
+    return $s;
+  }
+
+  /**
    * Read exactly the specific amount of bytes.
    *
-   * @param   int num
-   * @return  string
+   * @param  peer.Socket $fixture
+   * @param  int $num
+   * @return string
    */
-  protected function readBytes($num) {
+  protected function readBytes($fixture, $num) {
     $bytes= '';
     do {
-      $bytes.= $this->fixture->readBinary($num- strlen($bytes));
+      $bytes.= $fixture->readBinary($num- strlen($bytes));
     } while (strlen($bytes) < $num);
     return $bytes;
   }
 
-
-  /** @return void */
-  public function setUp() {
-    $this->fixture= $this->newSocket(self::$bindAddress[0], self::$bindAddress[1]);
+  #[After]
+  public function close() {
+    foreach ($this->sockets as $socket) {
+      $socket->isConnected() && $socket->close();
+    }
   }
 
-  /** @return void */
-  public function tearDown() {
-    $this->fixture && $this->fixture->isConnected() && $this->fixture->close();
-  }
-  
   #[Test]
   public function initiallyNotConnected() {
-    $this->assertFalse($this->fixture->isConnected());
+    $fixture= $this->newFixture();
+    Assert::false($fixture->isConnected());
   }
 
   #[Test]
   public function connect() {
-    $this->assertTrue($this->fixture->connect());
-    $this->assertTrue($this->fixture->isConnected());
+    $fixture= $this->newFixture();
+    Assert::true($fixture->connect());
+    Assert::true($fixture->isConnected());
   }
 
   #[Test, Expect(ConnectException::class)]
@@ -93,48 +103,54 @@ abstract class AbstractSocketTest extends \unittest\TestCase {
 
   #[Test]
   public function closing() {
-    $this->assertTrue($this->fixture->connect());
-    $this->assertTrue($this->fixture->close());
-    $this->assertFalse($this->fixture->isConnected());
+    $fixture= $this->newFixture();
+    Assert::true($fixture->connect());
+    Assert::true($fixture->close());
+    Assert::false($fixture->isConnected());
   }
 
   #[Test]
   public function closingNotConnected() {
-    $this->assertFalse($this->fixture->close());
+    $fixture= $this->newFixture();
+    Assert::false($fixture->close());
   }
   
   #[Test]
   public function eofAfterClosing() {
-    $this->assertTrue($this->fixture->connect());
+    $fixture= $this->newFixture();
+    Assert::true($fixture->connect());
     
-    $this->fixture->write("ECHO EOF\n");
-    $this->assertEquals("+ECHO EOF\n", $this->fixture->readBinary());
+    $fixture->write("ECHO EOF\n");
+    Assert::equals("+ECHO EOF\n", $fixture->readBinary());
     
-    $this->fixture->write("CLOS\n");
-    $this->assertEquals('', $this->fixture->readBinary());
+    $fixture->write("CLOS\n");
+    Assert::equals('', $fixture->readBinary());
 
-    $this->assertTrue($this->fixture->eof());
-    $this->fixture->close();
-    $this->assertFalse($this->fixture->eof());
+    Assert::true($fixture->eof());
+    $fixture->close();
+    Assert::false($fixture->eof());
   }
 
   #[Test]
   public function write() {
-    $this->fixture->connect();
-    $this->assertEquals(10, $this->fixture->write("ECHO data\n"));
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    Assert::equals(10, $fixture->write("ECHO data\n"));
   }
 
   #[Test, Expect(SocketException::class)]
   public function writeUnConnected() {
-    $this->fixture->write('Anything');
+    $fixture= $this->newFixture();
+    $fixture->write('Anything');
   }
 
   #[Test, Ignore('Writes still succeed after close - no idea why...')]
   public function writeAfterEof() {
-    $this->fixture->connect();
-    $this->fixture->write("CLOS\n");
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("CLOS\n");
     try {
-      $this->fixture->write('Anything');
+      $fixture->write('Anything');
       $this->fail('No exception raised', null, 'peer.SocketException');
     } catch (SocketException $expected) {
       // OK
@@ -143,245 +159,276 @@ abstract class AbstractSocketTest extends \unittest\TestCase {
 
   #[Test]
   public function readLine() {
-    $this->fixture->connect();
-    $this->fixture->write("ECHO data\n");
-    $this->assertEquals("+ECHO data", $this->fixture->readLine());
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("ECHO data\n");
+    Assert::equals("+ECHO data", $fixture->readLine());
   }
 
   #[Test, Expect(SocketException::class)]
   public function readLineUnConnected() {
-    $this->fixture->readLine();
+    $fixture= $this->newFixture();
+    $fixture->readLine();
   }
 
   #[Test]
   public function readLineOnEof() {
-    $this->fixture->connect();
-    $this->fixture->write("CLOS\n");
-    $this->assertNull($this->fixture->readLine());
-    $this->assertTrue($this->fixture->eof(), '<EOF>');
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("CLOS\n");
+    Assert::null($fixture->readLine());
+    Assert::true($fixture->eof(), '<EOF>');
   }
 
   #[Test]
   public function readLinesWithLineFeed() {
-    $this->fixture->connect();
-    $this->fixture->write("LINE 5 %0A\n");
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("LINE 5 %0A\n");
     for ($i= 0; $i < 5; $i++) {
-      $this->assertEquals('+LINE '.$i, $this->fixture->readLine(), 'Line #'.$i);
+      Assert::equals('+LINE '.$i, $fixture->readLine(), 'Line #'.$i);
     }
-    $this->assertEquals('+LINE .', $this->fixture->readLine());
+    Assert::equals('+LINE .', $fixture->readLine());
   }
 
   #[Test, Ignore('readLine() only works for \n or \r\n at the moment')]
   public function readLinesWithCarriageReturn() {
-    $this->fixture->connect();
-    $this->fixture->write("LINE 5 %0D\n");
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("LINE 5 %0D\n");
     for ($i= 0; $i < 5; $i++) {
-      $this->assertEquals('+LINE '.$i, $this->fixture->readLine(), 'Line #'.$i);
+      Assert::equals('+LINE '.$i, $fixture->readLine(), 'Line #'.$i);
     }
-    $this->assertEquals('+LINE .', $this->fixture->readLine());
+    Assert::equals('+LINE .', $fixture->readLine());
   }
 
   #[Test]
   public function readLinesWithCarriageReturnLineFeed() {
-    $this->fixture->connect();
-    $this->fixture->write("LINE 5 %0D%0A\n");
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("LINE 5 %0D%0A\n");
     for ($i= 0; $i < 5; $i++) {
-      $this->assertEquals('+LINE '.$i, $this->fixture->readLine(), 'Line #'.$i);
+      Assert::equals('+LINE '.$i, $fixture->readLine(), 'Line #'.$i);
     }
-    $this->assertEquals('+LINE .', $this->fixture->readLine());
+    Assert::equals('+LINE .', $fixture->readLine());
   }
   
   #[Test]
   public function readLineAndBinary() {
-    $this->fixture->connect();
-    $this->fixture->write("LINE 3 %0D%0A\n");
-    $this->assertEquals('+LINE 0', $this->fixture->readLine());
-    $this->assertEquals("+LINE 1\r\n+LINE 2\r\n+LINE .\n", $this->readBytes(26));
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("LINE 3 %0D%0A\n");
+    Assert::equals('+LINE 0', $fixture->readLine());
+    Assert::equals("+LINE 1\r\n+LINE 2\r\n+LINE .\n", $this->readBytes($fixture, 26));
   }
 
   #[Test]
   public function readLineAndBinaryWithMaxLen() {
-    $this->fixture->connect();
-    $this->fixture->write("LINE 3 %0D%0A\n");
-    $this->assertEquals('+LINE 0', $this->fixture->readLine());
-    $this->assertEquals("+LINE 1\r\n", $this->readBytes(9));
-    $this->assertEquals("+LINE 2\r\n", $this->readBytes(9));
-    $this->assertEquals('+LINE .', $this->fixture->readLine());
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("LINE 3 %0D%0A\n");
+    Assert::equals('+LINE 0', $fixture->readLine());
+    Assert::equals("+LINE 1\r\n", $this->readBytes($fixture, 9));
+    Assert::equals("+LINE 2\r\n", $this->readBytes($fixture, 9));
+    Assert::equals('+LINE .', $fixture->readLine());
   }
 
   #[Test]
   public function read() {
-    $this->fixture->connect();
-    $this->fixture->write("ECHO data\n");
-    $this->assertEquals("+ECHO data\n", $this->fixture->read());
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("ECHO data\n");
+    Assert::equals("+ECHO data\n", $fixture->read());
   }
 
   #[Test, Expect(SocketException::class)]
   public function readUnConnected() {
-    $this->fixture->read();
+    $fixture= $this->newFixture();
+    $fixture->read();
   }
 
   #[Test]
   public function readOnEof() {
-    $this->fixture->connect();
-    $this->fixture->write("CLOS\n");
-    $this->assertNull($this->fixture->read());
-    $this->assertTrue($this->fixture->eof(), '<EOF>');
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("CLOS\n");
+    Assert::null($fixture->read());
+    Assert::true($fixture->eof(), '<EOF>');
   }
 
   #[Test]
   public function readBinary() {
-    $this->fixture->connect();
-    $this->fixture->write("ECHO data\n");
-    $this->assertEquals("+ECHO data\n", $this->fixture->read());
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("ECHO data\n");
+    Assert::equals("+ECHO data\n", $fixture->read());
   }
 
   #[Test, Expect(SocketException::class)]
   public function readBinaryUnConnected() {
-    $this->fixture->readBinary();
+    $fixture= $this->newFixture();
+    $fixture->readBinary();
   }
 
   #[Test]
   public function readBinaryOnEof() {
-    $this->fixture->connect();
-    $this->fixture->write("CLOS\n");
-    $this->assertEquals('', $this->fixture->readBinary());
-    $this->assertTrue($this->fixture->eof(), '<EOF>');
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("CLOS\n");
+    Assert::equals('', $fixture->readBinary());
+    Assert::true($fixture->eof(), '<EOF>');
   }
 
   #[Test]
   public function canRead() {
-    $this->fixture->connect();
-    $this->assertFalse($this->fixture->canRead(0.1));
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    Assert::false($fixture->canRead(0.1));
   }
 
   #[Test, Expect(SocketException::class)]
   public function canReadUnConnected() {
-    $this->fixture->canRead(0.1);
+    $fixture= $this->newFixture();
+    $fixture->canRead(0.1);
   }
 
   #[Test]
   public function canReadWithData() {
-    $this->fixture->connect();
-    $this->fixture->write("ECHO data\n");
-    $this->assertTrue($this->fixture->canRead(0.1));
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->write("ECHO data\n");
+    Assert::true($fixture->canRead(0.1));
   }
 
   #[Test]
   public function getHandle() {
-    $this->fixture->connect();
-    $this->assertNotEquals(null, $this->fixture->getHandle());
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    Assert::notequals(null, $fixture->getHandle());
   }
 
   #[Test]
   public function getHandleAfterClose() {
-    $this->fixture->connect();
-    $this->fixture->close();
-    $this->assertNull($this->fixture->getHandle());
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->close();
+    Assert::null($fixture->getHandle());
   }
 
   #[Test]
   public function getHandleUnConnected() {
-    $this->assertNull($this->fixture->getHandle());
+    $fixture= $this->newFixture();
+    Assert::null($fixture->getHandle());
   }
 
   #[Test, Expect(SocketTimeoutException::class)]
   public function readTimeout() {
-    $this->fixture->connect();
-    $this->fixture->setTimeout(0.1);
-    $this->fixture->read();
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->setTimeout(0.1);
+    $fixture->read();
   }
 
   #[Test, Expect(SocketTimeoutException::class)]
   public function readBinaryTimeout() {
-    $this->fixture->connect();
-    $this->fixture->setTimeout(0.1);
-    $this->fixture->readBinary();
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->setTimeout(0.1);
+    $fixture->readBinary();
   }
 
   #[Test, Expect(SocketTimeoutException::class)]
   public function readLineTimeout() {
-    $this->fixture->connect();
-    $this->fixture->setTimeout(0.1);
-    $this->fixture->readLine();
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    $fixture->setTimeout(0.1);
+    $fixture->readLine();
   }
 
   #[Test]
   public function inputStream() {
+    $fixture= $this->newFixture();
     $expect= '<response><type>status</type><payload><bool>true</bool></payload></response>';
-    $this->fixture->connect();
-    $this->fixture->write('ECHO '.$expect."\n");
+    $fixture->connect();
+    $fixture->write('ECHO '.$expect."\n");
     
-    $si= $this->fixture->getInputStream();
-    $this->assertTrue($si->available() > 0, 'available() > 0');
-    $this->assertEquals('+ECHO '.$expect, $si->read(strlen($expect)+ strlen('+ECHO ')));
+    $si= $fixture->getInputStream();
+    Assert::true($si->available() > 0, 'available() > 0');
+    Assert::equals('+ECHO '.$expect, $si->read(strlen($expect)+ strlen('+ECHO ')));
   }
 
   #[Test]
   public function remoteEndpoint() {
-    $this->assertEquals(
+    $fixture= $this->newFixture();
+    Assert::equals(
       new SocketEndpoint(self::$bindAddress[0], self::$bindAddress[1]),
-      $this->fixture->remoteEndpoint()
+      $fixture->remoteEndpoint()
     );
   }
 
   #[Test]
   public function localEndpointForUnconnectedSocket() {
-    $this->assertNull($this->fixture->localEndpoint());
+    $fixture= $this->newFixture();
+    Assert::null($fixture->localEndpoint());
   }
 
   #[Test]
   public function localEndpointForConnectedSocket() {
-    $this->fixture->connect();
-    $this->assertInstanceOf(SocketEndpoint::class, $this->fixture->localEndpoint());
+    $fixture= $this->newFixture();
+    $fixture->connect();
+    Assert::instance(SocketEndpoint::class, $fixture->localEndpoint());
   }
 
   #[Test]
   public function select_when_nothing_can_be_read() {
-    $this->fixture->connect();
+    $fixture= $this->newFixture();
+    $fixture->connect();
     
-    $r= [$this->fixture]; $w= null; $e= null;
-    $this->fixture->kind()->select($r, $w, $e, 0.1);
+    $r= [$fixture]; $w= null; $e= null;
+    $fixture->kind()->select($r, $w, $e, 0.1);
 
-    $this->assertEquals([], $r);
+    Assert::equals([], $r);
   }
 
   #[Test]
   public function select_when_data_is_available() {
-    $this->fixture->connect();
+    $fixture= $this->newFixture();
+    $fixture->connect();
     
-    $this->fixture->write("ECHO EOF\n");
+    $fixture->write("ECHO EOF\n");
 
-    $r= [$this->fixture]; $w= null; $e= null;
-    $this->fixture->kind()->select($r, $w, $e, 0.1);
+    $r= [$fixture]; $w= null; $e= null;
+    $fixture->kind()->select($r, $w, $e, 0.1);
 
-    $this->assertEquals([$this->fixture], $r);
+    Assert::equals([$fixture], $r);
   }
 
   #[Test]
   public function select_from_two_sockets() {
-    $a= clone $this->fixture;
-    $b= clone $this->fixture;
+    $fixture= $this->newFixture();
+    $a= clone $fixture;
+    $b= clone $fixture;
 
     $a->connect();
     $b->connect();
     $a->write("ECHO EOF\n");
 
     $r= [$b, $a]; $w= null; $e= null;
-    $this->fixture->kind()->select($r, $w, $e, 0.1);
+    $fixture->kind()->select($r, $w, $e, 0.1);
 
-    $this->assertEquals([1 => $a], $r);
+    Assert::equals([1 => $a], $r);
   }
 
   #[Test]
   public function select_keyed_array() {
-    $this->fixture->connect();
+    $fixture= $this->newFixture();
+    $fixture->connect();
     
-    $this->fixture->write("ECHO EOF\n");
+    $fixture->write("ECHO EOF\n");
 
-    $r= ['fixture' => $this->fixture]; $w= null; $e= null;
-    $this->fixture->kind()->select($r, $w, $e, 0.1);
+    $r= ['fixture' => $fixture]; $w= null; $e= null;
+    $fixture->kind()->select($r, $w, $e, 0.1);
 
-    $this->assertEquals(['fixture' => $this->fixture], $r);
+    Assert::equals(['fixture' => $fixture], $r);
   }
 }

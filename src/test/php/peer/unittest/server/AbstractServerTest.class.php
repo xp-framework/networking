@@ -1,50 +1,26 @@
 <?php namespace peer\unittest\server;
 
-use lang\Runtime;
+use lang\{Runtime, IllegalStateException};
 use peer\Socket;
-use unittest\{AfterClass, TestCase};
+use unittest\{After, AfterClass, PrerequisitesNotMetError};
 
-/**
- * TestCase
- *
- * @see   xp://peer.unittest.server.TestingServer
- * @see   xp://peer.server.Server
- */
-abstract class AbstractServerTest extends TestCase {
-  protected static
-    $serverProcess = null,
-    $bindAddress   = [null, -1];
+abstract class AbstractServerTest {
+  protected static $serverProcess;
+  protected static $bindAddress= [null, -1];
+  protected $sockets= [];
 
-  protected $conn= null;
-  protected $client= null;
-
-  /**
-   * Setup this test case
-   *
-   */
-  public function setUp() {
-    $this->conn= new Socket(self::$bindAddress[0], self::$bindAddress[1]);
+  /** @return peer.Socket */
+  protected function newSocket() {
+    $s= new Socket(self::$bindAddress[0], self::$bindAddress[1]);
+    $this->sockets[]= $s;
+    return $s;
   }
-  
-  /**
-   * Connect helper
-   *
-   */
-  protected function connect() {
-    $this->conn->connect();
-    $this->conn->write("CLNT\n");
-    $this->client= $this->conn->readLine();
-  }
-  
-  /**
-   * Tears down this test case
-   *
-   */
-  public function tearDown() {
-    if ($this->conn->isConnected()) {
-      $this->conn->close();
-      self::$serverProcess->err->readLine();
-    }
+
+  /** Connects to a socket and returns the client */
+  protected function connectTo(Socket $socket): string {
+    $socket->connect();
+    $socket->write("CLNT\n");
+    return $socket->readLine();
   }
 
   /**
@@ -55,7 +31,7 @@ abstract class AbstractServerTest extends TestCase {
    * @throws unittest.PrerequisitesNotMetError
    * @return void
    */
-  public static function startServerWith($protocol, $server) {
+  protected function startServerWith($protocol, $server) {
 
     // Start server process
     with ($rt= Runtime::getInstance()); {
@@ -72,19 +48,22 @@ abstract class AbstractServerTest extends TestCase {
     if (2 !== sscanf($status, '+ Service %[0-9.]:%d', self::$bindAddress[0], self::$bindAddress[1])) {
       try {
         self::shutdownServer();
-      } catch (\lang\IllegalStateException $e) {
+      } catch (IllegalStateException $e) {
         $status.= $e->getMessage();
       }
-      throw new \unittest\PrerequisitesNotMetError('Cannot start server: '.$status, null);
+      throw new PrerequisitesNotMetError('Cannot start server: '.$status, null);
     }
   }
 
-  /**
-   * Shut down socket server
-   *
-   */
-  #[AfterClass]
-  public static function shutdownServer() {
+  #[After]
+  public function closeSockets() {
+    foreach ($this->sockets as $socket) {
+      $socket->isConnected() && $socket->close();
+    }
+  }
+
+  #[After]
+  public function shutdownServer() {
 
     // Tell the server to shut down
     try {
@@ -107,20 +86,5 @@ abstract class AbstractServerTest extends TestCase {
       throw new \lang\IllegalStateException($status);
     }
     self::$serverProcess->close();
-  }
-  
-  /**
-   * Assertion helper
-   *
-   * @param   string[] verbs
-   * @throws  unittest.AssertionFailedError
-   */
-  protected function assertHandled($verbs) {
-    $actual= $expected= [];
-    foreach ($verbs as $verb) {
-      $actual[]= self::$serverProcess->err->readLine();
-      $expected[]= $verb.' '.$this->client;
-    }
-    $this->assertEquals($expected, $actual);
   }
 }

@@ -1,13 +1,13 @@
 <?php namespace peer\unittest\sockets;
 
 use peer\SocketTimeoutException;
-use unittest\Test;
+use unittest\{Assert, Test};
 
-class SocketTimeoutExceptionTest extends \unittest\TestCase {
+class SocketTimeoutExceptionTest {
 
   #[Test]
   public function getTimeout() {
-    $this->assertEquals(
+    Assert::equals(
       1.0, 
       (new SocketTimeoutException('', 1.0))->getTimeout()
     );
@@ -15,7 +15,7 @@ class SocketTimeoutExceptionTest extends \unittest\TestCase {
 
   #[Test]
   public function compoundMessage() {
-    $this->assertEquals(
+    Assert::equals(
       'Exception peer.SocketTimeoutException (Read failed after 1.000 seconds)',
       (new SocketTimeoutException('Read failed', 1.0))->compoundMessage()
     );

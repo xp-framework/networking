@@ -1,7 +1,7 @@
 <?php namespace peer\unittest\server;
 
 use peer\server\AsyncServer;
-use unittest\{BeforeClass, Ignore, Test};
+use unittest\{Assert, Before, Ignore, Test};
 
 class AsyncServerTest extends AbstractServerTest {
   
@@ -10,9 +10,9 @@ class AsyncServerTest extends AbstractServerTest {
    *
    * @return void
    */
-  #[BeforeClass]
-  public static function startServer() {
-    parent::startServerWith('peer.unittest.server.TestingProtocol', 'peer.server.AsyncServer');
+  #[Before]
+  public function startServer() {
+    $this->startServerWith('peer.unittest.server.TestingProtocol', 'peer.server.AsyncServer');
   }
 
   #[Test]
@@ -27,8 +27,8 @@ class AsyncServerTest extends AbstractServerTest {
     $before= $invoked;
     $s->service();
 
-    $this->assertEquals(0, $before, 'before service()');
-    $this->assertEquals(1, $invoked, 'after service()');
+    Assert::equals(0, $before, 'before service()');
+    Assert::equals(1, $invoked, 'after service()');
   }
 
   #[Test, Values([1, 2, 3])]
@@ -47,71 +47,59 @@ class AsyncServerTest extends AbstractServerTest {
     $time= microtime(true) - $start;
     $expected= $delay * ($executions - 1);
 
-    $this->assertEquals($executions, $invoked);
-    $this->assertTrue($time >= $expected, $time.' >= '.$expected);
+    Assert::equals($executions, $invoked);
+    Assert::true($time >= $expected, $time.' >= '.$expected);
   }
 
   #[Test]
   public function connected() {
-    $this->connect();
-    $this->assertHandled(['CONNECT']);
+    $socket= $this->newSocket();
+    $client= $this->connectTo($socket);
+
+    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
   }
 
   #[Test]
   public function disconnected() {
-    $this->connect();
-    $this->conn->close();
-    $this->assertHandled(['CONNECT', 'DISCONNECT']);
+    $socket= $this->newSocket();
+    $client= $this->connectTo($socket);
+    $socket->close();
+
+    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('DISCONNECT '.$client, self::$serverProcess->err->readLine());
   }
 
   #[Test]
   public function read_synchronously_written_data() {
-    $this->connect();
-    $this->conn->write("SYNC 3\n");
+    $socket= $this->newSocket();
+    $client= $this->connectTo($socket);
+
+    $socket->write("SYNC 3\n");
     $read= [];
-    while ('.' !== ($line= $this->conn->readLine()) && !$this->conn->eof()) {
+    while ('.' !== ($line= $socket->readLine()) && !$socket->eof()) {
       $read[]= $line;
     }
-    $this->conn->close();
-    $this->assertEquals(['1', '2', '3'], $read);
-    $this->assertHandled(['CONNECT', 'DISCONNECT']);
+    $socket->close();
+    Assert::equals(['1', '2', '3'], $read);
+
+    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('DISCONNECT '.$client, self::$serverProcess->err->readLine());
   }
 
   #[Test]
   public function read_asynchronously_written_data() {
-    $this->connect();
-    $this->conn->write("ASNC 3\n");
+    $socket= $this->newSocket();
+    $client= $this->connectTo($socket);
+
+    $socket->write("ASNC 3\n");
     $read= [];
-    while ('.' !== ($line= $this->conn->readLine()) && !$this->conn->eof()) {
+    while ('.' !== ($line= $socket->readLine()) && !$socket->eof()) {
       $read[]= $line;
     }
-    $this->conn->close();
-    $this->assertEquals(['1', '2', '3'], $read);
-    $this->assertHandled(['CONNECT', 'DISCONNECT']);
-  }
+    $socket->close();
+    Assert::equals(['1', '2', '3'], $read);
 
-  #[Test, Ignore('Fragile test, dependant on OS / platform and implementation vagaries')]
-  public function interrupt_asynchronously_written_data() {
-    $this->connect();
-    $this->conn->write("ASNC 3\n");
-    $this->conn->readLine();
-    $this->conn->close();
-
-    $this->assertHandled(['CONNECT', 'ERROR', 'DISCONNECT']);
-
-    $this->connect();
-    $this->conn->write("SYNC 1\n");
-    $this->conn->readLine();
-    $this->conn->close();
-
-    $this->assertHandled(['CONNECT', 'DISCONNECT']);
-  }
-
-  #[Test, Ignore('Fragile test, dependant on OS / platform and implementation vagaries')]
-  public function error() {
-    $this->connect();
-    $this->conn->write("SEND\n");
-    $this->conn->close();
-    $this->assertHandled(['CONNECT', 'ERROR']);
+    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('DISCONNECT '.$client, self::$serverProcess->err->readLine());
   }
 }

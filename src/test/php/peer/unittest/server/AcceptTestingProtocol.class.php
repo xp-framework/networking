@@ -1,12 +1,8 @@
 <?php namespace peer\unittest\server;
 
 use peer\server\protocol\SocketAcceptHandler;
+use util\cmd\Console;
 
-
-/**
- * AcceptTestingProtocol handles socket accepts
- *
- */
 class AcceptTestingProtocol extends TestingProtocol implements SocketAcceptHandler {
 
   /**
@@ -16,7 +12,7 @@ class AcceptTestingProtocol extends TestingProtocol implements SocketAcceptHandl
    * @return  bool
    */
   public function handleAccept($socket) { 
-    \util\cmd\Console::$err->writeLine('ACCEPT ', $this->hashOf($socket));
+    Console::$err->writeLine('ACCEPT ', $this->hashOf($socket));
     return true;
   }
 }

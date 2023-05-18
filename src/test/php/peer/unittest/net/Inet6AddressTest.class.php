@@ -2,18 +2,18 @@
 
 use lang\FormatException;
 use peer\net\{Inet6Address, Network};
-use unittest\{Expect, Test};
+use unittest\{Assert, Expect, Test};
 
 /**
  * IPv6 addresses test 
  *
  * @see   http://en.wikipedia.org/wiki/Reverse_DNS_lookup#IPv6_reverse_resolution
  */
-class Inet6AddressTest extends \unittest\TestCase {
+class Inet6AddressTest {
 
   #[Test]
   public function createAddress() {
-    $this->assertEquals(
+    Assert::equals(
       'febc:a574:382b:23c1:aa49:4592:4efe:9982',
       (new Inet6Address('febc:a574:382b:23c1:aa49:4592:4efe:9982'))->asString()
     );
@@ -21,7 +21,7 @@ class Inet6AddressTest extends \unittest\TestCase {
 
   #[Test]
   public function createAddressFromUpperCase() {
-    $this->assertEquals(
+    Assert::equals(
       'febc:a574:382b:23c1:aa49:4592:4efe:9982',
       (new Inet6Address('FEBC:A574:382B:23C1:AA49:4592:4EFE:9982'))->asString()
     );
@@ -29,7 +29,7 @@ class Inet6AddressTest extends \unittest\TestCase {
 
   #[Test]
   public function createAddressFromPackedForm() {
-    $this->assertEquals(
+    Assert::equals(
       '::1',
       (new Inet6Address("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1", true))->asString()
     );
@@ -37,7 +37,7 @@ class Inet6AddressTest extends \unittest\TestCase {
 
   #[Test]
   public function createAddressFromPackedFormWithColonSpecialCase() {
-    $this->assertEquals(
+    Assert::equals(
       '::3a',
       (new Inet6Address("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0:", true))->asString() // ord(':')==0x32
     );
@@ -45,7 +45,7 @@ class Inet6AddressTest extends \unittest\TestCase {
 
   #[Test]
   public function addressIsShortened() {
-    $this->assertEquals(
+    Assert::equals(
       'febc:a574:382b::4592:4efe:9982',
       (new Inet6Address('febc:a574:382b:0000:0000:4592:4efe:9982'))->asString()
     );
@@ -53,7 +53,7 @@ class Inet6AddressTest extends \unittest\TestCase {
   
   #[Test]
   public function addressShorteningOnlyTakesPlaceOnce() {
-    $this->assertEquals(
+    Assert::equals(
       'febc::23c1:aa49:0:0:9982',
       (new Inet6Address('febc:0000:0000:23c1:aa49:0000:0000:9982'))->asString()
     );
@@ -61,7 +61,7 @@ class Inet6AddressTest extends \unittest\TestCase {
   
   #[Test]
   public function hexquadsAreShortenedWhenStartingWithZero() {
-    $this->assertEquals(
+    Assert::equals(
       'febc:a574:2b:23c1:aa49:4592:4efe:9982',
       (new Inet6Address('febc:a574:002b:23c1:aa49:4592:4efe:9982'))->asString()
     );
@@ -69,7 +69,7 @@ class Inet6AddressTest extends \unittest\TestCase {
   
   #[Test]
   public function addressPrefixIsShortened() {
-    $this->assertEquals(
+    Assert::equals(
       '::382b:23c1:aa49:4592:4efe:9982',
       (new Inet6Address('0000:0000:382b:23c1:aa49:4592:4efe:9982'))->asString()
     );
@@ -77,7 +77,7 @@ class Inet6AddressTest extends \unittest\TestCase {
   
   #[Test]
   public function addressPostfixIsShortened() {
-    $this->assertEquals(
+    Assert::equals(
       'febc:a574:382b:23c1:aa49::',
       (new Inet6Address('febc:a574:382b:23c1:aa49:0000:0000:0000'))->asString()
     );
@@ -85,32 +85,32 @@ class Inet6AddressTest extends \unittest\TestCase {
   
   #[Test]
   public function loopbackAddress() {
-    $this->assertEquals('::1', (new Inet6Address('::1'))->asString());
+    Assert::equals('::1', (new Inet6Address('::1'))->asString());
   }
   
   #[Test]
   public function isLoopbackAddress() {
-    $this->assertTrue((new Inet6Address('::1'))->isLoopback());
+    Assert::true((new Inet6Address('::1'))->isLoopback());
   }
   
   #[Test]
   public function isNotLoopbackAddress() {
-    $this->assertFalse((new Inet6Address('::2'))->isLoopback());
+    Assert::false((new Inet6Address('::2'))->isLoopback());
   }
   
   #[Test]
   public function inSubnet() {
-    $this->assertTrue((new Inet6Address('::1'))->inSubnet(new Network(new Inet6Address('::1'), 120)));
+    Assert::true((new Inet6Address('::1'))->inSubnet(new Network(new Inet6Address('::1'), 120)));
   }
   
   #[Test]
   public function inSmallestPossibleSubnet() {
-    $this->assertTrue((new Inet6Address('::1'))->inSubnet(new Network(new Inet6Address('::0'), 127)));
+    Assert::true((new Inet6Address('::1'))->inSubnet(new Network(new Inet6Address('::0'), 127)));
   }
   
   #[Test]
   public function notInSubnet() {
-    $this->assertFalse((new Inet6Address('::1'))->inSubnet(new Network(new Inet6Address('::0101'), 120)));
+    Assert::false((new Inet6Address('::1'))->inSubnet(new Network(new Inet6Address('::0101'), 120)));
   }
 
   #[Test, Expect(FormatException::class)]
@@ -150,22 +150,22 @@ class Inet6AddressTest extends \unittest\TestCase {
 
   #[Test]
   public function sameIPsShouldBeEqual() {
-    $this->assertEquals(new Inet6Address('::1'), new Inet6Address('::1'));
+    Assert::equals(new Inet6Address('::1'), new Inet6Address('::1'));
   }
 
   #[Test]
   public function differentIPsShouldBeDifferent() {
-    $this->assertNotEquals(new Inet6Address('::1'), new Inet6Address('::fe08'));
+    Assert::notequals(new Inet6Address('::1'), new Inet6Address('::fe08'));
   }
 
   #[Test]
   public function castToString() {
-    $this->assertEquals('[::1]', (string)new Inet6Address('::1'));
+    Assert::equals('[::1]', (string)new Inet6Address('::1'));
   }
 
   #[Test]
   public function reversedNotation() {
-    $this->assertEquals(
+    Assert::equals(
       'b.a.9.8.7.6.5.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa',
       (new Inet6Address('2001:db8::567:89ab'))->reversedNotation()
     );
@@ -176,18 +176,18 @@ class Inet6AddressTest extends \unittest\TestCase {
     $addr= new Inet6Address('febc:a574:382b:23c1:aa49:4592:4efe:9982');
     $subNetSize= 64;
     $expAddr= new Inet6Address('febc:a574:382b:23c1::');
-    $this->assertEquals($expAddr->asString(), $addr->createSubnet($subNetSize)->getAddress()->asString());
+    Assert::equals($expAddr->asString(), $addr->createSubnet($subNetSize)->getAddress()->asString());
     
     $subNetSize= 48;
     $expAddr= new Inet6Address('febc:a574:382b::');
-    $this->assertEquals($expAddr->asString(), $addr->createSubnet($subNetSize)->getAddress()->asString());
+    Assert::equals($expAddr->asString(), $addr->createSubnet($subNetSize)->getAddress()->asString());
     
     $subNetSize= 35;
     $expAddr= new Inet6Address('febc:a574:2000::');
-    $this->assertEquals($expAddr->asString(), $addr->createSubnet($subNetSize)->getAddress()->asString());
+    Assert::equals($expAddr->asString(), $addr->createSubnet($subNetSize)->getAddress()->asString());
     
     $subNetSize= 128;
     $expAddr= $addr;
-    $this->assertEquals($expAddr->asString(), $addr->createSubnet($subNetSize)->getAddress()->asString());      
+    Assert::equals($expAddr->asString(), $addr->createSubnet($subNetSize)->getAddress()->asString());      
   }
 }
