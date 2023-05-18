@@ -1,20 +1,17 @@
 <?php namespace peer\unittest\server;
 
-use test\{Assert, Before, Test};
+use peer\unittest\StartServer;
+use test\{Assert, Test};
 
+#[StartServer(TestingServer::class, ['peer.unittest.server.TestingProtocol', 'peer.server.Server'])]
 class ServerTest extends AbstractServerTest {
   
-  #[Before]
-  public function startServer() {
-    $this->startServerWith('peer.unittest.server.TestingProtocol', 'peer.server.Server');
-  }
-
   #[Test]
   public function connected() {
     $socket= $this->newSocket();
     $client= $this->connectTo($socket);
 
-    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('CONNECT '.$client, $this->server->err->readLine());
   }
 
   #[Test]
@@ -23,7 +20,7 @@ class ServerTest extends AbstractServerTest {
     $client= $this->connectTo($socket);
     $socket->close();
 
-    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
-    Assert::equals('DISCONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('CONNECT '.$client, $this->server->err->readLine());
+    Assert::equals('DISCONNECT '.$client, $this->server->err->readLine());
   }
 }

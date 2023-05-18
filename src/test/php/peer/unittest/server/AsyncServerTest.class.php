@@ -1,20 +1,12 @@
 <?php namespace peer\unittest\server;
 
 use peer\server\AsyncServer;
-use test\{Assert, Before, Ignore, Test, Values};
+use peer\unittest\StartServer;
+use test\{Assert, Ignore, Test, Values};
 
+#[StartServer(TestingServer::class, ['peer.unittest.server.TestingProtocol', 'peer.server.AsyncServer'])]
 class AsyncServerTest extends AbstractServerTest {
   
-  /**
-   * Starts server in background
-   *
-   * @return void
-   */
-  #[Before]
-  public function startServer() {
-    $this->startServerWith('peer.unittest.server.TestingProtocol', 'peer.server.AsyncServer');
-  }
-
   #[Test]
   public function scheduled_function_immediately_invoked() {
     $invoked= 0;
@@ -56,7 +48,7 @@ class AsyncServerTest extends AbstractServerTest {
     $socket= $this->newSocket();
     $client= $this->connectTo($socket);
 
-    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('CONNECT '.$client, $this->server->err->readLine());
   }
 
   #[Test]
@@ -65,8 +57,8 @@ class AsyncServerTest extends AbstractServerTest {
     $client= $this->connectTo($socket);
     $socket->close();
 
-    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
-    Assert::equals('DISCONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('CONNECT '.$client, $this->server->err->readLine());
+    Assert::equals('DISCONNECT '.$client, $this->server->err->readLine());
   }
 
   #[Test]
@@ -82,8 +74,8 @@ class AsyncServerTest extends AbstractServerTest {
     $socket->close();
     Assert::equals(['1', '2', '3'], $read);
 
-    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
-    Assert::equals('DISCONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('CONNECT '.$client, $this->server->err->readLine());
+    Assert::equals('DISCONNECT '.$client, $this->server->err->readLine());
   }
 
   #[Test]
@@ -99,7 +91,7 @@ class AsyncServerTest extends AbstractServerTest {
     $socket->close();
     Assert::equals(['1', '2', '3'], $read);
 
-    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
-    Assert::equals('DISCONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('CONNECT '.$client, $this->server->err->readLine());
+    Assert::equals('DISCONNECT '.$client, $this->server->err->readLine());
   }
 }
