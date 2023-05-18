@@ -3,6 +3,9 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #27: Migrate to new testing library - @thekid
+* Merged PR #26: Migrate to baseless tests - @thekid
+
 ## 10.4.1 / 2023-05-01
 
 * Fixed vagary of stream_select() sometimes not preserving array keys.
