@@ -1,8 +1,8 @@
 <?php namespace peer\unittest\server;
 
-use lang\{Runtime, IllegalStateException};
+use lang\{IllegalStateException, Runtime};
 use peer\Socket;
-use unittest\{After, AfterClass, PrerequisitesNotMetError};
+use test\{After, AfterClass, PrerequisitesNotMetError};
 
 abstract class AbstractServerTest {
   protected static $serverProcess;

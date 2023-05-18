@@ -2,7 +2,7 @@
 
 use lang\FormatException;
 use peer\net\{Inet4Address, Inet6Address, InetAddressFactory};
-use unittest\{Assert, Before, Expect, Test, Values};
+use test\{Assert, Before, Expect, Test, Values};
 
 class InetAddressFactoryTest {
   private $cut;

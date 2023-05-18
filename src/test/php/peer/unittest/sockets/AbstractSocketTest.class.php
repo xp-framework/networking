@@ -1,52 +1,37 @@
 <?php namespace peer\unittest\sockets;
 
-use lang\Runtime;
+use lang\Process;
+use peer\unittest\StartServer;
 use peer\{ConnectException, Socket, SocketEndpoint, SocketException, SocketTimeoutException};
-use unittest\actions\IsPlatform;
-use unittest\{Assert, After, Expect, Ignore, Test};
+use test\{After, Assert, Expect, Ignore, Test};
 
+#[StartServer(TestingServer::class)]
 abstract class AbstractSocketTest {
-  protected static $bindAddress= [null, -1];
+  protected $server, $endpoint;
   protected $sockets= [];
 
-  /**
-   * Callback for when server is connected
-   *
-   * @param  string $bindAddress
-   * @return vid
-   */
-  public static function connected($bindAddress) {
-    self::$bindAddress= explode(':', $bindAddress);
+  /** Creates a new instance with a running server and connection endpoint */
+  public function __construct(Process $server, SocketEndpoint $endpoint) {
+    $this->server= $server;
+    $this->endpoint= $endpoint;
   }
 
-  /**
-   * Callback for when server should be shut down
-   *
-   * @return vid
-   */
-  public static function shutdown() {
-    $c= new Socket(self::$bindAddress[0], self::$bindAddress[1]);
-    $c->connect();
-    $c->write("HALT\n");
-    $c->close();
-  }
-  
   /**
    * Creates a new client socket
    *
-   * @param   string addr
-   * @param   int port
-   * @return  peer.Socket
+   * @param  string $addr
+   * @param  int $port
+   * @return peer.Socket
    */
   protected abstract function newSocket($addr, $port);
 
   /**
    * Creates a new client socket
    *
-   * @return  peer.Socket
+   * @return peer.Socket
    */
   protected function newFixture() {
-    $s= $this->newSocket(self::$bindAddress[0], self::$bindAddress[1]);
+    $s= $this->newSocket($this->endpoint->getHost(), $this->endpoint->getPort());
     $this->sockets[]= $s;
     return $s;
   }
@@ -73,6 +58,11 @@ abstract class AbstractSocketTest {
     }
   }
 
+  #[After]
+  public function shutdown() {
+    $this->server->terminate(10);
+  }
+
   #[Test]
   public function initiallyNotConnected() {
     $fixture= $this->newFixture();
@@ -88,17 +78,17 @@ abstract class AbstractSocketTest {
 
   #[Test, Expect(ConnectException::class)]
   public function connectInvalidPort() {
-    $this->newSocket(self::$bindAddress[0], -1)->connect(0.1);
+    $this->newSocket($this->endpoint->getHost(), -1)->connect(0.1);
   }
 
   #[Test, Expect(ConnectException::class)]
   public function connectInvalidHost() {
-    $this->newSocket('@invalid', self::$bindAddress[1])->connect(0.1);
+    $this->newSocket('@invalid', $this->endpoint->getPort())->connect(0.1);
   }
 
   #[Test, Expect(ConnectException::class)]
   public function connectIANAReserved49151() {
-    $this->newSocket(self::$bindAddress[0], 49151)->connect(0.1);
+    $this->newSocket($this->endpoint->getHost(), 49151)->connect(0.1);
   }
 
   #[Test]
@@ -361,7 +351,7 @@ abstract class AbstractSocketTest {
   public function remoteEndpoint() {
     $fixture= $this->newFixture();
     Assert::equals(
-      new SocketEndpoint(self::$bindAddress[0], self::$bindAddress[1]),
+      new SocketEndpoint($this->endpoint->getHost(), $this->endpoint->getPort()),
       $fixture->remoteEndpoint()
     );
   }

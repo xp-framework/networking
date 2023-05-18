@@ -1,7 +1,7 @@
 <?php namespace peer\unittest\sockets;
 
 use peer\SocketTimeoutException;
-use unittest\{Assert, Test};
+use test\{Assert, Test};
 
 class SocketTimeoutExceptionTest {
 

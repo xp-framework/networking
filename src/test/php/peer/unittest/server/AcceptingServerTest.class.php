@@ -1,6 +1,6 @@
 <?php namespace peer\unittest\server;
 
-use unittest\{Assert, Before, Test};
+use test\{Assert, Before, Test};
 
 class AcceptingServerTest extends AbstractServerTest {
   

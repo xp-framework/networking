@@ -3,7 +3,7 @@
 use lang\FormatException;
 use peer\SocketEndpoint;
 use peer\net\{Inet4Address, Inet6Address};
-use unittest\{Assert, Expect, Test, Values};
+use test\{Assert, Expect, Test, Values};
 
 class SocketEndpointTest {
 

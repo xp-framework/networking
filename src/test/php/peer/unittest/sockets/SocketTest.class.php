@@ -1,10 +1,7 @@
 <?php namespace peer\unittest\sockets;
 
 use peer\Socket;
-use peer\unittest\StartServer;
-use unittest\actions\VerifyThat;
 
-#[Action(eval: 'new StartServer(TestingServer::class, "connected", "shutdown")')]
 class SocketTest extends AbstractSocketTest {
 
   /**

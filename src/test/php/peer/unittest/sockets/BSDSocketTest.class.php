@@ -2,11 +2,10 @@
 
 use lang\IllegalStateException;
 use peer\BSDSocket;
-use peer\unittest\StartServer;
-use unittest\actions\{Actions, ExtensionAvailable};
-use unittest\{Assert, Expect, Test};
+use test\verify\Runtime;
+use test\{Assert, Expect, Test};
 
-#[Action(eval: '[new ExtensionAvailable("sockets"), new StartServer(TestingServer::class, "connected", "shutdown")]')]
+#[Runtime(extensions: ['sockets'])]
 class BSDSocketTest extends AbstractSocketTest {
 
   /**
