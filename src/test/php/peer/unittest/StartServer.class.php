@@ -3,6 +3,7 @@
 use lang\{Runtime, IllegalStateException};
 use peer\SocketEndpoint;
 use test\Provider;
+use test\execution\Context;
 
 class StartServer implements Provider {
   private $process, $endpoint;
@@ -21,7 +22,7 @@ class StartServer implements Provider {
     $this->endpoint= SocketEndpoint::valueOf($endpoint);
   }
 
-  public function values($type, $instance= null) {
+  public function values(Context $context) {
     return [$this->process, $this->endpoint];
   }
 }
