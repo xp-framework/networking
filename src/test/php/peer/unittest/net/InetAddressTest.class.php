@@ -1,8 +1,8 @@
 <?php namespace peer\unittest\net;
 
 use lang\FormatException;
-use peer\net\{InetAddress, Inet4Address, Inet6Address};
-use unittest\{Assert, Expect, Test};
+use peer\net\{Inet4Address, Inet6Address, InetAddress};
+use test\{Assert, Expect, Test};
 
 class InetAddressTest {
 

@@ -2,7 +2,7 @@
 
 use lang\FormatException;
 use peer\net\{Inet6Address, Network};
-use unittest\{Assert, Expect, Test};
+use test\{Assert, Expect, Test};
 
 /**
  * IPv6 addresses test 

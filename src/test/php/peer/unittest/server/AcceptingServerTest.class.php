@@ -1,21 +1,18 @@
 <?php namespace peer\unittest\server;
 
-use unittest\{Assert, Before, Test};
+use peer\unittest\StartServer;
+use test\{Assert, Test};
 
+#[StartServer(TestingServer::class, ['peer.unittest.server.AcceptTestingProtocol', 'peer.server.Server'])]
 class AcceptingServerTest extends AbstractServerTest {
   
-  #[Before]
-  public function startServer() {
-    $this->startServerWith('peer.unittest.server.AcceptTestingProtocol', 'peer.server.Server');
-  }
-
   #[Test]
   public function connected() {
     $socket= $this->newSocket();
     $client= $this->connectTo($socket);
 
-    Assert::equals('ACCEPT '.$client, self::$serverProcess->err->readLine());
-    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('ACCEPT '.$client, $this->server->err->readLine());
+    Assert::equals('CONNECT '.$client, $this->server->err->readLine());
   }
 
   #[Test]
@@ -24,8 +21,8 @@ class AcceptingServerTest extends AbstractServerTest {
     $client= $this->connectTo($socket);
     $socket->close();
 
-    Assert::equals('ACCEPT '.$client, self::$serverProcess->err->readLine());
-    Assert::equals('CONNECT '.$client, self::$serverProcess->err->readLine());
-    Assert::equals('DISCONNECT '.$client, self::$serverProcess->err->readLine());
+    Assert::equals('ACCEPT '.$client, $this->server->err->readLine());
+    Assert::equals('CONNECT '.$client, $this->server->err->readLine());
+    Assert::equals('DISCONNECT '.$client, $this->server->err->readLine());
   }
 }

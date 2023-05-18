@@ -2,7 +2,7 @@
 
 use lang\ElementNotFoundException;
 use peer\net\{Inet4Address, Inet6Address, NameserverLookup};
-use unittest\{Assert, Expect, Test};
+use test\{Assert, Expect, Test};
 
 /**
  * Test nameserver lookup API

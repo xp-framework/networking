@@ -2,7 +2,7 @@
 
 use lang\FormatException;
 use peer\net\{Inet4Address, Inet6Address, Network, NetworkParser};
-use unittest\{Assert, Before, Expect, Test, Values};
+use test\{Assert, Before, Expect, Test, Values};
 
 class NetworkParserTest {
   private $fixture;
@@ -40,12 +40,12 @@ class NetworkParserTest {
     );
   }
 
-  #[Test, Expect(FormatException::class), Values('illegal')]
+  #[Test, Expect(FormatException::class), Values(from: 'illegal')]
   public function parse_illegal($input) {
     $this->fixture->parse($input);
   }
 
-  #[Test, Values('illegal')]
+  #[Test, Values(from: 'illegal')]
   public function tryParse_illegal($input) {
     Assert::null($this->fixture->tryParse($input));
   }
