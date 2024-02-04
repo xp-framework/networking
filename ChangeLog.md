@@ -3,6 +3,7 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Added PHP 8.4 to the test matrix - @thekid
 * Merged PR #27: Migrate to new testing library - @thekid
 * Merged PR #26: Migrate to baseless tests - @thekid
 
