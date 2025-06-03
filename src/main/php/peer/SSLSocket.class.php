@@ -8,6 +8,7 @@
  * version is omitted. The constructor's version parameter can be used
  * to explicitely select a specific SSL version by passing 2 or 3.
  *
+ * @deprecated Use EncryptedSocket instead!
  * @see   php://transports
  * @ext   openssl
  */
