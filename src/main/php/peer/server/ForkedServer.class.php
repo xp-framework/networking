@@ -246,7 +246,7 @@ class ForkedServer extends ServerImplementation {
     $null= null;
     do {
       if ($this->select) {
-        $sockets??= current($this->listen)[0]->kind();
+        $sockets ?? $sockets= current($this->listen)[0]->kind();
         $readable= [];
         foreach ($this->select as $i => $select) {
           $readable[$i]= $select[0];
