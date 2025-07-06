@@ -28,7 +28,6 @@ abstract class AbstractServerTest {
     return $socket->readLine();
   }
 
-
   #[After]
   public function closeSockets() {
     foreach ($this->sockets as $socket) {
@@ -38,6 +37,6 @@ abstract class AbstractServerTest {
 
   #[After]
   public function shutdownServer() {
-    $this->server->terminate(10);
+    $this->server->terminate(2);
   }
 }

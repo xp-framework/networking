@@ -15,21 +15,15 @@ use util\cmd\Console;
  * Status reporting is performed on STDERR
  */
 class TestingProtocol implements ServerProtocol {
+  public $server;
 
   /**
    * Initialize the protocol
    *
+   * @param  ?peer.server.Server $server
    */
-  public function initialize() { }
-
-  /**
-   * Returns client ID
-   *
-   * @param   peer.Socket socket
-   * @return  string
-   */
-  protected function hashOf($socket) { 
-    return $socket->hashCode();
+  public function initialize($server= null) {
+    $this->server= $server;
   }
 
   /**
@@ -38,7 +32,7 @@ class TestingProtocol implements ServerProtocol {
    * @param   peer.Socket socket
    */
   public function handleDisconnect($socket) { 
-    Console::$err->writeLine('DISCONNECT ', $this->hashOf($socket));
+    Console::$err->writeLine('DISCONNECT ', $socket->hashCode());
   }
 
   /**
@@ -48,7 +42,7 @@ class TestingProtocol implements ServerProtocol {
    * @param   lang.XPException e
    */
   public function handleError($socket, $e) { 
-    Console::$err->writeLine('ERROR ', $this->hashOf($socket));
+    Console::$err->writeLine('ERROR ', $socket->hashCode());
   }
 
   /**
@@ -57,7 +51,7 @@ class TestingProtocol implements ServerProtocol {
    * @param   peer.Socket socket
    */
   public function handleConnect($socket) { 
-    Console::$err->writeLine('CONNECT ', $this->hashOf($socket));
+    Console::$err->writeLine('CONNECT ', $socket->hashCode());
   }
 
   /**
@@ -69,7 +63,7 @@ class TestingProtocol implements ServerProtocol {
     $cmd= $socket->readLine();
     switch (substr($cmd, 0, 4)) {
       case 'CLNT': {
-        $socket->write($this->hashOf($socket)."\n"); 
+        $socket->write($socket->hashCode()."\n");
         break;
       }
 
@@ -97,7 +91,7 @@ class TestingProtocol implements ServerProtocol {
 
       case 'HALT': {
         $socket->write("+HALT\n"); 
-        $this->server->terminate= true; 
+        $this->server->shutdown();
         break;
       }
     }

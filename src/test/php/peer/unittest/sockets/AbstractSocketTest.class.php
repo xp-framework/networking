@@ -5,7 +5,7 @@ use peer\unittest\StartServer;
 use peer\{ConnectException, Socket, SocketEndpoint, SocketException, SocketTimeoutException};
 use test\{After, Assert, Expect, Ignore, Test};
 
-#[StartServer(TestingServer::class)]
+#[StartServer(protocol: TestingProtocol::class)]
 abstract class AbstractSocketTest {
   protected $server, $endpoint;
   protected $sockets= [];

@@ -1,4 +1,4 @@
-<?php namespace peer\unittest\server;
+<?php namespace peer\unittest;
 
 use lang\{XPClass, Throwable};
 use peer\ServerSocket;
@@ -17,19 +17,16 @@ use util\cmd\Console;
  */
 class TestingServer {
 
-  /**
-   * Start server
-   *
-   * @param   string[] args
-   */
+  /** @param string[] $args */
   public static function main(array $args) {
-    $s= XPClass::forName($args[1] ?? 'peer.server.Server')->newInstance();
-    $socket= new ServerSocket('127.0.0.1', 0);
+    $protocol= XPClass::forName($args[0])->newInstance();
+    $impl= XPClass::forName($args[1])->newInstance();
 
+    $socket= new ServerSocket('127.0.0.1', 0);
     try {
-      $s->listen($socket, XPClass::forName($args[0])->newInstance());
+      $impl->listen($socket, $protocol);
       Console::writeLinef('+ Service %s:%d', $socket->host, $socket->port);
-      $s->service();
+      $impl->service();
       Console::writeLine('+ Done');
     } catch (Throwable $e) {
       Console::writeLine('- ', $e->getMessage());
