@@ -1,6 +1,6 @@
 <?php namespace peer\server;
 
-use lang\{RuntimeError, Throwable, IllegalArgumentException};
+use lang\{RuntimeError, Throwable};
 use peer\server\protocol\SocketAcceptHandler;
 
 /**
@@ -68,12 +68,30 @@ class ForkedServer extends ServerImplementation {
    */
   public function select($socket, $handler, $timeout= false) {
     $next= $timeout ? microtime(true) + $socket->getTimeout() : null;
-    if ($handler instanceof ServerProtocl) {
-      // TBI with continuation API?
-      throw new IllegalArgumentException('Passing protocols not yet supported');
+    if ($handler instanceof ServerProtocol) {
+      $this->select[]= [$socket, $next, new Continuation(function($socket) use($handler) {
+        try {
+
+          // Check for readability, then handle incoming data
+          while ($socket->isConnected() && !$socket->eof()) {
+            yield 'read' => $socket;
+            yield from $handler->handleData($socket) ?? [];
+          }
+
+          // Handle disconnnect gracefully, ensure socket is closed
+          $handler->handleDisconnect($socket);
+          $socket->close();
+        } catch (Throwable $t) {
+
+          // Handle any errors, then close socket
+          $handler->handleError($socket, $t);
+          $socket->close();
+        }
+      })];
     } else {
-      $this->select[]= [$socket, $next, $handler];
+      $this->select[]= [$socket, $next, new Continuation($handler)];
     }
+
     return $this;
   }
 
@@ -255,7 +273,9 @@ class ForkedServer extends ServerImplementation {
         // echo date('H:i:s'), " SELECT 1 @ {", \util\Objects::stringOf($readable), "}\n";
         if ($sockets->select($readable, $null, $null, 1)) {
           foreach ($readable as $i => $socket) {
-            $this->select[$i][2]($socket);
+            if (null === $this->select[$i][2]->continue($socket)) {
+              unset($this->select[$i]);
+            }
           }
         }
       } else {
