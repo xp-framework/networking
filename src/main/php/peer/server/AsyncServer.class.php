@@ -18,6 +18,7 @@ use peer\{ServerSocket, SocketException, SocketTimeoutException};
  *
  * @see   peer.ServerSocket
  * @test  peer.unittest.server.AsyncServerTest
+ * @deprecated In favor of AsynchronousServer
  */
 class AsyncServer extends Server {
   private $select= [], $tasks= [], $continuation= [];

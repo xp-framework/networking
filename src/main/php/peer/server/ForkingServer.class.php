@@ -7,6 +7,7 @@ use lang\SystemException;
  *
  * @ext   pcntl
  * @see   peer.server.Server
+ * @deprecated In favor of ForkedServer
  */
 class ForkingServer extends Server {
   use Pcntl;
