@@ -7,7 +7,7 @@ use test\{Assert, Expect, Test};
 /**
  * Test nameserver lookup API
  *
- * @see   xp://peer.net.NameserverLookup'
+ * @see   peer.net.NameserverLookup'
  */
 class NameserverLookupTest {
 

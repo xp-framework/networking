@@ -3,7 +3,7 @@
 /**
  * Server Protocol: Accept sockets handler
  *
- * @test  xp://peer.unittest.server.AcceptingServerTest
+ * @test  peer.unittest.server.AcceptingServerTest
  */
 interface SocketAcceptHandler {
 

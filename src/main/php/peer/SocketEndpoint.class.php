@@ -6,8 +6,8 @@ use peer\net\InetAddress;
 /**
  * Socket endpoint
  *
- * @test  xp://peer.unittest.sockets.SocketEndpointTest
- * @test  xp://peer.unittest.sockets.AbstractSocketTest
+ * @test  peer.unittest.sockets.SocketEndpointTest
+ * @test  peer.unittest.sockets.AbstractSocketTest
  */
 class SocketEndpoint {
   protected $host= '';

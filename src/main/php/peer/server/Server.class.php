@@ -14,8 +14,8 @@ use peer\{BSDServerSocket, ServerSocket};
  * ```
  *
  * @ext   sockets
- * @see   xp://peer.ServerSocket
- * @test  xp://peer.unittest.server.ServerTest
+ * @see   peer.ServerSocket
+ * @test  peer.unittest.server.ServerTest
  */
 class Server {
   public

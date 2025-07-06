@@ -7,7 +7,7 @@ use util\log\Traceable;
  * Pre-Forking TCP/IP Server
  *
  * @ext   pcntl
- * @see   xp://peer.server.Server
+ * @see   peer.server.Server
  */
 class PreforkingServer extends Server implements Traceable {
   use Pcntl;

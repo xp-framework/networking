@@ -15,7 +15,7 @@ use lang\{FormatException, IllegalArgumentException, Value};
  * echo $u->toString();
  * ```
  *
- * @test   xp://peer.unittest.URLTest
+ * @test   peer.unittest.URLTest
  * @see    php://parse_url
  */
 class URL implements Value {

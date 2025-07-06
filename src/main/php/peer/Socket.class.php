@@ -6,7 +6,7 @@ use lang\Value;
 /**
  * Socket class
  *
- * @test     xp://peer.unittest.sockets.SocketTest
+ * @test     peer.unittest.sockets.SocketTest
  * @see      php://network
  */
 class Socket implements Channel, Value {

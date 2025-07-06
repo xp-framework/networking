@@ -6,7 +6,7 @@ use lang\SystemException;
  * Forking TCP/IP Server
  *
  * @ext   pcntl
- * @see   xp://peer.server.Server
+ * @see   peer.server.Server
  */
 class ForkingServer extends Server {
   use Pcntl;

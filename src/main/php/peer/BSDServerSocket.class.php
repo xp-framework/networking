@@ -3,7 +3,7 @@
 /**
  * BSDSocket server implementation
  *
- * @see      xp://peer.BSDSocket
+ * @see      peer.BSDSocket
  * @ext      sockets
  */
 class BSDServerSocket extends BSDSocket {

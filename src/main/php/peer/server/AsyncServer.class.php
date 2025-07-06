@@ -16,8 +16,8 @@ use peer\{ServerSocket, SocketException, SocketTimeoutException};
  * $server->service();
  * ```
  *
- * @see   xp://peer.ServerSocket
- * @test  xp://peer.unittest.server.AsyncServerTest
+ * @see   peer.ServerSocket
+ * @test  peer.unittest.server.AsyncServerTest
  */
 class AsyncServer extends Server {
   private $select= [], $tasks= [], $continuation= [];

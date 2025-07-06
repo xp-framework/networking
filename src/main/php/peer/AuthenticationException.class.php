@@ -3,7 +3,7 @@
 /**
  * Indicate an error occured during authentication
  *
- * @see      xp://peer.SocketException
+ * @see      peer.SocketException
  */
 class AuthenticationException extends SocketException {
   public

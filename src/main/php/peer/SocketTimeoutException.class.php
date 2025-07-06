@@ -3,9 +3,9 @@
 /**
  * Indicate a timeout occurred on a socket read
  *
- * @test     xp:// peer.unittest.sockets.SocketTimeoutExceptionTest
- * @see      xp://peer.Socket#setTimeout
- * @see      xp://peer.SocketException
+ * @test      peer.unittest.sockets.SocketTimeoutExceptionTest
+ * @see      peer.Socket#setTimeout
+ * @see      peer.SocketException
  */
 class SocketTimeoutException extends SocketException {
   protected $timeout= 0.0;

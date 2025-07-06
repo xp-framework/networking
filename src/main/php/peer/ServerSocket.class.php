@@ -5,9 +5,9 @@ use lang\IllegalAccessException;
 /**
  * Socket server implementation
  *
- * @see   xp://peer.Socket
+ * @see   peer.Socket
  * @see   php://stream_socket_server
- * @test  xp://peer.unittest.server.ServerTest
+ * @test  peer.unittest.server.ServerTest
  */
 class ServerSocket extends Socket {
 

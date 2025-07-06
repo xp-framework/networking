@@ -8,7 +8,7 @@
  * fails - in this situation, the server will call an implementation's
  * <tt>handleOutOfResources</tt> method before closing the client socket.
  *
- * @see   xp://peer.server.ForkingServer
+ * @see   peer.server.ForkingServer
  */
 interface OutOfResourcesHandler {
 

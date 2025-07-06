@@ -3,7 +3,7 @@
 /**
  * Server Protocol
  *
- * @see   xp://peer.server.Server#listen
+ * @see   peer.server.Server#listen
  */
 interface ServerProtocol {
 

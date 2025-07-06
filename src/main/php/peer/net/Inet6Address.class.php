@@ -6,7 +6,7 @@ use util\Objects;
 /**
  * IPv6 address
  *
- * @test  xp://peer.unittest.net.Inet6AddressTest
+ * @test  peer.unittest.net.Inet6AddressTest
  */
 class Inet6Address extends InetAddress {
   private $addr;

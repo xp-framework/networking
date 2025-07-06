@@ -39,7 +39,7 @@ use util\cmd\Console;
  *   <li>On errors during any phase, "- " and the exception message are written</li>
  * </ul>
  *
- * @see   xp://peer.unittest.sockets.SocketTest
+ * @see   peer.unittest.sockets.SocketTest
  */
 class TestingServer {
 
