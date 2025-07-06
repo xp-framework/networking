@@ -3,7 +3,7 @@
 use peer\unittest\StartServer;
 use test\{Assert, Test};
 
-#[StartServer(TestingServer::class, ['peer.unittest.server.AcceptTestingProtocol', 'peer.server.Server'])]
+#[StartServer(protocol: AcceptTestingProtocol::class)]
 class AcceptingServerTest extends AbstractServerTest {
   
   #[Test]

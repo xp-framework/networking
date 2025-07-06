@@ -2,9 +2,10 @@
 
 use peer\server\AsyncServer;
 use peer\unittest\StartServer;
-use test\{Assert, Ignore, Test, Values};
+use test\{Assert, Test, Values};
 
-#[StartServer(TestingServer::class, ['peer.unittest.server.TestingProtocol', 'peer.server.AsyncServer'])]
+/** @deprecated in favor of AsynchronousServerTest */
+#[StartServer(protocol: TestingProtocol::class, implementation: AsyncServer::class)]
 class AsyncServerTest extends AbstractServerTest {
   
   #[Test]

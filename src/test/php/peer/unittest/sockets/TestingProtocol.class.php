@@ -27,9 +27,8 @@ use peer\server\ServerProtocol;
  * @see   peer.unittest.sockets.SocketTest
  */
 class TestingProtocol implements ServerProtocol {
-  public $server= null;
 
-  public function initialize() { }
+  public function initialize($server= null) { }
 
   public function handleConnect($socket) { }
   
