@@ -27,9 +27,7 @@ class AsyncServer extends Server {
 
     // For PHP < 7.3.0
     if (!function_exists('array_key_last')) {
-      function array_key_last(&$array) {
-        return key(array_slice($array, -1, 1, true));
-      }
+      eval('function array_key_last($array) { end($array); return key($array); }');
     }
   }
 
