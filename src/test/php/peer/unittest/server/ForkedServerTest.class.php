@@ -5,8 +5,7 @@ use peer\unittest\StartServer;
 use test\verify\Runtime;
 use test\{Assert, Test};
 
-#[Runtime(extensions: ['pcntl'])]
-#[StartServer(protocol: TestingProtocol::class, implementation: ForkedServer::class)]
+#[Runtime(extensions: ['pcntl']), StartServer(protocol: TestingProtocol::class, implementation: ForkedServer::class)]
 class ForkedServerTest extends AbstractServerTest {
 
   #[Test]
