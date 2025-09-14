@@ -328,13 +328,4 @@ class ForkedServer extends ServerImplementation {
   public function shutdown() {
     posix_kill($this->parent, SIGTERM);
   }
-
-  /**
-   * Creates a string representation
-   *
-   * @return  string
-   */
-  public function toString() {
-    return nameof($this).'(children: '.$this->children.', maxrequests: '.$this->maxrequests.')';
-  }
 }

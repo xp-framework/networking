@@ -245,13 +245,4 @@ class AsynchronousServer extends ServerImplementation {
   public function shutdown() {
     $this->terminate= true;
   }
-
-  /**
-   * Creates a string representation
-   *
-   * @return  string
-   */
-  public function toString() {
-    return nameof($this);
-  }
 }
