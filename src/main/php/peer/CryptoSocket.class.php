@@ -6,6 +6,7 @@ use security\cert\X509Certificate;
  * Intermediate common class for all cryptographic socket classes such
  * as SSLSocket and TLSSocket.
  *
+ * @deprecated Use EncryptedSocket instead!
  * @see  http://php.net/manual/en/context.ssl.php
  */
 class CryptoSocket extends Socket {
