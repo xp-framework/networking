@@ -3,7 +3,12 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
-* Added PHP 8.5 to the test matrix - @thekid
+## 10.5.1 / 2026-02-15
+
+* Fixed async server to ignore generator values for unknown keys, see
+  https://github.com/xp-framework/core/pull/357#issuecomment-3905214369
+  (@thekid)
+* Added PHP 8.5 and 8.6 to the test matrix - @thekid
 
 ## 10.5.0 / 2024-03-24
 
