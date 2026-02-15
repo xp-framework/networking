@@ -6,7 +6,7 @@ use test\{Assert, Test, Values};
 
 #[StartServer(protocol: TestingProtocol::class, implementation: AsynchronousServer::class)]
 class AsynchronousServerTest extends AbstractServerTest {
-  
+
   #[Test]
   public function scheduled_function_immediately_invoked() {
     $invoked= 0;

@@ -10,7 +10,7 @@ use peer\{ServerSocket, SocketException, SocketTimeoutException};
  *
  * ```php
  * use peer\server\AsynchronousServer;
- *   
+ *
  * $server= new AsynchronousServer();
  * $server->listen(new ServerSocket('127.0.0.1', 6100), new MyProtocol());
  * $server->service();
@@ -128,7 +128,7 @@ class AsynchronousServer extends ServerImplementation {
     });
 
     return $this;
-  } 
+  }
 
   /**
    * Runs service until shutdown() is called.

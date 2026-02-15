@@ -8,7 +8,7 @@ use peer\server\protocol\SocketAcceptHandler;
  *
  * ```php
  * use peer\server\ForkedServer;
- *   
+ *
  * $server= new ForkedServer(children: 20);
  * $server->listen(new ServerSocket('127.0.0.1', 6100), new MyProtocol());
  * $server->service();
