@@ -217,11 +217,17 @@ class AsyncServer extends Server {
             $wait[]= $this->select[$i]->getTimeout();
             break;
 
-          case 'delay': default:
+          case 'delay':
             $delay= $execute->current() / 1000;
             $continuation->next= $time + $delay;
             $waitable[$i]= true;
             $wait[]= $delay;
+            break;
+
+          default:
+            $continuation->next= $time;
+            $waitable[$i]= true;
+            $wait[]= 0;
             break;
         }
       }
