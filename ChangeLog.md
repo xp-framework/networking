@@ -3,7 +3,7 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
-* Added PHP 8.5 to the test matrix - @thekid
+* Added PHP 8.5 and 8.6 to the test matrix - @thekid
 
 ## 10.5.0 / 2024-03-24
 
