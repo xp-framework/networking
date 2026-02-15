@@ -9,18 +9,18 @@ use peer\{ServerSocket, SocketException, SocketTimeoutException};
  * Asynchronous TCP/IP Server
  *
  * ```php
- * use peer\server\AsyncServer;
- *   
- * $server= new AsyncServer();
+ * use peer\server\AsynchronousServer;
+ *
+ * $server= new AsynchronousServer();
  * $server->listen(new ServerSocket('127.0.0.1', 6100), new MyProtocol());
  * $server->service();
  * ```
  *
  * @see   peer.ServerSocket
- * @test  peer.unittest.server.AsyncServerTest
- * @deprecated In favor of AsynchronousServer
+ * @test  peer.unittest.server.AsynchronousServerTest
  */
-class AsyncServer extends Server {
+class AsynchronousServer extends ServerImplementation {
+  private $terminate= false;
   private $select= [], $tasks= [], $continuation= [];
 
   static function __static() {
@@ -43,8 +43,7 @@ class AsyncServer extends Server {
     $socket->bind(true);
     $socket->listen();
 
-    $protocol->server= $this;
-    $protocol->initialize();
+    $protocol->initialize($this);
 
     $i= $this->select ? array_key_last($this->select) + 1 : 1;
     $this->select[$i]= $socket;
@@ -58,7 +57,8 @@ class AsyncServer extends Server {
 
         $this->tcpnodelay && $connection->useNoDelay();
         $protocol->handleConnect($connection);
-        yield 'accept' => $this->select($connection, $protocol);
+        $this->select($connection, $protocol);
+        yield 'accept' => $connection;
       } while (!$this->terminate);
     });
 
@@ -68,22 +68,14 @@ class AsyncServer extends Server {
   }
 
   /**
-   * Shutdown the server
-   *
-   * @return void
-   */
-  public function shutdown() {
-    $this->terminate= true;
-  }
-
-  /**
    * Adds socket to select, associating a function to call for data
    *
    * @param  peer.Socket|peer.BSDSocket $socket
-   * @param  peer.Protocol|function(peer.Socket|peer.BSDSocket): void $handler
-   * @return peer.Socket|peer.BSDSocket
+   * @param  peer.ServerProtocol|function(peer.Socket|peer.BSDSocket): void $handler
+   * @param  bool $timeout
+   * @return self
    */
-  public function select($socket, $handler) {
+  public function select($socket, $handler, $timeout= false) {
     $i= $this->select ? array_key_last($this->select) + 1 : 1;
     $this->select[$i]= $socket;
     if ($handler instanceof ServerProtocol) {
@@ -109,37 +101,34 @@ class AsyncServer extends Server {
     } else {
       $this->continuation[$i]= new Continuation($handler);
     }
-    return $socket;
+
+    // Unless explicitely given, ensure sockets we select on never timeout
+    $timeout || $this->continuation[$i]->next= null;
+    return $this;
   }
 
   /**
-   * Schedule a given task to execute every given seconds. The task
-   * function can return how many seconds its next invocation should
-   * occur, overwriting the default value given here. If this number
-   * is negative, the task stops running. Returns the added task's ID.
+   * Schedule a given task to execute every given interval.
    *
-   * Note: If the task function raises any exception the task stops
-   * running. To continue executing, exceptions must be caught and
-   * handled within the function!
-   *
-   * @param  int|float $seconds
+   * @param  int|float $interval
    * @param  function(): ?int|float
-   * @return int
+   * @return self
    */
-  public function schedule($seconds, $function) {
+  public function schedule($interval, $function) {
     $i= $this->tasks ? array_key_last($this->tasks) - 1 : -1;
     $this->tasks[$i]= $function;
-    $this->continuation[$i]= new Continuation(function($function) use($seconds) {
+    $this->continuation[$i]= new Continuation(function($function) use($interval) {
       try {
-        while (($seconds= $function() ?? $seconds) >= 0) {
-          yield 'delay' => $seconds * 1000;
+        while (($interval= $function() ?? $interval) >= 0) {
+          yield 'delay' => $interval * 1000;
         }
       } catch (Throwable $t) {
         // Not displayed, simply stops execution
       }
     });
-    return $i;
-  } 
+
+    return $this;
+  }
 
   /**
    * Runs service until shutdown() is called.
@@ -255,11 +244,11 @@ class AsyncServer extends Server {
   }
 
   /**
-   * Creates a string representation
+   * Shutdown the server
    *
-   * @return  string
+   * @return void
    */
-  public function toString() {
-    return nameof($this);
+  public function shutdown() {
+    $this->terminate= true;
   }
 }

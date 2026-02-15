@@ -1,17 +1,18 @@
 <?php namespace peer\unittest\server;
 
+use peer\server\ForkedServer;
 use peer\unittest\StartServer;
+use test\verify\Runtime;
 use test\{Assert, Test};
 
-#[StartServer(protocol: AcceptTestingProtocol::class)]
-class AcceptingServerTest extends AbstractServerTest {
-  
+#[Runtime(extensions: ['pcntl']), StartServer(protocol: TestingProtocol::class, implementation: ForkedServer::class)]
+class ForkedServerTest extends AbstractServerTest {
+
   #[Test]
   public function connected() {
     $socket= $this->newSocket();
     $client= $this->connectTo($socket);
 
-    Assert::equals('ACCEPT '.$client, $this->server->err->readLine());
     Assert::equals('CONNECT '.$client, $this->server->err->readLine());
   }
 
@@ -21,7 +22,6 @@ class AcceptingServerTest extends AbstractServerTest {
     $client= $this->connectTo($socket);
     $socket->close();
 
-    Assert::equals('ACCEPT '.$client, $this->server->err->readLine());
     Assert::equals('CONNECT '.$client, $this->server->err->readLine());
     Assert::equals('DISCONNECT '.$client, $this->server->err->readLine());
   }

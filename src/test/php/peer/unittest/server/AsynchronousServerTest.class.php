@@ -1,17 +1,16 @@
 <?php namespace peer\unittest\server;
 
-use peer\server\AsyncServer;
+use peer\server\AsynchronousServer;
 use peer\unittest\StartServer;
 use test\{Assert, Test, Values};
 
-/** @deprecated in favor of AsynchronousServerTest */
-#[StartServer(protocol: TestingProtocol::class, implementation: AsyncServer::class)]
-class AsyncServerTest extends AbstractServerTest {
-  
+#[StartServer(protocol: TestingProtocol::class, implementation: AsynchronousServer::class)]
+class AsynchronousServerTest extends AbstractServerTest {
+
   #[Test]
   public function scheduled_function_immediately_invoked() {
     $invoked= 0;
-    $s= new AsyncServer();
+    $s= new AsynchronousServer();
     $s->schedule(1, function() use($s, &$invoked) {
       $invoked++;
       $s->shutdown();
@@ -29,7 +28,7 @@ class AsyncServerTest extends AbstractServerTest {
     $delay= 0.05; // 50 ms
 
     $invoked= 0;
-    $s= new AsyncServer();
+    $s= new AsynchronousServer();
     $s->schedule($delay, function() use($s, $executions, &$invoked) {
       $invoked++;
       if ($invoked >= $executions) $s->shutdown();

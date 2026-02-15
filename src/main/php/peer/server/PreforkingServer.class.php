@@ -8,6 +8,7 @@ use util\log\Traceable;
  *
  * @ext   pcntl
  * @see   peer.server.Server
+ * @deprecated In favor of ForkedServer
  */
 class PreforkingServer extends Server implements Traceable {
   use Pcntl;
