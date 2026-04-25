@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #29: Add new `peer.server.ServerImplementation` API. This
+  replaces the now depreacted `peer.server.Server` interface.
+  (@thekid)
+
 ## 10.5.1 / 2026-02-15
 
 * Fixed async server to ignore generator values for unknown keys, see
