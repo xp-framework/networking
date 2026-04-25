@@ -59,12 +59,13 @@ Server
 package peer.server {
   public interface peer.server.ServerProtocol
 
-  public class peer.server.AsyncServer
-  public class peer.server.EventServer
-  public class peer.server.EventSocket
-  public class peer.server.ForkingServer
-  public class peer.server.PreforkingServer
-  public class peer.server.Server
+  public trait peer.server.Pcntl
+
+  public abstract class peer.server.ServerImplementation
+
+  public class peer.server.AsynchronousServer
+  public class peer.server.Continuation
+  public class peer.server.ForkedServer
 }
 
 package peer.server.protocol {
