@@ -23,14 +23,6 @@ class AsynchronousServer extends ServerImplementation {
   private $terminate= false;
   private $select= [], $tasks= [], $continuation= [];
 
-  static function __static() {
-
-    // For PHP < 7.3.0
-    if (!function_exists('array_key_last')) {
-      eval('function array_key_last($array) { end($array); return key($array); }');
-    }
-  }
-
   /**
    * Adds server socket to listen on, associating protocol handler with it
    *
