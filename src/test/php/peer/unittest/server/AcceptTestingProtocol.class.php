@@ -12,7 +12,7 @@ class AcceptTestingProtocol extends TestingProtocol implements SocketAcceptHandl
    * @return  bool
    */
   public function handleAccept($socket) { 
-    Console::$err->writeLine('ACCEPT ', $this->hashOf($socket));
+    Console::$err->writeLine('ACCEPT ', $socket->hashCode());
     return true;
   }
 }

@@ -2,14 +2,24 @@
 
 use lang\{Runtime, IllegalStateException};
 use peer\SocketEndpoint;
+use peer\server\AsynchronousServer;
 use test\Provider;
 use test\execution\Context;
 
 class StartServer implements Provider {
   private $process, $endpoint;
 
-  public function __construct($implementation, $arguments= []) {
-    $this->process= Runtime::getInstance()->newInstance(null, 'class', strtr($implementation, '\\', '.'), $arguments);
+  /**
+   * Starts a testing server
+   *
+   * @param  string $protocol Protocol class
+   * @param  string $implementation Server implementation class
+   */
+  public function __construct($protocol, $implementation= AsynchronousServer::class) {
+    $this->process= Runtime::getInstance()->newInstance(null, 'class', 'peer.unittest.TestingServer', [
+      $protocol,
+      $implementation,
+    ]);
     $this->process->in->close();
 
     // Check if startup succeeded
@@ -22,6 +32,7 @@ class StartServer implements Provider {
     $this->endpoint= SocketEndpoint::valueOf($endpoint);
   }
 
+  /** @return var */
   public function values(Context $context) {
     return [$this->process, $this->endpoint];
   }

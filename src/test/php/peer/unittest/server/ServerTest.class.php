@@ -1,9 +1,11 @@
 <?php namespace peer\unittest\server;
 
+use peer\server\Server;
 use peer\unittest\StartServer;
 use test\{Assert, Test};
 
-#[StartServer(TestingServer::class, ['peer.unittest.server.TestingProtocol', 'peer.server.Server'])]
+/** @deprecated the basic TCP/IP server will be removed */
+#[StartServer(protocol: TestingProtocol::class, implementation: Server::class)]
 class ServerTest extends AbstractServerTest {
   
   #[Test]

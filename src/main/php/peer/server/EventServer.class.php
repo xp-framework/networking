@@ -5,6 +5,7 @@
  *
  * @ext   event
  * @see   http://pecl.php.net/package/event
+ * @deprecated In favor of AsynchronousServer
  */
 class EventServer extends Server {
   

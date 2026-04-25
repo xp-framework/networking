@@ -16,6 +16,7 @@ use peer\{BSDServerSocket, ServerSocket};
  * @ext   sockets
  * @see   peer.ServerSocket
  * @test  peer.unittest.server.ServerTest
+ * @deprecated In favor of the new ServerImplementation interface
  */
 class Server {
   public
