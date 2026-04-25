@@ -6,9 +6,9 @@
   "description" : "Networking for the XP Framework: Client and server APIs",
   "keywords": ["module", "xp"],
   "require" : {
-    "xp-framework/core": "^12.0 | ^11.0 | ^10.0 | ^9.0 | ^8.0 | ^7.0",
-    "xp-framework/logging": "^11.0 | ^10.0 | ^9.0 | ^8.0 | ^7.0",
-    "php" : ">=7.0.0"
+    "xp-framework/core": "^12.0 | ^11.0 | ^10.0",
+    "xp-framework/logging": "^11.0 | ^10.0",
+    "php" : ">=7.4.0"
   },
   "require-dev" : {
     "xp-framework/test": "^2.0 | ^1.0"

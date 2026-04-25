@@ -3,6 +3,10 @@ Networking changelog
 
 ## ?.?.? / ????-??-??
 
+## 11.0.0 / ????-??-??
+
+* **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
+  (@thekid)
 * Merged PR #29: Add new `peer.server.ServerImplementation` API. This
   replaces the now depreacted `peer.server.Server` interface.
   (@thekid)
