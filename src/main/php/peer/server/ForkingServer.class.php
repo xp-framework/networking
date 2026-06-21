@@ -1,5 +1,6 @@
 <?php namespace peer\server;
 
+use io\OperationFailed;
 use lang\SystemException;
 
 /**
@@ -34,7 +35,7 @@ class ForkingServer extends Server {
     while (!$this->terminate) {
       try {
         $m= $this->socket->accept();
-      } catch (\io\IOException $e) {
+      } catch (OperationFailed $e) {
         $this->shutdown();
         break;
       }
@@ -84,7 +85,7 @@ class ForkingServer extends Server {
         do {
           try {
             foreach ($this->protocol->handleData($m) ?? [] as $_) { }
-          } catch (\io\IOException $e) {
+          } catch (OperationFailed $e) {
             $this->protocol->handleError($m, $e);
             break;
           }
