@@ -1,5 +1,6 @@
 <?php namespace peer\server;
 
+use io\OperationFailed;
 use lang\RuntimeError;
 use util\log\Traceable;
 
@@ -130,7 +131,7 @@ class PreforkingServer extends Server implements Traceable {
 
         try {
           foreach ($this->protocol->handleData($m) ?? [] as $_) { }
-        } catch (\io\IOException $e) {
+        } catch (OperationFailed $e) {
           $this->protocol->handleError($m, $e);
           break;
         }

@@ -1,5 +1,6 @@
 <?php namespace peer\server;
 
+use io\OperationFailed;
 use peer\{BSDServerSocket, ServerSocket};
 
 /**
@@ -191,7 +192,7 @@ class Server {
         $lastAction[$index]= $currentTime;
         try {
           foreach ($this->protocol->handleData($handles[$index]) ?? [] as $_) { }
-        } catch (\io\IOException $e) {
+        } catch (OperationFailed $e) {
           $this->protocol->handleError($handles[$index], $e);
           $handles[$index]->close();
           unset($handles[$index]);
