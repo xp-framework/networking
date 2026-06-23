@@ -3,6 +3,7 @@
 /**
  * TLS socket
  *
+ * @deprecated Use EncryptedSocket instead!
  * @ext      openssl
  */
 class TLSSocket extends CryptoSocket {
