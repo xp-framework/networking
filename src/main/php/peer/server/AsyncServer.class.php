@@ -84,7 +84,7 @@ class AsyncServer extends Server {
 
           // Check for readability, then handle incoming data
           while ($socket->isConnected() && !$socket->eof()) {
-            yield 'read' => $socket;
+            yield 'read' => null;
             yield from $handler->handleData($socket) ?? [];
           }
 
@@ -131,7 +131,21 @@ class AsyncServer extends Server {
       }
     });
     return $i;
-  } 
+  }
+
+  /**
+   * Returns a slot to watch for a given socket
+   *
+   * @param  peer.Socket|peer.BSDSocket $socket
+   * @param  int $signal the slot to signal
+   * @return int
+   */
+  private function watch($socket, $signal) {
+    $slot= $this->select ? array_key_last($this->select) + 1 : 1;
+    $this->select[$slot]= $socket;
+    $this->continuation[$slot]= new Continuation(function() use($signal) { yield 'signal' => $signal; });
+    return $slot;
+  }
 
   /**
    * Runs service until shutdown() is called.
@@ -184,11 +198,17 @@ class AsyncServer extends Server {
           continue;
         }
 
-        // `yield 'accept' => $socket`: Check for being able to read from socket
-        // `yield 'read' => $_`: Continue as soon as the socket becomes readable
-        // `yield 'write' => $_`: Continue as soon as the socket becomes writeable
-        // `yield 'delay' => $millis`: Wait a specified number of milliseconds
-        // `yield`: Continue at the next possible execution slot (`delay => 0`)
+        // Internal use:
+        // * `yield 'accept' => $socket`: Check for being able to read from socket
+        // * `yield 'signal' => $n`: Finish signalling task, continue slot #n immediately
+        //
+        // Public use:
+        // * `yield 'read' => null`: Continue once this socket becomes readable
+        // * `yield 'write' => null`: Continue once this socket becomes writeable
+        // * `yield 'read' => $socket`: Continue as soon as the socket becomes readable
+        // * `yield 'write' => $socket`: Continue as soon as the socket becomes writeable
+        // * `yield 'delay' => $millis`: Wait a specified number of milliseconds
+        // * `yield`: Continue at the next possible execution slot (`delay => 0`)
         switch ($execute->key()) {
           case 'accept':
             $socket= $execute->current();
@@ -197,13 +217,21 @@ class AsyncServer extends Server {
             $wait[]= $socket->getTimeout();
             break;
 
+          case 'signal':
+            unset($this->tasks[$i], $this->select[$i], $this->continuation[$i], $write[$i]);
+            $waitable[$execute->current()]= true;
+            $wait[]= 0;
+            break;
+
           case 'write':
+            if ($s= $execute->current()) $i= $this->watch($s, $i);
             $write[$i]= true;
             $writeable[$i]= $this->select[$i];
             $wait[]= $this->select[$i]->getTimeout();
             break;
 
           case 'read':
+            if ($s= $execute->current()) $i= $this->watch($s, $i);
             unset($write[$i]);
             $readable[$i]= $this->select[$i];
             $wait[]= $this->select[$i]->getTimeout();
