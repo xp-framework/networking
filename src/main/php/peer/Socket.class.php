@@ -351,17 +351,19 @@ class Socket implements Channel, Value {
    * @throws  peer.SocketException in case of an error
    */
   public function write($str) {
+    $len= strlen($str);
     if (null === $this->_sock) {
-      throw new SocketException('Write of '.strlen($str).' bytes to socket failed: Socket closed');
+      throw new SocketException('Write of '.$len.' bytes to socket failed: Socket closed');
     }
 
-    if (false === ($bytesWritten= fputs($this->_sock, $str, $len= strlen($str)))) {
+    $w= fwrite($this->_sock, $str, $len);
+    if (false === $w || 0 === $w) {
       $e= new SocketException('Write of '.$len.' bytes to socket failed: '.$this->getLastError());
       \xp::gc(__FILE__);
       throw $e;
     }
     
-    return $bytesWritten;
+    return $w;
   }
 
   /**
